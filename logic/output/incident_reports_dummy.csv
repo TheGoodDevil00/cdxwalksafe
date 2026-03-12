@@ -1,201 +1,501 @@
 id,latitude,longitude,incident_type,description,created_at
-38bf177a-a871-47dc-bcf8-5f6b5a1b7e4b,18.503741,73.85682,Stalking,Someone was taking photos of people walking by without consent.,2026-03-01 19:29:01
-82125f00-8c89-4575-8156-ffae172ef0bc,18.504914,73.862544,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-09 14:58:55
-608c89f8-d372-467c-a399-4d719b06d168,18.541544,73.863134,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-15 23:36:01
-e4816f92-8056-4f34-82e9-2766ec50897a,18.521859,73.872156,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-25 22:08:04
-a247f259-bc7a-4fe3-8907-2da31af39ce9,18.508057,73.854883,Stalking,A person followed me for three consecutive blocks.,2026-02-14 13:53:58
-daf306ac-7e52-4375-9c5a-78249da52b93,18.509515,73.856129,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-19 00:40:30
-afc61604-db59-4308-89c5-088a44b136e2,18.514472,73.863385,Harrasment,Aggressive panhandling at the intersection.,2026-02-25 08:55:48
-5f3ba40e-1690-4223-b886-02b83d5d9386,18.524231,73.845078,Poor lighting,Streetlights are completely out on this block.,2026-02-28 17:15:40
-5e80ac33-104a-4a70-8e21-caa10b0e8d9a,18.50118,73.860231,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-25 17:25:45
-dbb027c3-49e9-4520-ad89-cc77c96958c6,18.517252,73.870355,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-06 11:18:37
-e2f520ba-97bd-494f-a60a-7cb4a736dd14,18.500384,73.863614,Poor lighting,Streetlights are completely out on this block.,2026-02-18 23:18:15
-3f1d9202-722c-4c3b-a8d0-7475875f250d,18.533757,73.843669,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-12 15:33:37
-b268dca8-127a-45c2-9455-75a6876bcfc4,18.537967,73.856898,Stalking,A person followed me for three consecutive blocks.,2026-02-26 09:35:14
-b2b875a2-f048-40be-b4f1-604036acc4d2,18.534454,73.845231,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-03 06:20:06
-5d6abd08-22b8-46c3-bc8a-6e5a17adb398,18.531879,73.837523,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-23 17:11:29
-c83f21c7-e5c6-4b9d-86a3-7c28808af5ee,18.54131,73.848308,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-28 01:37:41
-361e8809-c9a4-4eee-a6db-de7846144e9b,18.503023,73.855386,Stalking,A person followed me for three consecutive blocks.,2026-02-22 15:06:39
-b5271abb-902f-40d2-943a-bb8eef2ebdff,18.506167,73.846474,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-07 19:06:19
-86ae1c0d-9306-4bdf-bae1-ca296a034d29,18.521622,73.839508,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-15 14:47:26
-05ebabbc-558b-4ccc-91cc-8f1785eab90d,18.506608,73.860202,Stalking,A person followed me for three consecutive blocks.,2026-03-07 13:17:12
-ecdf8d62-fb47-48c5-b0ac-fd5edac158d6,18.53226,73.852333,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-03 11:59:33
-87b92ea0-9913-4633-8b22-4cc5340837ef,18.50597,73.853349,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-08 18:39:23
-5c1f854e-4e6a-42da-84bc-315957156bfd,18.50523,73.861926,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-09 17:57:03
-87ea8a70-6791-4c37-9ecc-f3f6ebaed844,18.541849,73.852766,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-14 04:26:18
-6a2c6921-03a7-4728-8d13-d9135f3434e5,18.521987,73.862839,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-23 07:39:53
-f5f638cb-f37b-473e-b1b1-b1ba62a29b29,18.503304,73.842096,Poor lighting,Flickering lights make it hard to see the footpath.,2026-03-01 10:44:59
-525e7ab1-15ee-4559-8c8d-b307eda7ed9a,18.523139,73.871288,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-19 02:29:29
-119c4d9f-7530-4c31-9426-3759ce3588a1,18.521349,73.863112,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-26 07:56:00
-26991528-584f-4b78-b159-0f679e426451,18.534316,73.840975,Poor lighting,Streetlights are completely out on this block.,2026-02-22 00:53:03
-266f5427-1f54-4898-bcd9-0a78ec63b757,18.532709,73.866988,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-12 11:24:22
-8e499490-d55b-45eb-bd8b-7d0c4ac4485c,18.516087,73.85562,Poor lighting,Flickering lights make it hard to see the footpath.,2026-03-04 01:45:41
-48be5b98-f499-4757-a437-747a66fa7851,18.538709,73.860135,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-10 17:32:37
-deded2c0-a030-4223-b3f1-7d29ed32c122,18.527137,73.876106,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-28 11:49:46
-1550b9fb-e539-4bc7-ba9b-d4def7b62e95,18.520764,73.874544,Harrasment,Someone yelled obscenities at me while passing by.,2026-03-02 17:36:03
-a8aed4aa-56ac-4c89-a2cc-847dc4296cdb,18.504278,73.841205,Harrasment,A group of people were catcalling pedestrians.,2026-03-04 23:48:34
-da491b7f-12cd-4662-935b-ef5aff470578,18.518663,73.846748,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-26 22:00:09
-8b22ac69-3e8b-4b1e-8635-2a2b20f07050,18.523306,73.871828,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-03-05 15:10:04
-dacc5481-1417-41f7-b723-41ca86f0c09a,18.503805,73.850722,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-03-06 13:52:53
-4ade72e5-c730-48ad-b6d5-1a8fd5b800c9,18.518526,73.851279,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-20 12:57:33
-cdc72130-2554-4259-b751-56c150460f86,18.53542,73.848153,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-15 00:46:30
-fb510fa0-2fb0-498e-ba19-7046c06ec2ac,18.510072,73.872569,Harrasment,Someone yelled obscenities at me while passing by.,2026-03-04 15:13:45
-5db52692-052b-44cc-8a5c-1a0dc95d3421,18.537823,73.853115,Harrasment,Aggressive panhandling at the intersection.,2026-02-08 06:55:10
-4b1e4c4d-23b5-494d-8e01-8a341171d347,18.523024,73.862661,Stalking,Someone was taking photos of people walking by without consent.,2026-02-14 05:31:06
-293a0c81-0b0b-4a96-9b21-98cdf307d26b,18.532133,73.838374,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-22 16:45:34
-be9232c6-981e-4d95-8eef-3aa5b13e186c,18.501437,73.84917,Stalking,Someone was taking photos of people walking by without consent.,2026-02-11 17:07:41
-63c7de5c-1456-4267-888c-933e007359de,18.503711,73.848171,Harrasment,A group of people were catcalling pedestrians.,2026-03-06 08:14:34
-70629dea-4cd8-448f-accc-b2db36d580a8,18.518724,73.850205,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-27 13:31:26
-aa96787c-41f4-4380-8cfd-361abad02c49,18.514029,73.861378,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-01 09:51:15
-905c6df5-0111-4e0b-8824-e3f36bf93a2d,18.536992,73.868252,Poor lighting,Streetlights are completely out on this block.,2026-02-19 15:32:08
-c2bf8233-edc9-4ce7-bbea-0aa982859ee4,18.532922,73.871472,Stalking,A person followed me for three consecutive blocks.,2026-03-06 06:26:10
-114f5ba6-8406-4f76-aaf4-fdc5ba49aa67,18.513965,73.857495,Harrasment,Aggressive panhandling at the intersection.,2026-03-08 12:58:37
-6179fd5b-c50c-47fb-b608-95c9111f8233,18.524381,73.867066,Suspicious Activity,Unattended bag left near the bus stand.,2026-03-05 01:51:14
-c8339106-55da-4002-8509-cff813e394d2,18.534132,73.856237,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-19 14:37:58
-862ff3c5-eaf5-4762-8193-b7eca9d81702,18.501745,73.86312,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-28 18:51:02
-f0ed1926-db75-460c-8675-cf01173e1237,18.5334,73.855943,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-04 01:19:19
-d6e6220e-17c9-4f6f-97d1-79d80ea7592c,18.505757,73.852476,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-27 02:27:08
-3c8bcf65-ac45-4975-9e40-3139b345381f,18.514159,73.843032,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-18 08:17:18
-db6aee5d-5a8b-411d-8c00-6710af4bf69e,18.533683,73.866928,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-27 20:18:28
-53bf5968-e8ad-4115-97a9-4f0f388e8740,18.527447,73.843528,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-21 09:17:23
-1ebbe57d-16aa-49f2-82fd-3686ef6c9e47,18.504925,73.861748,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-14 13:07:55
-916f9350-5a92-4774-8e09-4bcbb9ea1b05,18.521585,73.834742,Harrasment,Aggressive panhandling at the intersection.,2026-03-03 04:37:40
-7653eec9-ebae-4a85-8ca8-9f0cc5b2521b,18.500864,73.845629,Harrasment,Someone yelled obscenities at me while passing by.,2026-03-02 14:39:43
-618f8a2d-ebd3-4e1b-ba74-92de5d4b59f6,18.526129,73.866324,Poor lighting,Streetlights are completely out on this block.,2026-03-02 19:47:52
-f93e93dd-1c0f-4b0a-af6f-c681c72ddf5d,18.514986,73.86162,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-16 23:14:57
-68e06cc7-43cb-4d2f-811c-abb0ece0f9c0,18.501892,73.845019,Harrasment,A group of people were catcalling pedestrians.,2026-02-22 11:11:37
-85ad2bcd-24e5-4624-b6b1-cb171cb5c66a,18.500501,73.861148,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-25 06:01:06
-c38903c5-c119-4850-8393-eb2d791a3aba,18.50843,73.853499,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-14 10:34:13
-1f5a6371-e182-42a7-aa2c-ac0522bb8d36,18.528516,73.862902,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-23 05:56:18
-7aefcc78-bb34-4c28-a17b-a0798af6e534,18.512131,73.861908,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-03-01 02:43:57
-82a4fa91-b69f-4f14-b7dd-7d71e382b48e,18.524275,73.856078,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-16 07:54:26
-bca40f47-9fa7-48a4-8578-c06be3814994,18.528385,73.874246,Harrasment,A group of people were catcalling pedestrians.,2026-02-09 07:15:29
-03c09bc2-0503-40ae-b30d-cd505dfccb3c,18.523643,73.868392,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-20 11:40:06
-de2b0e2d-6c8a-416e-8244-a3cd31302c43,18.52181,73.833286,Stalking,A person followed me for three consecutive blocks.,2026-02-15 21:44:39
-42c8b851-1087-428c-bc29-4c684990efc6,18.536539,73.855038,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-15 20:37:14
-4e2ff9d3-9856-448a-a6df-2c73bd92220e,18.513951,73.84724,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-22 09:09:11
-d2dd7bbd-63c2-4c57-80b1-f681d482e222,18.500936,73.855911,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-15 18:16:06
-71102a7a-ad4f-4f9a-ba64-80e2c4b20dee,18.523472,73.833759,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-19 08:18:18
-a9144380-fa44-4a34-8f4e-99e2ee2a4790,18.501121,73.849646,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-15 12:45:13
-154fc81b-f1a5-4e6e-badc-76d31adde29e,18.519226,73.843169,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-04 12:19:45
-2f3823a1-b50a-4be6-9003-5107841af09c,18.521051,73.87102,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-17 20:39:05
-7c10f721-7850-4fdf-8221-b9c22de04bcd,18.510587,73.854376,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-13 03:15:09
-44afeded-c7ea-4985-8683-91d589cc2917,18.502603,73.856533,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-20 11:58:15
-308413bd-ae29-4ef8-9667-c59617d78837,18.522303,73.865878,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-20 08:29:28
-ac75dfbd-ae69-4f44-aee2-737fb0d0e923,18.508667,73.841765,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-03-04 10:11:29
-e72f17ce-f089-42e8-81ab-ba5747466b5e,18.517903,73.86721,Poor lighting,Streetlights are completely out on this block.,2026-02-20 21:41:00
-9bc32dfb-decd-4023-9aff-186bc4aebfde,18.514287,73.844332,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-24 04:59:11
-ab30fc89-d264-47c4-8eff-531aadede966,18.514795,73.841661,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-01 03:08:02
-e299af64-7ff6-4408-82ac-25ce69e44987,18.52274,73.859672,Stalking,Someone was taking photos of people walking by without consent.,2026-02-09 12:08:51
-7ab61ff2-964a-4679-bb26-672ab88ebc67,18.514112,73.850165,Harrasment,A group of people were catcalling pedestrians.,2026-02-21 22:03:39
-36305cb6-64e5-4670-b240-4bd698331ceb,18.533352,73.838396,Stalking,A person followed me for three consecutive blocks.,2026-03-03 17:36:48
-e20ee8b5-060e-4b3e-9a28-275ecf5619b7,18.53341,73.859069,Stalking,Someone was taking photos of people walking by without consent.,2026-03-02 22:56:46
-1db40ea8-0852-4dc0-85a8-1115b7d0e5bf,18.511468,73.856331,Harrasment,A group of people were catcalling pedestrians.,2026-02-20 00:13:48
-3d87c444-64d7-468b-b7f4-113158886e65,18.513028,73.871991,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-08 02:27:13
-be7a4b5d-490e-46b5-81e0-9bf90fabe3a7,18.508726,73.846643,Stalking,A person followed me for three consecutive blocks.,2026-02-10 16:49:34
-6617e0b2-bfb4-4f5f-96d1-c9eb4acce9fd,18.519287,73.833986,Harrasment,A group of people were catcalling pedestrians.,2026-02-18 00:12:36
-00ed16b4-4381-446a-a46a-70296c85cf75,18.519542,73.859116,Poor lighting,Flickering lights make it hard to see the footpath.,2026-03-06 21:06:43
-7493312c-5915-47a2-9172-2dfb1672e8ce,18.538036,73.861656,Harrasment,Aggressive panhandling at the intersection.,2026-02-07 10:08:25
-29b0be4b-de08-4478-b9de-648372f586e8,18.537676,73.842256,Poor lighting,Flickering lights make it hard to see the footpath.,2026-03-03 18:48:39
-239341cb-a58b-410d-a231-49f12f381ea0,18.53968,73.849168,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-01 06:15:55
-cbf38c92-d6b9-4dc2-84b6-11ed7e5b87d5,18.520017,73.865856,Stalking,Someone was taking photos of people walking by without consent.,2026-02-26 01:54:52
-a69f6826-45ce-454c-a6c9-7e506365ce91,18.505173,73.858188,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-28 01:15:11
-e51282bf-d84f-4231-9a23-1fceb401b2f0,18.510781,73.842186,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-11 21:44:56
-a45167ef-de4e-4cfe-9173-f2d45ca6a742,18.533988,73.840275,Poor lighting,Streetlights are completely out on this block.,2026-02-26 23:35:41
-d4e03008-06c0-415c-8470-b0cebb9c61d4,18.508765,73.836635,Stalking,A person followed me for three consecutive blocks.,2026-02-18 15:06:13
-2705c916-5cea-4e25-accc-879471397af4,18.512942,73.843604,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-09 20:50:34
-a308fe62-122d-454d-908a-d93570f30053,18.536504,73.85809,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-03-02 02:06:15
-d82c6eff-97a9-440b-bda1-477fd0badb0f,18.511848,73.867735,Stalking,A person followed me for three consecutive blocks.,2026-03-02 02:10:11
-8ff40e99-fad1-43d9-9f7e-536074c3c5e8,18.530131,73.854957,Stalking,Someone was taking photos of people walking by without consent.,2026-03-03 20:56:03
-897ed90d-7db2-4d21-987f-b41a8940e139,18.521031,73.85233,Stalking,A person followed me for three consecutive blocks.,2026-02-09 10:17:20
-2ee93a32-2874-4899-bcd6-6a3bcd0685f6,18.507192,73.857079,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-15 08:08:32
-2db84657-41ba-4411-9179-f4a842067fa2,18.529524,73.836649,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-07 20:11:13
-879f226b-d432-4a21-90ed-780d9b387cae,18.508893,73.84878,Poor lighting,Streetlights are completely out on this block.,2026-02-12 09:16:36
-17079f44-cc8a-4225-b682-c48284d830b8,18.504511,73.856349,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-05 04:58:43
-d4bbc9be-9750-4aee-bd8d-88251266ee78,18.521916,73.850519,Harrasment,Aggressive panhandling at the intersection.,2026-02-21 23:23:35
-80cf72d2-6e50-4cc0-8972-a363715036c7,18.50117,73.858026,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-17 01:08:59
-4aeae4a8-9167-4bbb-afa2-be5d87e405aa,18.507585,73.871994,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-16 17:40:22
-9cb3aef3-81a2-46b4-9a5b-e2d42597c85b,18.516908,73.86119,Harrasment,Someone yelled obscenities at me while passing by.,2026-03-05 18:31:39
-b1a5ef3e-ecfa-4335-b032-28c5788328dc,18.516334,73.838278,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-16 20:17:07
-bfc82e09-c216-4bd2-bc03-5da3f81f173f,18.506538,73.846994,Harrasment,Aggressive panhandling at the intersection.,2026-03-04 21:39:42
-7677cec1-5fee-4481-800c-cee846005acb,18.528118,73.843622,Harrasment,Aggressive panhandling at the intersection.,2026-02-09 11:54:45
-b9721809-1f4c-4277-90fc-1500c73731e2,18.51587,73.847528,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-07 19:13:41
-6745d368-c173-445e-a703-7bc7b9b6cabd,18.499471,73.862345,Harrasment,A group of people were catcalling pedestrians.,2026-02-07 14:23:16
-10aebd54-0a0e-4c96-93b3-24af6f4b8058,18.515731,73.864077,Poor lighting,Streetlights are completely out on this block.,2026-02-20 20:02:20
-cb2a2d41-cf1a-45e8-bc1b-5b697f736edd,18.521106,73.857285,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-22 06:31:14
-5c4dafb2-b7a5-4f0a-9a79-858e220af9af,18.528941,73.856754,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-04 19:41:32
-6e311abe-0984-4b56-8658-a0a4fdabd0c0,18.513661,73.856783,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-21 11:37:49
-a994e5fc-4f40-44eb-aaec-dc4792c08a59,18.530888,73.86819,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-03-07 14:22:05
-07670e93-aa0b-435c-a122-dac4b383eb98,18.522,73.861399,Harrasment,A group of people were catcalling pedestrians.,2026-02-14 18:17:15
-c56e1602-6106-4e3c-9683-18c15dffe0c3,18.528418,73.855607,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-21 01:14:04
-8bb7ce04-fffc-4ef6-a77c-ae9c7e3b16ac,18.530843,73.865379,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-18 03:26:20
-63c08680-3adc-4994-a990-e1d0b426bdb9,18.516203,73.841767,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-07 20:23:31
-ec872102-60a0-407e-a653-9d90e7ab1826,18.533432,73.862108,Stalking,A person followed me for three consecutive blocks.,2026-02-19 07:12:40
-ece5b973-e75f-46e0-a436-dd72d1d9f96d,18.502725,73.860672,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-13 17:53:56
-bba13d47-e0c0-4792-ba03-0ea91e0a53a0,18.540962,73.849926,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-22 11:36:11
-c99dc31d-f6d1-4482-a812-134e279e2d40,18.532047,73.854202,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-15 02:20:21
-ccfc9416-58f8-40d3-b29c-62d71fe2a8e5,18.53035,73.860293,Stalking,Someone was taking photos of people walking by without consent.,2026-02-11 06:14:23
-d24aac04-cc85-4037-b564-6e23e3ec0aa2,18.504648,73.842847,Suspicious Activity,Unattended bag left near the bus stand.,2026-03-02 12:24:49
-245032ec-5c7f-4c40-a7aa-83eee46077a3,18.504939,73.850524,Stalking,A person followed me for three consecutive blocks.,2026-02-28 13:51:13
-f5832384-bed7-4b5e-8d54-7da21ca633e4,18.528689,73.856344,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-12 11:33:49
-113dbe26-c7dd-4526-92f5-1e912d6a6ca1,18.511366,73.867438,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-09 06:46:42
-40bcd357-0d5c-440d-9ecf-5895ec29045f,18.51633,73.859893,Stalking,Someone was taking photos of people walking by without consent.,2026-02-25 15:07:42
-e6e81513-af50-40ce-b866-a112052a3365,18.537027,73.872662,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-12 13:17:10
-844ee069-44b7-4dda-b64c-9478ce6e4ab5,18.502055,73.847461,Harrasment,A group of people were catcalling pedestrians.,2026-02-23 02:29:46
-baa2d85d-b798-4484-8f3e-e4d5c5bf5603,18.533828,73.858147,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-20 08:05:13
-4c96ede3-e43e-4988-8dd8-c45fadfd8c6e,18.50609,73.863744,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-01 17:33:26
-8d580d5c-3bac-48b4-81e7-e956aa51046d,18.517713,73.853431,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-07 23:53:45
-f4cd746b-e93b-4351-af1f-a82ff1cf6109,18.513404,73.864076,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-19 01:38:34
-9db1ec01-d4af-4de8-9618-818f81e7a6e8,18.522936,73.849641,Stalking,A person followed me for three consecutive blocks.,2026-02-09 06:11:09
-3949a9e5-9ccb-4fa5-9b2d-301e553badc3,18.503716,73.872393,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-15 02:35:42
-5aa149bb-3048-4620-83c6-eae1651baabb,18.506932,73.843025,Poor lighting,Streetlights are completely out on this block.,2026-02-26 18:05:52
-6590b8c3-23a1-4d46-a494-7fb531d62f3c,18.538368,73.865991,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-25 22:53:50
-e4d43d43-7a70-4377-b7b9-b29e36451d5f,18.523283,73.844001,Poor lighting,Streetlights are completely out on this block.,2026-02-24 16:29:43
-6fbb565c-c4d2-4650-8e6c-55c42204c14d,18.514598,73.846972,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-16 15:31:17
-b9435f57-35c4-4d6a-9057-26dcc45848b6,18.538662,73.848771,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-14 06:37:45
-796ba80b-6b48-4749-9b41-24a21a2d9cf6,18.506923,73.874668,Harrasment,Aggressive panhandling at the intersection.,2026-02-13 08:55:56
-f5148d15-a7bd-471c-9852-d14693ec8447,18.526563,73.87538,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-19 05:08:44
-d3474e66-0c0f-491e-944a-357066680341,18.510138,73.865235,Stalking,A person followed me for three consecutive blocks.,2026-02-15 16:09:10
-d62ecce1-d732-4eed-a0ee-fec92d284838,18.500421,73.864889,Poor lighting,Streetlights are completely out on this block.,2026-02-18 19:28:09
-8b8938d0-baa0-46d8-8e93-9743912b129f,18.513093,73.865415,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-21 01:55:53
-c3049e18-0ee7-43cc-ade3-7962909d431a,18.51168,73.857281,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-16 09:46:58
-36753c43-2ab3-42d9-b126-a388f3c28633,18.516437,73.853412,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-07 12:37:51
-082097c4-850b-417a-8a4a-a956867d5214,18.5078,73.843639,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-13 11:31:24
-e3dd30f5-94e2-4ead-923e-2e4d51c85a38,18.507806,73.84465,Poor lighting,Streetlights are completely out on this block.,2026-02-16 23:19:49
-fe36a811-a191-40d1-ab8d-57e124319d49,18.527628,73.851116,Poor lighting,Streetlights are completely out on this block.,2026-02-21 03:00:23
-86de4e1f-dabf-4541-a47d-c2b82cc20f08,18.500685,73.84818,Poor lighting,Streetlights are completely out on this block.,2026-02-24 21:51:59
-863f2fce-7703-4f33-a7fd-7c97f06e64ce,18.511361,73.877142,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-07 10:49:42
-ede519ca-dba7-4829-bc59-193f7ab53f8d,18.538069,73.853727,Harrasment,A group of people were catcalling pedestrians.,2026-03-02 08:44:02
-706a1492-a0f6-4a52-8114-ebf76024cb2e,18.500975,73.846595,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-06 05:41:42
-0c6a85d9-979a-4abe-a0de-9bf928bb4bdf,18.525941,73.863987,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-21 13:38:08
-7d12b86d-f69c-4f04-9908-483991d1181d,18.520508,73.833514,Poor lighting,Flickering lights make it hard to see the footpath.,2026-03-08 08:58:58
-110895a6-1278-472e-96be-593d79d13946,18.511656,73.858347,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-19 22:48:31
-10384894-32a0-4724-a8a0-cc80dc52e15b,18.523681,73.849126,Harrasment,A group of people were catcalling pedestrians.,2026-03-01 16:54:58
-369efba4-03b2-463e-a420-15bb78446339,18.51066,73.866771,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-08 13:54:17
-6c58bfe4-3059-4c01-b85d-5053f41a50d0,18.528752,73.873278,Harrasment,A group of people were catcalling pedestrians.,2026-02-07 07:26:11
-72bb6319-5a2e-46b2-97b7-80a486be91e4,18.515748,73.870231,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-24 13:51:32
-f0daf717-1005-409f-bedf-091cdefc6f36,18.521704,73.860896,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-18 19:47:06
-cb32aa2a-441e-4fe8-9563-de18b516461c,18.503985,73.861636,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-04 12:20:03
-fc92eb5d-501d-43cb-9533-e1944376f678,18.522113,73.871863,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-25 09:43:13
-13a203cc-31fd-4b36-b693-7848a63a5b2b,18.518639,73.871116,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-23 02:31:59
-170ad953-8cfc-43b9-9425-8dbe2abf4103,18.521088,73.854882,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-03-01 10:06:16
-e2dbfd1e-2bae-47af-9863-957a8d86897b,18.523867,73.842481,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-01 14:53:44
-2bba9a38-76f8-4c27-b4ce-c86ff26bcc38,18.51711,73.853631,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-07 00:49:52
-c4b16d11-c04b-4873-b6bd-c346bb6bb359,18.507178,73.859466,Poor lighting,Streetlights are completely out on this block.,2026-02-24 03:20:03
-16bf950e-4408-4638-ab1e-0cf54c0c5216,18.527179,73.846461,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-13 07:57:24
-9cf49867-9b58-4397-bc4c-b94def2b5b59,18.526391,73.865428,Stalking,A person followed me for three consecutive blocks.,2026-02-15 03:22:25
-946dbd2a-5bd8-4ec9-9397-860669966a18,18.537271,73.859373,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-06 19:06:51
-bb705fe6-5e42-4d36-add6-dc996d7f01f6,18.522916,73.851542,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-06 08:02:43
-6f5eef7d-b11a-4281-88be-2865ea4ee89c,18.500927,73.85068,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-10 12:01:48
-cfea7217-4249-4067-b7d0-acee92111b3f,18.542085,73.852328,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-24 12:06:02
-25647338-8efb-4d86-95be-c75e9ea15a5b,18.514481,73.834668,Harrasment,Someone yelled obscenities at me while passing by.,2026-02-23 21:58:24
-dc3b06c4-8b0a-4ac3-a1a8-0abe0c98abfa,18.518832,73.861272,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-10 06:10:50
-5ecffd80-e0fa-4cbb-834b-3e6a9d0c33ae,18.537773,73.856761,Poor lighting,Streetlights are completely out on this block.,2026-02-16 12:22:29
-69181433-90fc-40ee-957d-4691236facc9,18.542185,73.851771,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-25 16:51:26
-e8d4befe-9f46-474d-b2e1-5e755c29f6cf,18.539768,73.865812,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-02-25 10:25:12
-ad5c90d3-90af-4a30-a33c-2aac473b48bb,18.521219,73.853886,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-21 09:35:05
-a248443b-676f-4542-af99-deab98abbf30,18.50666,73.864893,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-23 09:07:29
-6e4e84c6-d1b0-47f3-837a-d17a165e13d4,18.529416,73.847526,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-08 18:24:29
-ec52f441-bf9b-475b-8944-9a2d4e4c205c,18.526243,73.8577,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-27 17:12:53
-1e6735b0-3de3-49eb-87a6-1722fe3f98a1,18.536007,73.855459,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-17 07:24:01
-7c62a0d3-0b47-4596-9c1d-204bb1f729ca,18.498818,73.856349,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-24 10:23:17
+2ecffbe1-9234-4af7-9e98-cac6fb3b9cd5,18.501879,73.866208,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-05 09:46:42
+5342b641-1984-483c-94fe-917d669107de,18.512857,73.850268,Unsafe infrastructure,Exposed electrical wires hanging near the footpath.,2026-02-18 01:16:13
+4ce77fde-5852-494e-b46e-04679d759562,18.509978,73.872579,Stalking,Someone trailed me while pretending to check their phone.,2026-02-26 09:41:23
+72d35118-d886-4cf4-b151-d83ccfc83fe2,18.500834,73.849476,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-22 17:30:34
+87115d6f-d6b4-47c9-8025-d19a10516cb3,18.516791,73.863165,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-02-27 17:03:11
+406e1b5c-4c4e-49dd-b1df-63bdc85aa1e3,18.539242,73.850684,Stalking,Someone waited outside a building and followed me when I left.,2026-03-02 10:32:53
+4eafd5c7-dc26-45a1-b364-acbcd6231623,18.515648,73.877204,Poor lighting,Street corners are shadowy due to missing lights.,2026-02-19 20:46:17
+44f356eb-30a3-46bf-adfb-185dc8071557,18.526889,73.870957,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-03-04 09:14:28
+1cb5da39-ee14-4a62-93c0-f9678b355e6f,18.520142,73.872056,Unsafe infrastructure,Loose paving stones making the sidewalk dangerous.,2026-02-19 00:36:27
+67276718-4f80-4895-8627-a2c273d83a0b,18.50402,73.843522,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-26 17:52:07
+fac6be8a-923e-4da6-ae68-e05466a45051,18.53986,73.849106,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-03-06 23:24:20
+8177f7aa-8753-4daa-ae93-3409ce94f51b,18.526556,73.876176,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-12 05:57:50
+da2626e7-5ca9-4904-9210-82c703a89f4d,18.526878,73.835418,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-28 09:09:57
+d1abe8dd-f5ff-4a0a-8813-3201dcb50b9a,18.52208,73.836834,Poor lighting,The pathway behind the buildings has no lighting at all.,2026-02-16 14:17:06
+dbb5ea48-1147-484e-a1e6-5985f1c5c577,18.533243,73.867479,Stalking,Someone stopped whenever I stopped walking.,2026-02-11 03:53:16
+4ea0de53-fed1-494c-a3a2-735b060261dd,18.514447,73.847861,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-03-08 15:11:02
+b81cfb78-5783-47f9-b789-57a238894799,18.540416,73.864974,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-20 01:56:58
+dc819e14-b096-4b67-a2c1-06cd6a4d9a41,18.516748,73.864362,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-12 11:54:53
+df0c43aa-5a4c-4a76-b41c-8461b592cd6d,18.502254,73.85322,Harassment,Individuals were yelling aggressive remarks toward people passing by.,2026-02-12 09:04:11
+cb17bb69-27cf-49ce-a3d5-1171c02d7d21,18.509704,73.858082,Harassment,Aggressive panhandling at the intersection.,2026-03-02 15:57:00
+fa638a0a-e072-4e99-85e6-db3396ed18b1,18.539024,73.855064,Harassment,Someone mocked and insulted pedestrians walking alone.,2026-02-13 02:38:11
+42b31f19-1495-4a22-8487-f9df7a00b6b6,18.532385,73.862534,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-24 23:42:03
+3a039068-4a27-49a9-8cdb-107658a685cf,18.501298,73.84973,Poor lighting,Broken streetlight leaves the entire corner in darkness.,2026-03-03 23:50:11
+02630a92-5bcf-403b-8e33-efc8385a675d,18.535757,73.842035,Poor lighting,Several lamp posts are present but none are working.,2026-03-06 06:03:47
+de743988-1fb8-438a-af1e-3ccf351f4197,18.531366,73.84596,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-02-17 19:53:10
+79ce3e3b-4ca2-44a1-9c34-806a3fba0240,18.507238,73.875078,Suspicious Activity,A person trying car door handles along the street.,2026-03-07 13:41:13
+86244201-bdb6-48d6-8eca-af4b6a314778,18.520622,73.842267,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-03-05 01:37:00
+84e3247d-f8ca-4c3e-b3fc-404b115893b7,18.525483,73.870224,Suspicious Activity,A person crouching near a vehicle as if tampering with it.,2026-02-24 05:10:08
+6d8016ce-68ff-461a-af09-9003bd23ad40,18.536141,73.844902,Poor lighting,Lights along the alley flicker constantly.,2026-03-09 16:45:05
+dd80f034-8b1c-49f6-8d50-94e55f99b05d,18.505756,73.841321,Harassment,A man kept trying to start unwanted conversations with people walking alone.,2026-02-26 22:47:54
+ad798941-1b4f-47e9-b530-e8c01269c16c,18.503378,73.872212,Stalking,A stranger walked behind me while pretending to be on a call.,2026-02-21 05:51:46
+9a7a037e-4164-4603-82ff-c1c5f944ec3b,18.525785,73.872851,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-12 19:22:14
+b14eb8df-d1ef-4a7a-8c89-48778a56ef7e,18.516926,73.8727,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-25 11:02:47
+f8130d2d-a3d1-47c1-8b5f-064166fbb0d6,18.542454,73.860982,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-03-06 06:58:00
+be5d4d65-32dd-49d6-9b37-7e58031630c0,18.534617,73.853889,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-02-13 13:36:19
+1bc79366-2ae6-49a9-91b9-ed8ceaf3757f,18.526672,73.838177,Stalking,A person kept circling the area on a bicycle watching people.,2026-03-03 01:38:25
+9f65a788-b6f2-44fc-aded-76b47af19257,18.503667,73.844014,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-02-16 15:56:29
+4100b603-e95f-4b62-a329-c0062dbea16f,18.529489,73.854753,Harassment,Aggressive panhandling at the intersection.,2026-02-11 04:57:18
+9197c12e-7361-4b36-abf3-1fc7bfa1b417,18.530929,73.858794,Stalking,A person kept circling the area on a bicycle watching people.,2026-03-03 21:39:55
+f93973c0-92ed-4082-9467-56f51f467df0,18.53829,73.844332,Stalking,A stranger kept maintaining distance but followed my path.,2026-02-12 23:50:51
+a145152a-6438-42ce-89ea-3a7b3a3c2aaa,18.507959,73.854151,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-03-07 02:52:17
+7bbdbb36-7fe2-4e0b-b335-cbc8573cb927,18.509312,73.866781,Stalking,Someone kept turning into the same streets I did.,2026-03-04 19:43:13
+b44628f4-3c23-4219-92ec-fe9a4cbea81f,18.535039,73.859435,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-02-16 22:34:39
+42c10191-1f34-4b6c-92b4-03ff04a18021,18.524137,73.877507,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-03-08 08:41:34
+245019a6-2d3a-45c7-949d-de22a18919e3,18.527596,73.849669,Unsafe infrastructure,Open drainage canal without protective covering.,2026-03-12 17:21:58
+81356695-6540-4c8b-91cf-f23530af6d7f,18.501768,73.860243,Suspicious Activity,Someone inspecting parked bikes closely.,2026-02-15 21:55:20
+c493c5ad-afbb-4c43-8d90-ebc8a5d463b7,18.532879,73.875604,Stalking,A person followed me for three consecutive blocks.,2026-03-03 00:45:45
+401fc09b-5bca-42ca-8dab-89e05b683336,18.522754,73.873814,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-11 08:38:11
+fe42babe-b944-4b78-916a-8a15f601faaf,18.51553,73.855751,Harassment,People sitting on bikes repeatedly shouting at passersby.,2026-03-08 19:54:03
+0653a85e-d559-4a9e-8147-5af61af2e8af,18.514565,73.854432,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-02-19 01:18:56
+c0dd6ce5-8da8-4678-9a89-2494118c89e4,18.522233,73.834443,Stalking,A person followed me for three consecutive blocks.,2026-02-23 10:58:03
+1e95af48-3a04-4bed-9948-58bc5d661276,18.539833,73.847352,Unsafe infrastructure,Broken stairs leading to the pedestrian bridge.,2026-03-01 22:33:02
+ec771ba8-0562-4059-bc60-82654fd0473d,18.525099,73.842011,Stalking,Someone stood across the street watching me for several minutes.,2026-02-26 21:24:45
+90aa26fa-f3db-4d10-8156-be150a2f8ecf,18.508564,73.869138,Stalking,A person followed me for three consecutive blocks.,2026-02-11 23:39:05
+bad68172-5850-4902-b050-62b555b3a6ca,18.49803,73.855585,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-02-25 21:01:27
+3aade670-38a3-4c5a-beb9-761f80a4e0d3,18.519546,73.841443,Poor lighting,Most of the streetlights along this road are not working.,2026-03-01 07:22:25
+0e0ba820-479d-4e5b-88f4-9685e95303ef,18.507589,73.870057,Poor lighting,The pedestrian bridge has no lighting at night.,2026-02-26 06:28:53
+ce256a1c-cc94-4d11-b2ef-f4e78ab78fa8,18.507766,73.861746,Suspicious Activity,A person walking around the same block multiple times.,2026-02-22 00:00:01
+7d39a3a4-57e9-4924-ad0f-b87ebe65f3ff,18.503209,73.85171,Suspicious Activity,Someone inspecting parked bikes closely.,2026-02-18 10:39:02
+b956617e-b028-49e4-9fb9-9ce4037bb265,18.535553,73.872676,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-17 14:05:53
+d1a0c2f4-8d6b-4f6c-8434-d42284df21b3,18.54192,73.850744,Poor lighting,The park entrance is completely dark at night.,2026-02-17 16:43:49
+8b20ffb9-b30b-431c-81f6-62a3470a1d9e,18.539629,73.861649,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-08 22:26:46
+279f9654-586c-4cdf-92ff-7ac5c50e3adc,18.510008,73.867454,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-22 07:35:19
+bb26af85-4aa6-4a62-8cd3-7d6701b88f99,18.533659,73.859456,Unsafe infrastructure,Broken stairs leading to the pedestrian bridge.,2026-02-11 17:07:32
+fd8defbc-13b1-49d2-af90-2eda4a6da3b6,18.507892,73.864504,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-03-09 00:49:02
+3eec4ea7-f24d-4029-ba26-afb4978ff707,18.517694,73.864128,Unsafe infrastructure,Temporary construction fencing blocking the walkway.,2026-02-22 14:46:37
+48bee7e8-13fd-4143-b026-8c32c6554f7e,18.505559,73.852761,Unsafe infrastructure,Loose paving stones making the sidewalk dangerous.,2026-03-07 10:56:42
+ae561126-516b-4495-9f00-362252046426,18.517447,73.836686,Poor lighting,The lights near the underpass are not functioning.,2026-03-05 10:49:56
+b4d043a7-29ec-4a08-b77e-3833f8dbd7d4,18.536787,73.856561,Stalking,Someone on a scooter slowly followed me along the road.,2026-02-24 08:07:35
+1cfc771b-2e19-4de5-88de-53e32da9cc6a,18.53766,73.844662,Suspicious Activity,Unknown person trying to access locked gates.,2026-02-12 15:29:43
+a091f762-a11c-49c1-8905-217a6bc343ab,18.523139,73.839204,Suspicious Activity,A person walking around the same block multiple times.,2026-02-16 16:17:06
+cd05e81b-6096-4783-bfbd-943b509dc241,18.532729,73.837568,Unsafe infrastructure,Temporary construction fencing blocking the walkway.,2026-03-08 02:21:45
+09bb5d13-6802-4140-9262-abc9e0f5ed8b,18.501935,73.850419,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-02-23 05:18:47
+fc836fbb-e4cb-4974-ac6e-931be85c7960,18.54009,73.853075,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-02-14 00:55:43
+efec3a43-8f18-4fab-94d3-7765dcf0cd04,18.512743,73.840729,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-02-18 23:02:31
+4ddb1f5e-ae07-456c-a79a-2bba726ae323,18.527405,73.840622,Stalking,Someone waited outside a building and followed me when I left.,2026-03-06 09:35:39
+77b76133-2777-46ab-a9d7-e57c1f8f1305,18.508821,73.847803,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-03-09 14:35:34
+3aa81ad3-0bbb-4ab9-8b36-423da9ab9640,18.514096,73.851347,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-03-03 21:32:36
+89cea928-38bb-4a85-ae26-242d0d8a6a63,18.508089,73.867702,Stalking,Someone followed me across multiple crossings without explanation.,2026-02-25 21:47:33
+078f2427-173a-4ce2-a5ae-6ea3e09b2cbf,18.525367,73.867485,Suspicious Activity,A person walking around the same block multiple times.,2026-03-01 13:57:49
+f18d6689-ef53-4894-9ba4-f8e4f4bd58fb,18.517516,73.856428,Unsafe infrastructure,Cracked concrete slabs creating tripping hazards.,2026-02-15 14:58:34
+38e4e2f3-2eb2-4062-8433-cbc7a31a9c1b,18.510792,73.860141,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-02-26 07:39:48
+6041902f-dfbf-460a-b53f-e2531f2c4f76,18.516384,73.840879,Harassment,A person kept clapping loudly and calling out to passing women.,2026-03-03 05:59:15
+87cb6ec1-2cbb-44ec-b480-f429dcd0dd8f,18.510228,73.847024,Stalking,A person walked behind me and matched my pace repeatedly.,2026-02-11 23:28:52
+90f15a74-352f-40f7-8e05-44c85b3c3506,18.517696,73.84512,Stalking,The same person kept appearing behind me along different streets.,2026-02-17 19:41:58
+64ca95f5-2d06-48ce-a78e-d24c7eb5698c,18.508376,73.875741,Suspicious Activity,A person walking around the same block multiple times.,2026-02-14 22:16:38
+6203d996-3b41-4e97-9d09-984ff16df5a1,18.523339,73.858309,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-03-02 12:13:02
+4c6d05b6-ade3-4626-a374-8e92c33dd0d1,18.521171,73.835563,Harassment,Someone made threatening comments toward pedestrians.,2026-02-23 02:20:45
+6c80a905-5deb-43da-bebb-1ed9ccee9616,18.524088,73.874425,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-21 22:26:04
+89ab0e05-dd5f-46db-8e36-5775205d4c9e,18.537227,73.870403,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-02-22 17:06:01
+28413807-f8e8-470d-abbf-d3e762463ac3,18.516597,73.841851,Stalking,A person followed me for three consecutive blocks.,2026-03-05 17:16:43
+3969ebaa-b2b4-4f2e-8ba2-63539dfada55,18.51559,73.837954,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-03-11 22:00:05
+236a4fd8-2134-4920-a801-e21d7dec62c1,18.527352,73.85944,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-03-05 22:45:50
+f349d619-8dbb-427c-a37a-6d3568b9b447,18.529809,73.852877,Suspicious Activity,Someone examining delivery packages left outside homes.,2026-02-13 23:43:16
+6b8048b1-54cf-4e6a-a3a6-81e42763c0b6,18.522528,73.837508,Unsafe infrastructure,Broken stairs leading to the pedestrian bridge.,2026-03-01 02:35:38
+6a3c9cdb-2077-4901-9bb1-f66fe5e2c6a2,18.533941,73.868314,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-02-15 21:12:56
+1eb8e3f2-735f-4dcc-9bce-e7dd2a215a13,18.506044,73.860573,Harassment,Someone mocked and insulted pedestrians walking alone.,2026-03-11 22:21:42
+3a0b3c46-377d-43e0-885e-f1dacb7f8c57,18.525144,73.846639,Suspicious Activity,A person trying car door handles along the street.,2026-03-07 06:26:54
+07022bdf-0cda-41f8-808c-1b404ba5380a,18.530636,73.855271,Harassment,Someone was recording people walking past while making mocking comments.,2026-02-17 12:20:37
+bf2b3bd0-a715-417f-a8f8-64290472b93c,18.524134,73.850614,Stalking,Someone waited outside a building and followed me when I left.,2026-02-28 13:11:41
+b32bc91d-0dec-412a-875d-d0869c21b4e0,18.539954,73.861485,Poor lighting,Only one dim light is working along this stretch of road.,2026-03-02 08:53:25
+1bcd9d7b-9357-41d1-9389-1028e97aa5ad,18.506518,73.848805,Stalking,A stranger walked very closely behind me for a long distance.,2026-02-16 11:00:24
+99a90671-d245-456c-9c66-80009c6c2fbd,18.515108,73.85304,Harassment,A group of teenagers throwing verbal insults at people crossing the street.,2026-02-23 05:57:06
+ee67e8fb-5c4b-4a0b-8fab-2b6c393c0d67,18.501565,73.85464,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-22 12:55:05
+2d22bc82-8538-4ce2-8a93-ee576f32b12f,18.509381,73.841541,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-03-06 04:54:20
+4a21cd04-bda1-4b9a-84cb-e8345271c1b5,18.501465,73.849393,Harassment,A person kept clapping loudly and calling out to passing women.,2026-03-01 08:43:16
+5079d412-4c9f-4df8-96bf-af66738155db,18.535757,73.867441,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-02-27 16:47:12
+0799991f-3c05-45f2-9b1d-08f1ff98b5dd,18.499679,73.852671,Harassment,A group of men making inappropriate comments to women walking past.,2026-03-01 01:41:08
+335a85ed-1779-4eb3-95fd-f08e3d1fb9bc,18.515014,73.842396,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-03-01 13:35:55
+9c2f53e5-06f8-4f9a-8907-1456e04882c8,18.505652,73.866294,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-03-05 13:10:44
+6a0cae9a-5a69-4387-b510-38a0c58e4cc5,18.514553,73.851053,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-03-04 10:14:48
+fc91e9f4-fc41-456a-96de-fe42f358072d,18.536725,73.851142,Harassment,A person kept clapping loudly and calling out to passing women.,2026-03-05 13:43:20
+23a9da20-2802-40d8-a76e-ece72fd308e8,18.521911,73.875342,Harassment,Someone yelled obscenities at me while passing by.,2026-03-03 21:46:18
+ae5b7510-060e-4fdc-8d3c-99f71630d2f7,18.507246,73.856063,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-02-17 01:14:02
+9892779d-553e-4080-9836-d5871a2608aa,18.506268,73.843026,Stalking,Someone waited outside a building and followed me when I left.,2026-03-11 07:48:20
+d5ff2cb3-5e93-4596-9510-ec2c4754c32f,18.51824,73.862414,Stalking,A person kept circling the area on a bicycle watching people.,2026-03-09 16:38:27
+f2c58e95-1643-492f-881b-9fad25839780,18.514878,73.876178,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-02-15 08:34:39
+17b19661-87f6-4ab4-ab01-e6444d32bd99,18.541202,73.849353,Poor lighting,The pathway behind the buildings has no lighting at all.,2026-02-17 16:33:12
+a02a97cc-0f78-4068-af4f-8a2b491082e1,18.517138,73.849573,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-03-12 09:09:40
+dc09cb60-2edc-4eae-8494-89289a6eb0e4,18.501599,73.850162,Poor lighting,The pedestrian bridge has no lighting at night.,2026-03-08 23:58:31
+03257f2f-f67d-4f72-91ba-8b0ee4264e5c,18.531875,73.861484,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-02-25 18:14:35
+0c1220cd-9f61-4c36-b4e8-08c0b4de01d3,18.53555,73.870376,Poor lighting,Street corners are shadowy due to missing lights.,2026-03-09 19:04:51
+37a1a20a-7996-464d-b786-9225528e5bd7,18.538884,73.845379,Harassment,Someone yelled obscenities at me while passing by.,2026-03-11 01:40:37
+73a60370-ea24-43b4-991a-f01bdd6cf1a6,18.536212,73.848956,Harassment,Someone yelled obscenities at me while passing by.,2026-02-23 03:06:47
+0563a3ac-fa7a-4ff4-8dfd-93b838374dc9,18.523044,73.872961,Harassment,A group of people were catcalling pedestrians.,2026-03-04 20:53:09
+cc351219-ce0b-4fe3-9c3a-46482e16b3e9,18.529552,73.846714,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-03-08 10:11:33
+148f1c3c-ad63-42dc-88e4-cc0b8a1cf973,18.53479,73.869302,Unsafe infrastructure,Exposed electrical wires hanging near the footpath.,2026-02-23 16:22:00
+471754cc-b180-4322-a269-96b9dad0f54d,18.52081,73.854278,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-03-09 16:47:57
+baddceae-cbb8-4280-92b6-9751390641a3,18.513254,73.855531,Harassment,Men standing near the corner were making offensive gestures.,2026-02-24 02:57:15
+7da6c167-0d9f-4efb-975b-9b330e596590,18.529572,73.845896,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-02-17 13:21:37
+e2eae705-5b6a-4d5e-bbc1-b7e099c6902a,18.518855,73.852131,Harassment,A group of teenagers throwing verbal insults at people crossing the street.,2026-02-14 15:41:57
+ac8e5da4-95ee-4948-93a1-717e0692efd6,18.529425,73.875253,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-26 05:30:59
+c3240250-73fb-4c73-a2d0-fb112674b5f8,18.534088,73.849666,Harassment,Someone kept shouting vulgar words from across the road.,2026-03-07 18:58:55
+02b17f6b-198b-4a2c-9c34-65556b9d6b70,18.525214,73.868749,Stalking,Someone stood across the street watching me for several minutes.,2026-02-16 06:29:09
+402f3692-ad18-4282-9796-0bdd254d449b,18.518365,73.866739,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-02-14 20:40:11
+f915358e-8839-4b99-a620-5b39baf1cd01,18.533474,73.847704,Stalking,The same car passed me multiple times within a few minutes.,2026-02-25 12:21:36
+721e0972-0d2b-4637-a999-d6c43eb878cb,18.531991,73.854584,Stalking,Someone followed me across multiple crossings without explanation.,2026-02-12 09:56:14
+e979b28a-4744-4b62-9514-d4e4550e3fef,18.524577,73.877308,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-03-08 10:46:11
+4ae65588-23b2-42b2-b4b3-042f37c83de7,18.503016,73.844509,Stalking,A person followed me from the bus stop to the market.,2026-02-16 13:15:03
+0188f258-7187-43b9-9c53-db47b5d50fe5,18.523545,73.869576,Stalking,A person followed me for three consecutive blocks.,2026-02-20 18:07:25
+899d3909-9cc3-40f5-8993-9ad88504ac2e,18.536156,73.854613,Suspicious Activity,Someone examining delivery packages left outside homes.,2026-02-18 20:26:14
+0b845c9f-88a6-47ab-b48d-7bdd11b37a69,18.520515,73.835055,Stalking,Someone waited outside a building and followed me when I left.,2026-03-10 06:18:08
+ac4fb6ab-bb70-47f3-b08f-2f6f9521745e,18.519308,73.833555,Stalking,A person kept circling the area on a bicycle watching people.,2026-02-12 16:15:35
+b2a5eebc-ce88-48f5-b75c-e97d5e7b4030,18.526437,73.878212,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-19 00:51:36
+e46473c1-fc84-4321-8dc7-894f8f4cd8f9,18.520127,73.849818,Poor lighting,Several lamp posts are present but none are working.,2026-02-26 03:59:15
+91a1e020-f866-4a3a-9dd5-ab1dd1581f9f,18.507956,73.840622,Suspicious Activity,Unattended bag left near the bus stand.,2026-03-06 15:14:26
+0e7cd773-1df5-4fd3-a652-044116c59ee1,18.534724,73.871042,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-19 14:11:29
+8db2c4aa-6cde-425b-b78f-c341c5e5d927,18.521021,73.853375,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-15 18:05:07
+509b2ded-d8b6-4062-a724-16574d115990,18.526806,73.852852,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-02-13 07:45:13
+5408c6c7-53bf-472f-9450-7752c4867427,18.503209,73.858875,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-12 04:05:57
+c023a886-e02b-4608-983e-dc1bae2efa6d,18.537014,73.8612,Stalking,A stranger walked behind me while pretending to be on a call.,2026-03-12 08:17:38
+8a275e29-9965-4de0-93fc-1dc924f723a8,18.501631,73.863271,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-03-02 02:58:27
+a1e2ae3d-62f3-465c-878c-d336b186f7da,18.513081,73.866805,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-12 01:02:45
+17024669-8e8b-4484-b719-0613686e7394,18.536927,73.858318,Poor lighting,"Streetlights are covered by tree branches, making the area very dim.",2026-02-28 08:04:47
+c064bece-bebe-43a5-9464-d2bfdbbb9cf9,18.519337,73.841921,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-22 18:29:13
+59dc1153-2030-42a0-acc4-8189313aabe2,18.525257,73.876811,Suspicious Activity,A person crouching near a vehicle as if tampering with it.,2026-02-21 02:26:16
+5b648de6-b644-41a3-ad89-fbd0da153e04,18.513765,73.866432,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-02-26 07:01:15
+e2efb918-e878-4644-929f-51d9ae434c1c,18.527645,73.848874,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-03-05 22:29:48
+148279d1-d05e-4aff-b2b2-38ab3128a883,18.527461,73.842438,Stalking,A person walked behind me and matched my pace repeatedly.,2026-02-23 00:43:40
+80782bda-6fc3-40af-8be9-529541155f38,18.521769,73.83525,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-27 06:18:18
+82bdd76b-0fa8-473f-91ba-77787b0ef921,18.506888,73.872458,Poor lighting,The park entrance is completely dark at night.,2026-02-28 03:29:27
+c0fa5355-65b2-4434-ae73-366138c0b02b,18.501734,73.853243,Stalking,Someone stopped whenever I stopped walking.,2026-03-08 05:46:43
+a82e3937-6660-4d76-801e-94dc5c39448f,18.512266,73.85168,Harassment,Someone was recording people walking past while making mocking comments.,2026-03-01 10:34:48
+5643e9d7-1153-4b69-bd70-31bec0f65be2,18.510563,73.86935,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-14 00:33:21
+aa390287-ea95-4705-8007-98ce06119b5b,18.508417,73.870727,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-27 08:23:17
+a74f22eb-ca09-4ee0-81dc-9f32252ece17,18.518541,73.85939,Poor lighting,"Streetlights are covered by tree branches, making the area very dim.",2026-02-18 13:34:02
+92d787b3-9f68-480a-9850-f6cda6c9e31e,18.50506,73.862414,Stalking,Someone stood across the street watching me for several minutes.,2026-02-15 18:36:13
+9e6439e3-6e71-4867-afc1-f0ae0d84f800,18.5108,73.85615,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-21 15:30:34
+c14d607a-e134-4637-9b2b-9772f4dfbac5,18.501759,73.844763,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-02-26 09:44:00
+1fa47d2e-c8d3-43fb-809b-6c46ddf25329,18.520551,73.836682,Poor lighting,Most of the streetlights along this road are not working.,2026-02-19 13:23:01
+3e981411-8442-4108-9165-a6ef50bbbc7f,18.541282,73.848304,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-03-06 01:34:06
+05786fb4-1328-44c8-833a-d637dfd9120f,18.51723,73.866254,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-21 20:08:31
+b397c0f4-c761-4f63-b7d0-f9c5db36cc63,18.5235,73.863948,Harassment,Someone was recording people walking past while making mocking comments.,2026-02-27 10:13:16
+f4c9c0f9-1825-4685-addd-dfdfb2f809b0,18.520748,73.83568,Suspicious Activity,Someone hiding behind parked vehicles and watching pedestrians.,2026-03-05 03:57:57
+51faaaf2-b21a-42f3-8c1f-f26bf7079e13,18.509613,73.865792,Unsafe infrastructure,Broken stairs leading to the pedestrian bridge.,2026-03-11 02:06:07
+543fcd4e-a780-4e20-9bc0-c867a637a63b,18.51114,73.862527,Poor lighting,Street corners are shadowy due to missing lights.,2026-03-04 01:45:13
+a737e1c7-660d-408f-a39f-3e92190531d7,18.50094,73.852038,Harassment,Aggressive panhandling at the intersection.,2026-03-06 13:04:51
+30717a91-f91d-4fff-9390-7cffd8f43652,18.521472,73.853561,Suspicious Activity,Someone inspecting parked bikes closely.,2026-03-10 22:34:52
+ddcd2133-f41a-418d-b6d5-586c4d6a6259,18.521205,73.859367,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-02-25 03:32:58
+abd391c3-b963-4ed8-aaa9-103025e27a60,18.535953,73.848738,Stalking,A person kept circling the area on a bicycle watching people.,2026-03-11 00:52:29
+64731e6c-b5de-4aa5-85ae-d392bcd09840,18.515023,73.869901,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-02-22 15:44:23
+9815a531-61ba-418b-a2b7-fe5ee6befce7,18.518525,73.843742,Unsafe infrastructure,Cracked concrete slabs creating tripping hazards.,2026-03-03 08:36:51
+64ad5e03-4bcd-471b-86bd-f60aa8f313b1,18.526692,73.869327,Harassment,Aggressive panhandling at the intersection.,2026-03-04 12:09:35
+a7183086-750b-44dd-b109-d586c2d10dbb,18.522129,73.846071,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-03-08 06:59:42
+52d6682f-199c-4f7f-89dc-991638051507,18.53192,73.858245,Stalking,The same car passed me multiple times within a few minutes.,2026-02-22 13:23:08
+e13b160f-3139-4bdb-94f3-56a3d3acba4c,18.517295,73.844057,Harassment,A stranger approached and kept making uncomfortable remarks.,2026-03-02 23:26:38
+309bc92e-a0ac-4b81-a6bc-d9a59cdca5cb,18.532005,73.870019,Poor lighting,Parking lot lighting is extremely weak and uneven.,2026-03-11 05:25:35
+cf8f00c4-44fc-4c74-981b-a2627ca8943d,18.516975,73.844748,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-11 18:28:09
+c0471ace-f869-472c-8c66-c86984a3f776,18.530766,73.851905,Harassment,A group of people were catcalling pedestrians.,2026-02-27 23:15:31
+9cd924f8-ce6b-41c1-bef3-c1260e4f15f6,18.530276,73.86042,Poor lighting,Several lamp posts are present but none are working.,2026-02-26 15:37:53
+900afd68-aee8-4c94-82dc-7287423ae98c,18.528629,73.861353,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-13 15:54:20
+121a3fa7-1127-4da5-955d-a218c9a28580,18.507277,73.865807,Suspicious Activity,Someone examining delivery packages left outside homes.,2026-02-11 07:27:59
+51906333-4309-4266-8877-6cf1cdefd2f7,18.526298,73.858846,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-02-12 13:25:56
+b5afb506-689e-4b99-b07e-5c2c71710888,18.50485,73.847261,Unsafe infrastructure,Exposed pipes sticking out of the pavement.,2026-02-20 10:05:46
+00827c31-bd7b-425a-bac5-994268f238e9,18.522484,73.859687,Stalking,A person followed me for three consecutive blocks.,2026-02-21 05:43:17
+d03bf1a6-9094-4986-871f-459d7f7a6c2f,18.512618,73.844882,Poor lighting,Dim yellow bulbs make it difficult to see obstacles.,2026-03-05 11:09:22
+91ec3934-8281-4866-a34f-6bdea3510f13,18.526708,73.862637,Poor lighting,Only one dim light is working along this stretch of road.,2026-02-14 14:02:57
+aedb6612-7e3d-42d0-a12b-ab552ef938fc,18.509008,73.875637,Stalking,A person kept circling the area on a bicycle watching people.,2026-02-19 04:30:50
+3efb16fa-b242-43cd-86ea-ffaa9f9a3f21,18.536017,73.861433,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-11 15:35:48
+5b625759-2efa-41b7-a3c3-d6248b821b9f,18.534112,73.839875,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-28 15:42:47
+0df2b8d9-fee5-4859-bf74-a6fff27960aa,18.52728,73.853018,Poor lighting,Several lamp posts are present but none are working.,2026-03-01 02:57:13
+603567fe-ba2c-4bfa-883a-d0c4b3ba8ccb,18.541056,73.855016,Suspicious Activity,Someone hiding behind parked vehicles and watching pedestrians.,2026-02-15 17:59:27
+40f7f0a1-9204-49a7-a233-a9cf5b1af48d,18.534062,73.869084,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-02-23 16:12:54
+836614f0-8d33-44d0-946c-c234cde369cf,18.542116,73.852375,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-03-09 16:43:03
+a48c46d6-c049-446b-94ad-07006b45210d,18.50688,73.862028,Harassment,Someone mocked and insulted pedestrians walking alone.,2026-03-12 19:40:19
+5ebd3c7d-aeb9-4e22-826e-5cbb75ee7f87,18.531235,73.873361,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-11 18:52:46
+9c6eb1d1-cc4d-4d76-9282-13d71ff5d3c5,18.525379,73.859596,Stalking,A person kept circling the area on a bicycle watching people.,2026-02-22 19:32:13
+aca9b78c-4f9d-414b-85a8-c8e42cce4ddf,18.507411,73.86202,Stalking,A stranger kept maintaining distance but followed my path.,2026-02-26 10:27:06
+83ead589-ecbb-4fbe-8d63-b74b3f0c6a36,18.526277,73.849181,Poor lighting,Parking lot lighting is extremely weak and uneven.,2026-02-11 13:33:36
+abaf373a-6cc0-48be-96fc-36d8d2465c84,18.503572,73.851048,Stalking,Someone trailed me while pretending to check their phone.,2026-02-24 01:16:58
+35e2806d-b398-4d09-9b82-bd5121155a36,18.536546,73.854152,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-03-02 23:15:31
+6dd5e6a2-8f2d-4858-a10a-44f38fd87d50,18.529783,73.837647,Stalking,A person followed me for three consecutive blocks.,2026-02-17 16:21:50
+c402adb4-9a71-44ac-bbc5-a9e0069c6a8d,18.515849,73.874844,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-02-11 22:11:24
+55a3d884-f866-4d43-9c7c-c42f78570b47,18.53787,73.844715,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-03-09 03:25:18
+f326acfe-b3e5-49cc-98eb-8aad0b7c29d6,18.53341,73.872176,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-28 23:59:36
+b25d8a59-fa23-46f5-8167-aa5c638e82b9,18.528988,73.862281,Suspicious Activity,Two people whispering while watching the nearby houses.,2026-02-21 11:06:13
+563c2a21-ec94-410a-a5ac-4c79334f591e,18.500819,73.851526,Harassment,Someone made threatening comments toward pedestrians.,2026-03-05 05:09:37
+ddf05991-ed83-4397-af4a-17deb8397dbf,18.518305,73.865128,Suspicious Activity,Someone inspecting parked bikes closely.,2026-03-04 14:31:49
+036ed387-4869-462a-9035-444b705f7065,18.518461,73.862941,Unsafe infrastructure,Loose paving stones making the sidewalk dangerous.,2026-02-19 10:12:08
+657311da-6cd0-4e01-a660-62333d9d356b,18.521086,73.855694,Stalking,The same car passed me multiple times within a few minutes.,2026-03-10 04:48:00
+771f4c52-6767-4b59-9b8f-21a578f8f6a6,18.531982,73.874847,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-26 09:08:27
+82f6174d-669f-4712-a840-91c4fe4eff19,18.528661,73.85568,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-03-07 15:59:38
+768bc747-b432-4a2a-8dcb-c7af9d92bafa,18.53185,73.851555,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-20 17:17:45
+82e73d1c-efc6-47ad-9c9b-f3602265ae8d,18.513777,73.845578,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-25 05:48:41
+c921348c-765f-4386-851f-0c39eaf1e34b,18.513889,73.877279,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-21 16:50:33
+cd29bea3-1df0-4f9d-af38-573f4aff756f,18.517003,73.872654,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-22 21:54:51
+cdf696e3-dda2-440d-93b8-07a3dfd52368,18.502155,73.854481,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-02-12 16:54:56
+1f54d527-33a6-4e70-8589-fb4313f96e34,18.517969,73.838963,Stalking,Someone stopped whenever I stopped walking.,2026-02-18 10:08:01
+3b1a41b7-299b-46af-958c-ea734e096327,18.510244,73.84885,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-19 12:32:34
+2082a54a-988e-4cfd-a027-983ab81d907e,18.518623,73.841841,Poor lighting,Streetlights are completely out on this block.,2026-03-09 05:48:57
+a9073387-c249-413a-abf6-5f17c2e14e2d,18.527565,73.834843,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-15 03:31:52
+06ef4343-7e53-4447-959d-728d264c7dc1,18.506436,73.848591,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-21 16:46:49
+e5203343-f86b-403a-ae7d-1b8b367aafa1,18.503468,73.870984,Suspicious Activity,Someone repeatedly checking their phone while pacing around suspiciously.,2026-02-22 11:50:52
+c9276f18-6bc8-4ef3-9b56-0c0782ca21e8,18.514021,73.85599,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-03-12 16:41:53
+11c0a7be-5904-4087-973d-120af69e4695,18.526849,73.865432,Unsafe infrastructure,Exposed pipes sticking out of the pavement.,2026-03-02 15:56:22
+76467a20-ddb1-4dac-8181-8d54336b6ced,18.528619,73.834842,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-02-15 22:28:16
+0d317a89-aa77-4ce2-9adb-131d9f99fb38,18.537651,73.849496,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-15 23:47:18
+ac19157a-feb9-4316-a718-e12fe1fc5891,18.509591,73.848062,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-18 10:28:37
+b5164046-372c-48f4-af0d-53cf80cdc1a2,18.524171,73.866131,Suspicious Activity,A person crouching near a vehicle as if tampering with it.,2026-02-13 21:15:35
+095a8655-f00a-4f13-9085-0eef4712c918,18.524107,73.853923,Poor lighting,Lights along the alley flicker constantly.,2026-03-09 03:59:12
+b91b416d-f950-4895-af96-03aff4621c6d,18.505057,73.870956,Unsafe infrastructure,Collapsed section of pavement near the corner.,2026-02-16 21:16:49
+5744ca33-bb27-43e5-991b-b0a821d97b37,18.531752,73.85493,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-02-14 17:48:35
+ca63da20-45a9-489e-b138-3188e0a8adf8,18.525769,73.857478,Unsafe infrastructure,Open drainage canal without protective covering.,2026-03-12 18:43:02
+46f08ccc-d392-48e8-95b5-5ce1ede8170a,18.505893,73.857657,Suspicious Activity,Someone hiding behind parked vehicles and watching pedestrians.,2026-02-11 20:08:42
+48b4adc4-796d-4d0f-82b6-cca0f772ec49,18.533667,73.857798,Stalking,A stranger walked very closely behind me for a long distance.,2026-02-14 10:34:10
+c614d179-9899-49a9-8a09-477918113faa,18.523811,73.862216,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-12 14:27:40
+d3038f51-44ca-4752-8609-decd4909f44a,18.522322,73.837704,Unsafe infrastructure,Flooded sidewalk making it unsafe to walk.,2026-03-01 03:01:23
+a015a351-0957-4ad7-be03-ced609150cfd,18.537353,73.848219,Poor lighting,The lane between buildings is completely dark after sunset.,2026-02-20 17:55:37
+7b4e870e-bac0-4524-8189-74be5268b4da,18.527487,73.858246,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-04 15:23:32
+1f98ddbb-ffb8-4105-a689-fee2aec9269b,18.521003,73.875024,Poor lighting,Frequent power outages leave the street in darkness.,2026-03-06 11:30:31
+e9dc7d92-4ef9-4ab9-bf25-944fe8059173,18.518337,73.87905,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-02-16 00:02:58
+88ea389c-4acb-499b-9701-bc40a225b2b6,18.518498,73.870105,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-25 11:39:18
+19909dce-c91e-4aad-89ef-411dede55b48,18.535483,73.846314,Stalking,A person walked behind me and matched my pace repeatedly.,2026-03-04 03:11:26
+c16eedc0-442e-4812-aa22-2f120ab48790,18.536296,73.857156,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-02-25 12:58:41
+f4cf6914-2cc0-465a-a02b-c2386dc8cbbf,18.53506,73.844918,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-03-07 06:08:31
+23a5a29a-11d0-4aea-abe5-201513e85566,18.523693,73.852196,Suspicious Activity,Unknown person trying to access locked gates.,2026-02-22 21:34:41
+3e20f785-8408-49ae-9118-992ef2b6176b,18.507565,73.862107,Poor lighting,Dim yellow bulbs make it difficult to see obstacles.,2026-03-04 21:54:21
+859405a5-4669-4bb8-8a19-d891ad0c85cb,18.520845,73.871602,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-03-09 08:46:55
+7088b5ac-1dad-43a6-9f75-557c41bf5341,18.510598,73.858387,Stalking,A stranger walked behind me while pretending to be on a call.,2026-03-05 11:11:07
+d333246b-bd54-46f2-aca6-24158a201e1b,18.538203,73.854268,Stalking,Someone trailed me while pretending to check their phone.,2026-02-21 20:56:41
+d6e57ac2-0994-498f-bcfc-35a5676caaa5,18.533954,73.858809,Harassment,A group of men making inappropriate comments to women walking past.,2026-02-27 04:34:26
+b108cdec-5179-4c89-ac6e-b50890840105,18.516027,73.865617,Harassment,Someone whistled loudly and shouted remarks as I walked by.,2026-02-19 10:12:10
+7da7ac3a-92a3-4ba1-93e6-0e39c8696752,18.506001,73.863286,Harassment,People near the bus stop were loudly harassing commuters.,2026-02-13 23:23:19
+3071bbf5-f078-4c25-aed0-5576c9120f4f,18.532276,73.85951,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-02-23 06:29:49
+4a535d77-3cb8-4b24-8556-6e091179a414,18.520682,73.873947,Unsafe infrastructure,Exposed pipes sticking out of the pavement.,2026-02-28 07:51:02
+6e92851a-2f24-4eca-b85a-36b2092e5ba7,18.529197,73.841852,Harassment,Someone made threatening comments toward pedestrians.,2026-03-03 22:26:17
+304d60d3-bc14-4f20-a146-9f40377b96ea,18.502352,73.849573,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-03-03 09:15:36
+a49bbe15-fc20-41bb-a558-de1820384301,18.524458,73.840228,Stalking,A person kept circling the area on a bicycle watching people.,2026-03-03 01:53:29
+6ec52204-814b-46b5-9aa3-205bcbb93ffd,18.514667,73.869925,Harassment,A group of men making inappropriate comments to women walking past.,2026-03-08 17:00:50
+9b706215-41a2-468f-9d7b-239086ee101c,18.531813,73.861239,Stalking,A stranger walked behind me while pretending to be on a call.,2026-02-20 14:01:50
+fffa0b62-e9d6-4585-ba4c-e3bd66f390f1,18.509294,73.871794,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-14 10:52:24
+a66b4571-7156-43ce-aa94-22bb91146450,18.523759,73.858777,Stalking,A person followed me for three consecutive blocks.,2026-03-01 04:33:19
+08850971-05f0-49f8-b268-bd9ccef74975,18.528983,73.848234,Suspicious Activity,Someone inspecting parked bikes closely.,2026-02-20 21:55:30
+9ad66a18-7473-4ae4-a600-1af98643a871,18.524968,73.864969,Poor lighting,The lane between buildings is completely dark after sunset.,2026-02-25 07:19:04
+38eaa770-fe33-4540-809d-91c651e804d5,18.522568,73.841596,Suspicious Activity,Two people whispering while watching the nearby houses.,2026-02-21 05:20:14
+142c82bd-5663-430d-8bf2-e776b43eabff,18.50992,73.862905,Suspicious Activity,A person crouching near a vehicle as if tampering with it.,2026-02-21 08:18:05
+cf725b00-3b29-45c0-979b-ba45b170ddc6,18.498884,73.858599,Suspicious Activity,Someone hiding behind parked vehicles and watching pedestrians.,2026-02-15 22:54:35
+92a72ac4-9c36-4119-a402-4f3050514dad,18.515812,73.860647,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-02-17 03:29:34
+1cd2e1d8-1d60-47fc-8cfc-bf0fba93d4f7,18.527346,73.840995,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-03-09 02:12:30
+63afed84-b8bf-4853-84be-9516a8c8d2c2,18.505932,73.85364,Stalking,Someone trailed me while pretending to check their phone.,2026-03-02 03:47:57
+376e6883-2b88-49a0-befe-27a2b03080fe,18.517973,73.836691,Poor lighting,Most of the streetlights along this road are not working.,2026-03-07 02:22:39
+ddaec485-e1d1-44f6-9016-0af8e698fc67,18.505158,73.856679,Stalking,The same car passed me multiple times within a few minutes.,2026-02-20 08:54:49
+6c7fe16b-cfa2-4532-9632-83fd0ca1c67b,18.499482,73.84875,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-13 17:55:15
+f745289f-4142-4f1b-b386-a77eb7ee38d0,18.527614,73.860764,Poor lighting,Broken streetlight leaves the entire corner in darkness.,2026-03-06 12:02:05
+b1152bba-f240-4fe7-96db-e809a182e11c,18.505275,73.841006,Suspicious Activity,Someone examining delivery packages left outside homes.,2026-02-19 00:34:20
+80f561aa-156f-4714-a2c2-6526d48f1cb5,18.528176,73.854958,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-02-27 12:11:35
+505159c5-8425-4973-b175-b44b53e818c2,18.527964,73.835279,Harassment,Someone was recording people walking past while making mocking comments.,2026-02-11 12:26:42
+742fb64c-3068-405d-b2f9-32132863d775,18.52586,73.870246,Stalking,The same person kept appearing behind me along different streets.,2026-02-17 07:17:44
+8f3cc886-11cf-4451-bb90-8073d49d4dbd,18.527851,73.865025,Suspicious Activity,Someone inspecting parked bikes closely.,2026-02-20 13:21:40
+1f31e328-cbf3-4c5c-86ed-b5d88d0a3667,18.513369,73.842959,Suspicious Activity,Two people whispering while watching the nearby houses.,2026-02-21 17:59:40
+55685800-aaf1-470f-a0f9-31b2bdc9707b,18.522073,73.868187,Stalking,A person followed me from the bus stop to the market.,2026-03-04 15:36:05
+0da45cbf-52a4-4e85-8ff1-be8fa30a69ad,18.510361,73.843136,Suspicious Activity,An individual lingering near building entrances without explanation.,2026-02-19 13:13:57
+4e59d256-2943-4bce-b0d3-974af8e913a7,18.538739,73.857946,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-02-28 20:44:16
+ea0fe08f-2d52-40f9-b715-bbcb253b390d,18.522496,73.865139,Poor lighting,Frequent power outages leave the street in darkness.,2026-02-23 01:58:04
+e1651814-5dec-4a26-862b-4076109bed89,18.512059,73.842143,Poor lighting,Flickering lights make it hard to see the footpath.,2026-02-21 09:08:01
+4730ec6f-6633-4a2d-a470-293ed59c7188,18.507649,73.866527,Poor lighting,Several lamp posts are present but none are working.,2026-02-24 15:54:34
+170c4506-3c5b-4122-a4bd-f9d2f28bfde8,18.520323,73.840354,Stalking,Someone stopped whenever I stopped walking.,2026-03-07 19:29:41
+13c8fda7-36a5-44ef-8ad2-8e3f04a5a96c,18.53226,73.860858,Harassment,A group repeatedly laughed and shouted at people walking by.,2026-03-03 23:48:07
+f230fb1a-e9bd-43c3-85ef-5614bc526689,18.527044,73.848035,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-03-05 09:14:57
+14af7274-a5e7-4952-9ac2-7ecf59d2cd38,18.533536,73.842624,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-02-24 05:15:19
+0f6077fe-1d28-4af4-a3ef-fbc913786677,18.529582,73.850783,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-13 10:44:45
+cf18575d-738b-47cb-9179-cdceb5a8404d,18.536785,73.860796,Harassment,Someone made threatening comments toward pedestrians.,2026-02-26 19:21:28
+8709cd91-e5d8-454b-9464-e05ce4f5c9d7,18.529178,73.836888,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-03-08 03:32:21
+de515b42-ec80-452a-ad2a-67fb635a943b,18.532335,73.845721,Stalking,Someone on a scooter slowly followed me along the road.,2026-02-17 10:07:49
+e7f98dd3-37eb-40e4-9e52-0bfc41332cdc,18.519783,73.857454,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-02-16 03:51:35
+9d2f26ed-9de1-4ab1-b85d-9b1d50f65af1,18.502828,73.845523,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-09 14:00:49
+2b3048f2-815d-49fd-9e84-98bd64682392,18.521504,73.867054,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-03-04 09:32:13
+37f2e76a-9df9-4e1c-91a5-13bf8f170248,18.5168,73.84571,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-02-11 15:00:28
+77c4d636-619a-4916-9158-600cd915953f,18.50667,73.862531,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-25 23:42:46
+988b7301-df96-4c9a-9588-11db464172eb,18.519172,73.878913,Stalking,Someone trailed me while pretending to check their phone.,2026-02-18 23:40:10
+7285669d-4e7c-440d-9cc1-db8722be0b89,18.530722,73.871793,Harassment,Aggressive panhandling at the intersection.,2026-02-21 20:22:33
+3c60da7a-5b88-47bd-a9d9-03b2799d5abe,18.524096,73.847531,Harassment,A group repeatedly laughed and shouted at people walking by.,2026-02-13 11:48:20
+6bffd59d-2dd1-4ea0-b935-4d07e35e65c8,18.51714,73.854272,Harassment,Aggressive panhandling at the intersection.,2026-03-03 11:01:01
+3350d78b-62ae-4851-88e0-0d5b74a270ca,18.498621,73.855215,Poor lighting,Several lamp posts are present but none are working.,2026-03-02 00:10:14
+bda33ec2-0326-47da-be00-1a1c6fc4aae6,18.506226,73.850331,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-02-17 23:04:56
+f8b2185e-b895-47c7-9aba-f3080257e0e2,18.511281,73.868355,Stalking,Someone followed me across multiple crossings without explanation.,2026-03-06 14:53:14
+440483de-0228-47ea-841d-f5bf5b2dfab5,18.527142,73.85745,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-19 10:45:34
+e779dc1b-b9c0-45c8-af44-1c1723b1bb11,18.516629,73.83696,Stalking,A person followed me for three consecutive blocks.,2026-03-08 02:13:40
+4b1b2f12-20a0-4027-9d26-433ad0a5b491,18.525065,73.837989,Harassment,Someone whistled loudly and shouted remarks as I walked by.,2026-02-11 18:12:24
+34d7bfdd-1f8d-44cf-b8e0-be3cb3c0bc1e,18.518616,73.872442,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-02-16 18:34:08
+ec9d3322-ee70-40d0-9ad1-cdae4a81e7d4,18.503015,73.850239,Stalking,The same car passed me multiple times within a few minutes.,2026-02-27 01:02:07
+8580f37b-7152-4177-ac41-f000ddef125b,18.519656,73.86021,Stalking,A person walked behind me and matched my pace repeatedly.,2026-02-11 18:44:02
+88b7defa-30ed-4f23-a5e1-fac6fd096b34,18.531332,73.843049,Unsafe infrastructure,Flooded sidewalk making it unsafe to walk.,2026-02-12 23:59:11
+d6dae249-6d4d-48a7-a4f7-4e1e5a1c9baf,18.527936,73.864233,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-15 09:13:53
+a7a30bee-541e-4307-a124-5e18d9d8c04f,18.510361,73.872238,Harassment,A person kept clapping loudly and calling out to passing women.,2026-03-04 01:56:27
+42261d52-60a8-4db1-9b6f-bd11982751d5,18.522435,73.857314,Stalking,A stranger walked behind me while pretending to be on a call.,2026-02-23 12:40:30
+22b36457-2ec1-40cd-8c1c-3080e7dc3d75,18.5174,73.860644,Harassment,Someone was recording people walking past while making mocking comments.,2026-03-05 17:52:17
+765a2a55-84a3-4da5-8494-4612fcb3dee5,18.531386,73.84154,Stalking,A person followed me from the bus stop to the market.,2026-03-11 14:51:10
+e8bed1c6-c19e-424e-98e6-703bc54aabf9,18.500032,73.864405,Stalking,A stranger walked behind me while pretending to be on a call.,2026-02-25 04:05:01
+9b5b2f4c-f1ab-4859-84de-c8dd7ea0d68f,18.534005,73.862399,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-03-07 21:25:42
+012f3f48-7382-4bd4-bd43-80e2e6aa0621,18.504776,73.866012,Poor lighting,"Streetlights are covered by tree branches, making the area very dim.",2026-02-23 07:41:41
+569a2a3c-66f9-4353-bc9a-bdc4608aae99,18.532292,73.838906,Suspicious Activity,Someone repeatedly checking their phone while pacing around suspiciously.,2026-02-24 04:28:48
+84bb2932-6a05-42a7-ab06-2f00d00a4be5,18.533134,73.84592,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-02-24 01:32:29
+61f11290-b233-423f-a49b-a370ab38679b,18.535375,73.855185,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-02-15 15:32:08
+47f0e0e2-28e3-4793-9dd7-b66742f9369e,18.53421,73.86159,Poor lighting,The pathway behind the buildings has no lighting at all.,2026-03-02 01:38:08
+4828e714-c246-47ce-a15c-62c02fe6bfac,18.513906,73.842579,Suspicious Activity,Group of individuals loitering around parked cars.,2026-02-19 02:15:31
+cf46388b-e676-4c84-83ae-e0166c765a96,18.527838,73.86609,Harassment,A stranger approached and kept making uncomfortable remarks.,2026-03-08 10:29:42
+681fe366-d0be-4eeb-b199-1cfdaa89214d,18.518828,73.845857,Poor lighting,Several lamp posts are present but none are working.,2026-02-17 03:29:07
+77777e85-11ee-4de3-8074-3002270aa75d,18.530116,73.840709,Suspicious Activity,An individual lingering near building entrances without explanation.,2026-02-13 17:48:21
+9ee2d8ae-0b90-4484-9230-e9973058c45a,18.526322,73.836184,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-02-18 00:26:28
+50f1c551-89b2-4723-8281-365a8f49917e,18.512494,73.867637,Stalking,The same person kept appearing behind me along different streets.,2026-02-24 13:59:01
+04752ef2-f280-4107-9fe0-cc8931a6cd74,18.51009,73.862492,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-02-27 18:15:48
+f9b30978-34ff-49eb-b19c-7f93cccdc6ef,18.538246,73.857971,Suspicious Activity,Two people whispering while watching the nearby houses.,2026-03-08 21:37:51
+ce1dfdde-7eac-4694-86b5-b959f4f091c3,18.506651,73.851149,Harassment,A man kept trying to start unwanted conversations with people walking alone.,2026-02-12 03:11:25
+b5f43d36-8421-4306-95d4-08034384beba,18.533838,73.874231,Stalking,A person followed me for three consecutive blocks.,2026-02-14 07:41:58
+6785965d-1bf3-427a-b357-acb367c26f5b,18.531312,73.862782,Unsafe infrastructure,Broken street signs lying across the walkway.,2026-03-05 06:23:57
+1d9e4fd2-63ad-4b0a-ac0a-210f6c5df662,18.523391,73.843451,Poor lighting,Frequent power outages leave the street in darkness.,2026-02-28 08:26:48
+dae6a03b-6c5a-49aa-938f-ef816f3dda1d,18.505123,73.85947,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-03-02 19:27:48
+1a9f4cd4-5da9-485e-81a2-99da6a79d014,18.530673,73.871854,Suspicious Activity,A group quietly observing people entering the apartment complex.,2026-02-20 23:54:21
+1be512f0-4c0c-4560-807a-a5f9dbc2157d,18.517638,73.858154,Suspicious Activity,Someone inspecting parked bikes closely.,2026-03-11 23:14:06
+0932e7b4-0d47-471c-b0fb-0894d9511b3b,18.500882,73.849768,Suspicious Activity,Two people standing near the ATM watching everyone closely.,2026-02-22 14:38:05
+67a1e83d-976f-48d5-b598-26297aea45e4,18.535792,73.846172,Stalking,Someone stood across the street watching me for several minutes.,2026-03-03 17:18:27
+1a9f191c-ee7a-44ce-a913-f28dad25c949,18.527608,73.83992,Stalking,Someone followed me across multiple crossings without explanation.,2026-03-12 15:59:44
+7e5a329a-ea08-442c-8716-a4aeda5ee39b,18.506159,73.853378,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-17 04:21:56
+d635b8e9-a39d-405e-a7aa-590489aaccff,18.527816,73.861479,Unsafe infrastructure,Loose paving stones making the sidewalk dangerous.,2026-02-23 04:04:19
+ba96ffba-1b3a-493f-bbe2-cbac863b3914,18.537223,73.870065,Suspicious Activity,Someone inspecting parked bikes closely.,2026-02-23 21:50:03
+7cd47944-7e77-438c-885f-3dd54c87c893,18.532818,73.860447,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-03-04 02:33:53
+48d0cc35-df93-448b-bfd2-b509b73b1bfb,18.514496,73.846592,Stalking,A person followed me from the bus stop to the market.,2026-03-12 00:43:26
+3cdc05dc-8931-4735-b711-83a60dc2b706,18.522938,73.833583,Unsafe infrastructure,Temporary construction fencing blocking the walkway.,2026-03-05 07:13:40
+7c7ff6d4-e4a6-4fb8-bbcb-c8239fa7573e,18.501204,73.849317,Suspicious Activity,Unattended bag left near the bus stand.,2026-03-01 19:47:53
+e8e6b992-0ed3-455a-b2f0-b945514a9ac5,18.508021,73.846974,Poor lighting,"Streetlights are covered by tree branches, making the area very dim.",2026-02-27 06:08:03
+3a3a8deb-db56-41a5-81ed-2f671d38c215,18.520149,73.841733,Stalking,Someone waited outside a building and followed me when I left.,2026-02-15 06:53:43
+c7030554-e935-4fda-83d3-56e09c23c292,18.531872,73.837893,Suspicious Activity,A person crouching near a vehicle as if tampering with it.,2026-02-18 12:36:24
+f841b916-51e1-46e3-9149-31737be1bbc4,18.524835,73.8669,Unsafe infrastructure,Exposed electrical wires hanging near the footpath.,2026-02-13 05:52:21
+aee60b4a-660a-4cb0-b4fa-86ded59b8014,18.510988,73.848094,Harassment,Someone yelled obscenities at me while passing by.,2026-02-11 07:05:44
+415e70f4-3a48-454e-ad92-116ff0b6b0b2,18.513261,73.858943,Stalking,A person followed me from the bus stop to the market.,2026-03-02 02:22:21
+e5e22fe8-c553-4241-a684-dfc16ae6ea81,18.50912,73.843672,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-03-04 23:49:30
+f01afab3-b5ea-4a28-b54f-8a42612957cb,18.520376,73.853575,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-23 03:33:46
+478e74fe-450d-4169-96a3-39abf6507fea,18.511723,73.874803,Suspicious Activity,Unattended bag left near the bus stand.,2026-02-21 20:29:31
+5f58efc7-b6fd-4cbb-bafa-6a856cad6be2,18.524758,73.863251,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-03-02 14:36:55
+8baf8fff-2cac-4e06-adfa-8c6924c8a35f,18.531538,73.861631,Stalking,A person followed me for three consecutive blocks.,2026-03-09 13:18:58
+19e0d52a-c07b-4f23-9612-78fe9c2f39b6,18.519054,73.864056,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-03-04 16:55:46
+29fecace-48cb-43f3-ae13-54f55cd63a9f,18.519464,73.873872,Harassment,Someone kept shouting vulgar words from across the road.,2026-02-21 07:18:24
+897e878a-c97f-4bcd-8f31-120b78065c05,18.507014,73.853449,Stalking,Someone trailed me while pretending to check their phone.,2026-03-05 09:37:20
+ecfa033b-64a8-4496-b76c-7132915449fe,18.51813,73.874121,Poor lighting,Frequent power outages leave the street in darkness.,2026-02-16 05:59:28
+d2998cd5-adee-4340-ac04-2a9c9553097c,18.510332,73.842469,Harassment,Someone kept shouting vulgar words from across the road.,2026-02-24 17:10:54
+4e03b820-02b9-4293-b283-01bb30f0e921,18.531013,73.854598,Poor lighting,Frequent power outages leave the street in darkness.,2026-02-23 23:24:49
+0c3838eb-aecd-47c5-a00c-68393ef506ef,18.530492,73.855079,Poor lighting,Most of the streetlights along this road are not working.,2026-02-15 14:29:48
+2f318358-97ee-4aac-8a73-3d5316fc1f54,18.500371,73.859523,Harassment,Someone whistled loudly and shouted remarks as I walked by.,2026-02-13 23:16:22
+1cf64a63-7902-4fa8-9e88-ac3a5e55b55f,18.507599,73.860102,Suspicious Activity,Someone looking into ground-floor windows.,2026-02-22 00:40:59
+d47f78a4-1510-46f8-ba27-d32a29e3164b,18.523509,73.868571,Unsafe infrastructure,Flooded sidewalk making it unsafe to walk.,2026-02-19 20:15:53
+4fbf2370-ae77-4aab-a59b-221967337eef,18.532531,73.839869,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-05 08:16:04
+0c5d5db9-3944-4ea4-890e-49d9da88e772,18.541341,73.849972,Stalking,A person followed me from the bus stop to the market.,2026-02-12 08:35:30
+640539a6-b71b-4bae-9352-9ef49983dde2,18.522166,73.875202,Harassment,A stranger approached and kept making uncomfortable remarks.,2026-03-06 18:42:35
+56df20bb-9d89-48d2-82f1-78faf772d898,18.525565,73.873562,Stalking,Someone followed me across multiple crossings without explanation.,2026-02-19 14:12:57
+9f6239c1-543d-4784-87fa-1b46e119405e,18.536358,73.86319,Harassment,Someone was recording people walking past while making mocking comments.,2026-03-07 12:21:52
+d650d5ae-1636-41c9-95b3-a4a25a671ce7,18.521722,73.85054,Suspicious Activity,Someone looking into ground-floor windows.,2026-03-06 00:42:42
+ad462275-3a21-4c4c-8278-f7a0c2d07e7c,18.536055,73.843379,Suspicious Activity,An individual lingering near building entrances without explanation.,2026-02-25 13:24:41
+03789265-62d5-4057-8525-d339a8c5f6ad,18.51787,73.854902,Unsafe infrastructure,Large pothole filled with water on the pedestrian walkway.,2026-03-12 11:22:12
+f26a4e0a-e0ea-4180-b444-37586b915153,18.503992,73.867277,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-02-26 23:29:36
+93bdd902-6dae-4b6e-ac99-06848e2e1048,18.51199,73.858612,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-03-08 02:46:50
+99b5d9f8-e106-497d-9b18-473b3bed2819,18.521758,73.852499,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-02-28 16:18:43
+a03f54a5-0524-4b61-a57a-5143f3a0e6da,18.523106,73.858945,Stalking,Someone stopped whenever I stopped walking.,2026-02-13 07:24:26
+aae68e1c-69e7-4bda-abf6-aca746e2dab9,18.530601,73.873213,Poor lighting,The pedestrian bridge has no lighting at night.,2026-02-28 13:38:20
+f6a54272-4a68-41a6-8856-0318dac56e8c,18.499625,73.855875,Suspicious Activity,Someone scanning apartment balconies from the street.,2026-02-28 03:53:01
+a592caa3-0441-47c2-a3a1-bd5f3e2538e0,18.507301,73.842652,Stalking,Someone on a scooter slowly followed me along the road.,2026-03-07 00:38:43
+e08be3bf-67bb-4a17-b35e-f096af08bd2e,18.53126,73.868827,Stalking,A person followed me for three consecutive blocks.,2026-03-06 04:01:09
+37ee8d71-579a-4f91-8a26-1906bd015291,18.530262,73.86095,Harassment,A man kept trying to start unwanted conversations with people walking alone.,2026-03-08 09:30:10
+87385839-d19b-4015-ad64-9146efd56214,18.531464,73.873616,Harassment,Someone deliberately blocked my path while making rude remarks.,2026-03-08 09:38:45
+c53e2a02-70b4-446d-a537-b81b796f33e9,18.533948,73.872257,Unsafe infrastructure,Debris and rubble scattered across the footpath.,2026-02-22 10:13:23
+214e66db-eb34-4345-bad9-b875d7f0c947,18.519342,73.850627,Suspicious Activity,A person trying car door handles along the street.,2026-03-01 07:30:50
+a23ffd9c-b7d4-46ea-8bfc-49c5ade548b6,18.517734,73.858782,Poor lighting,The park entrance is completely dark at night.,2026-03-02 12:00:01
+e339c859-2bad-48bd-a1ff-75d2c17dcc3b,18.528266,73.855181,Harassment,A group repeatedly laughed and shouted at people walking by.,2026-02-28 00:55:41
+918ad2eb-8f49-464d-b559-7008c92280e4,18.520502,73.867742,Harassment,A group of men making inappropriate comments to women walking past.,2026-02-12 09:34:10
+f08b1ae9-5f8a-461f-af45-fff8467c9638,18.518477,73.857933,Unsafe infrastructure,Loose paving stones making the sidewalk dangerous.,2026-03-05 15:43:12
+7fd6689f-3e82-453a-8459-c48a6afdf2bd,18.507529,73.867281,Suspicious Activity,Group of individuals loitering around parked cars.,2026-03-03 02:17:22
+51d79c63-9361-4522-bfb1-05f1dc7ea08a,18.532738,73.871562,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-02-12 11:40:24
+502c3afa-4ebb-497f-9cf0-7c96a41a08a2,18.525221,73.859138,Stalking,Someone followed me across multiple crossings without explanation.,2026-02-24 10:58:12
+46a7dc92-362f-45b7-817d-4dffd559bc95,18.509461,73.877437,Suspicious Activity,Unknown person trying to access locked gates.,2026-02-26 09:46:14
+728439b0-06d7-42e8-a56e-9200c67d18a8,18.524851,73.866242,Poor lighting,The lights near the underpass are not functioning.,2026-02-27 11:41:46
+7c5ac561-19e3-43b5-a61d-6ddd40ef0a1a,18.50314,73.854664,Suspicious Activity,A person standing still in the shadows watching people pass.,2026-03-01 03:51:51
+4bf51ee5-f93c-4ded-9193-a76bc2f7ac7c,18.512223,73.850842,Harassment,Men standing near the corner were making offensive gestures.,2026-02-26 10:34:25
+6cc427ee-c33c-4817-a58c-1aa38319e7b5,18.54247,73.858119,Poor lighting,Street corners are shadowy due to missing lights.,2026-03-08 22:46:14
+546cef38-b2b7-4cdb-a30c-5634505cf86f,18.524126,73.852538,Harassment,A group of people were catcalling pedestrians.,2026-03-08 19:19:36
+90fd89ba-8657-40dd-bbdb-861154a8fe50,18.523236,73.880163,Stalking,Someone was taking photos of people walking by without consent.,2026-02-14 02:05:54
+cb8660f0-cda1-434e-b402-19265bd30300,18.526747,73.875404,Unsafe infrastructure,Narrow walkway with no barrier from heavy traffic.,2026-02-17 12:14:59
+92ad335b-21a4-4e2d-a418-4acab03c9b14,18.532116,73.842712,Poor lighting,Street corners are shadowy due to missing lights.,2026-02-17 10:45:11
+c7c31196-b3b8-45ff-92da-2693dbd3aaa3,18.502691,73.851902,Unsafe infrastructure,Uneven road surface causing people to trip.,2026-02-14 01:15:40
+9b24e381-3ae9-40bf-bdb8-98c324da2e99,18.528652,73.871845,Harassment,Someone mocked and insulted pedestrians walking alone.,2026-02-17 04:29:30
+f23589e0-1196-42cc-8e62-23cb21bcb553,18.513666,73.869549,Harassment,Someone was recording people walking past while making mocking comments.,2026-02-21 04:33:57
+197890fa-89ce-4648-8a7d-f0321eaf3dab,18.514177,73.875544,Poor lighting,Only one dim light is working along this stretch of road.,2026-03-12 00:57:09
+093b7d0e-113b-4ce0-8840-31543744e0a5,18.506761,73.839567,Poor lighting,The area near the bus stop is poorly lit after sunset.,2026-03-03 02:23:01
+28d9d926-2146-4b8e-8d61-6d39b1550300,18.518912,73.846804,Harassment,A stranger approached and kept making uncomfortable remarks.,2026-02-20 08:12:18
+d4acd404-032e-4077-b6b2-0ffb56d8a236,18.526312,73.845102,Stalking,A person walked behind me and matched my pace repeatedly.,2026-03-03 05:57:04
+9e1a8292-2eaa-4fe2-bc8c-96d559577496,18.507894,73.85322,Poor lighting,The park entrance is completely dark at night.,2026-02-25 01:37:03
+5f024376-290a-41ba-827f-38ad5b0b1cae,18.533257,73.850414,Suspicious Activity,Unattended bag left near the bus stand.,2026-03-12 05:42:01
+b55e426b-bf67-468b-a791-666c17d9b845,18.502881,73.842539,Stalking,A person followed me for three consecutive blocks.,2026-02-28 10:39:49
+6964ed15-8dc1-49f6-93af-d8b84509e2e9,18.525379,73.846839,Stalking,The same car passed me multiple times within a few minutes.,2026-02-19 23:51:28
+72d5ae1f-e719-457f-aa8f-7ff99a5e13f9,18.526547,73.859648,Stalking,Someone was taking photos of people walking by without consent.,2026-02-11 06:58:03
+7621cbc8-b030-43ad-875e-deec58d5555f,18.523418,73.836027,Suspicious Activity,Unknown individuals sitting in a parked car for a long time.,2026-02-18 02:20:56
+697b5dbf-573d-4fd0-a63e-b5f5ceec970c,18.500687,73.850724,Unsafe infrastructure,Deep open manhole right in the middle of the sidewalk.,2026-02-13 10:31:43
+10377acf-f7db-4c2f-85e9-c29713842257,18.512486,73.867812,Suspicious Activity,Unknown person trying to access locked gates.,2026-02-17 03:21:44
+3a9e22bf-254e-4c7c-bc0b-d7be359261f7,18.512481,73.854534,Stalking,A stranger kept maintaining distance but followed my path.,2026-02-28 05:29:24
+8b33ec84-fe07-4333-a0f6-4669c6d824fe,18.519275,73.858643,Stalking,A stranger walked behind me while pretending to be on a call.,2026-03-04 21:59:03
+74cf85d5-ad39-4a19-8a0f-5f2bff99eb82,18.526691,73.839897,Stalking,Noticed the same two-wheeler circling the area slowly.,2026-03-07 04:33:08
+cb47ce30-d991-4bbb-b495-0fe6b1af19f2,18.532574,73.839318,Stalking,A person walked behind me and matched my pace repeatedly.,2026-02-13 10:32:32
+27dcf9eb-38d2-45d2-804d-f87658e7be3d,18.519131,73.877847,Poor lighting,Streetlights are completely out on this block.,2026-03-09 20:44:06
+ac8f44a8-f3e0-4c14-8009-122341899847,18.508324,73.838409,Stalking,Someone followed me across multiple crossings without explanation.,2026-03-02 12:41:59
+7f30324c-f299-4843-9dae-e96efcaf3476,18.520292,73.8618,Poor lighting,Street corners are shadowy due to missing lights.,2026-03-05 01:32:12
+6a36b887-4257-4917-98dc-2005bfbc9c5d,18.529346,73.84515,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-03-08 09:55:11
+1d1ec549-0448-4cae-b4df-5d28cd70d8b1,18.531719,73.853105,Stalking,The same person kept appearing behind me along different streets.,2026-03-11 07:32:54
+2d68f604-c518-4100-b574-442c30129bce,18.522889,73.83508,Stalking,A person followed me from the bus stop to the market.,2026-02-16 22:37:12
+3d8fd344-06da-4efa-b554-4c9dfca74a38,18.531479,73.842304,Stalking,The same car passed me multiple times within a few minutes.,2026-02-12 10:22:56
+e45409e7-d5d3-4f18-ba92-464a7182e3d1,18.517582,73.856735,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-03-03 23:02:25
+c801c01b-1d75-4b0e-9af2-190fdc8b68ab,18.513349,73.857308,Stalking,Someone stood across the street watching me for several minutes.,2026-03-09 15:08:34
+9f14abac-a19a-4504-a398-b9294bfd2dde,18.52133,73.856321,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-02-12 12:19:55
+cef3ffae-f5c2-49a7-a3bd-23ecb9919d0d,18.528166,73.871612,Harassment,Someone followed pedestrians briefly while shouting insults.,2026-02-22 12:20:22
+f72f209b-5fbe-490c-9b8b-07bba516da9a,18.522333,73.877359,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-02-18 13:38:32
+85c942eb-d15e-4eec-ac44-fb71ded0bb9c,18.528133,73.84813,Suspicious Activity,Unknown person trying to access locked gates.,2026-02-18 08:23:15
+df444d14-02eb-4a34-b8de-6f805a1c478f,18.521074,73.875508,Poor lighting,Several lamp posts are present but none are working.,2026-02-27 04:42:43
+93559bdc-ec70-4079-a057-ad54a1654498,18.530986,73.863056,Harassment,People near the bus stop were loudly harassing commuters.,2026-02-22 08:40:23
+0e2b5279-3de4-473c-8a6d-fd1fa2ea723d,18.528441,73.871887,Stalking,Someone trailed me while pretending to check their phone.,2026-03-06 02:31:42
+7c9d0534-51ed-48a0-bd73-cf3df0ec220e,18.517949,73.862761,Suspicious Activity,Someone attempting to peek through shop shutters.,2026-02-26 17:43:55
+1fa8d825-ac86-469e-af10-e842cbcb9571,18.50972,73.835976,Poor lighting,The lane between buildings is completely dark after sunset.,2026-02-13 09:56:47
+9329b5fe-5869-45e4-8a07-5cb7f4cb778c,18.510954,73.842438,Unsafe infrastructure,Flooded sidewalk making it unsafe to walk.,2026-02-28 11:40:03
+e200aa6d-caf9-4e68-ab7c-781ec121950a,18.51055,73.860271,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-02-23 08:51:04
+26b19077-3916-4bc4-981c-e0a429312dd0,18.511881,73.836336,Unsafe infrastructure,Exposed pipes sticking out of the pavement.,2026-03-10 07:36:23
+54941d1f-e863-47f2-9481-3d8a6d0730a2,18.524655,73.860237,Stalking,A person followed me for three consecutive blocks.,2026-02-11 15:38:23
+b03c89f7-948f-47b5-ac8d-2f04f21b192d,18.50877,73.851316,Poor lighting,The walkway lighting is inconsistent and patchy.,2026-03-09 17:11:07
+25e8bc03-1e4c-4160-a7aa-140c44d7454c,18.530054,73.846856,Unsafe infrastructure,Temporary construction fencing blocking the walkway.,2026-02-13 10:11:53
+2e4add9d-f769-4f0d-9675-5191f645e7aa,18.511072,73.847283,Stalking,Someone stood across the street watching me for several minutes.,2026-03-05 01:36:00
+505976ce-8997-4434-9baf-e0e7aac1e646,18.51407,73.874828,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-05 02:34:02
+fae4bbbc-e7b4-448a-b05c-25f235af620b,18.511712,73.852789,Stalking,Someone stood across the street watching me for several minutes.,2026-03-01 22:49:24
+20143558-e57e-43b1-ae11-eb53bc26221d,18.506086,73.855704,Unsafe infrastructure,Temporary construction fencing blocking the walkway.,2026-02-14 21:59:21
+947f2c7e-c8fd-4b12-adc1-1b849e204694,18.520365,73.84434,Harassment,People near the bus stop were loudly harassing commuters.,2026-02-24 21:04:26
+28306aff-d7fe-4118-8766-8595b4e3fc69,18.532764,73.859717,Poor lighting,The pathway behind the buildings has no lighting at all.,2026-02-17 01:46:18
+04dd87ab-519a-42c3-a60b-a442365ecd21,18.536747,73.871849,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-02-22 21:09:37
+05551f9b-5587-46c3-ba75-2e2644ef9b31,18.535349,73.846996,Unsafe infrastructure,Open drainage canal without protective covering.,2026-02-25 18:34:36
+fa371c7a-b09b-4264-b4f2-e05a0079954e,18.507273,73.871441,Poor lighting,Broken streetlight leaves the entire corner in darkness.,2026-02-15 04:33:10
+999cb2a6-992e-4a5d-85f3-06d4c1c9326d,18.518347,73.87648,Poor lighting,Frequent power outages leave the street in darkness.,2026-03-06 22:45:13
+7699de2b-ac2b-473b-9d28-94ce0e565e8b,18.518366,73.854376,Poor lighting,Dim yellow bulbs make it difficult to see obstacles.,2026-02-11 23:12:40
+3425643c-51e9-410f-87e3-5ccec95f0a40,18.522888,73.835585,Poor lighting,"Very dark alleyway, visibility is almost zero.",2026-03-07 20:55:54
+45afd161-c171-4fdf-8681-13e2c3c2649b,18.514678,73.865814,Unsafe infrastructure,Damaged guardrails near the road crossing.,2026-02-24 08:51:33
+42eddf7d-04a0-48a3-8e41-6bc66abcb5aa,18.509489,73.867129,Unsafe infrastructure,Missing manhole cover on the side of the street.,2026-02-23 18:30:38
+090b8e75-6c7d-4857-aee0-46b409e1c7eb,18.521244,73.866764,Harassment,People sitting on bikes repeatedly shouting at passersby.,2026-03-02 11:52:24
+87691849-99f6-4155-ace9-f68cfa4014d6,18.516197,73.865336,Unsafe infrastructure,Exposed pipes sticking out of the pavement.,2026-03-04 02:03:41
+fdea03a4-b1d8-415a-9f8c-2893306cf933,18.527387,73.85402,Stalking,Someone stopped whenever I stopped walking.,2026-02-21 01:10:20
+15abefc8-2b0c-48fd-8643-4e8b477c0b69,18.515113,73.843186,Suspicious Activity,A person trying car door handles along the street.,2026-02-16 20:04:29
+62953282-be7b-4c9b-b1b3-538d3167bf56,18.509251,73.861952,Unsafe infrastructure,Broken pavement forcing pedestrians to walk on the busy street.,2026-03-03 17:41:49
+8115a4b7-8adc-4db6-a800-bedc1ec5919d,18.519999,73.838598,Stalking,A person followed me for three consecutive blocks.,2026-02-25 13:55:00
+2723e964-fe5d-4a89-82ee-644848cc8de0,18.53108,73.864731,Harassment,Men standing near the corner were making offensive gestures.,2026-02-14 22:20:13
+8d8e4d9a-5493-4772-8499-d1c5f4acca89,18.518233,73.837495,Stalking,A person walked behind me and matched my pace repeatedly.,2026-03-02 23:58:30
+ddf23d55-011b-4eac-b13a-37dfa7630fb0,18.501379,73.862514,Harassment,Someone kept shouting vulgar words from across the road.,2026-02-25 14:47:46
+87cdfc3f-6bbc-4227-b448-bb0c66d96da1,18.529454,73.842175,Stalking,Someone followed me across multiple crossings without explanation.,2026-03-04 00:51:04
+8ea5b3b1-b455-428c-b1ec-f14b04e2e17d,18.519646,73.846799,Harassment,A group of teenagers throwing verbal insults at people crossing the street.,2026-02-22 17:10:00
+805200f2-68c3-4c08-8103-db8adbc1015f,18.507079,73.861666,Unsafe infrastructure,Construction debris blocking the entire walking path.,2026-03-01 02:11:55
+da6988cc-5fce-4855-a2b3-b15c10754720,18.504991,73.855944,Suspicious Activity,Someone repeatedly walking back and forth while observing houses.,2026-03-01 18:05:50
+17ae27c2-d42b-4068-b727-0518bb3166e5,18.523651,73.867056,Stalking,Someone stopped whenever I stopped walking.,2026-03-06 09:23:09
+197399dd-86e9-48b7-a798-31fe8e38651c,18.5241,73.880108,Unsafe infrastructure,Broken stairs leading to the pedestrian bridge.,2026-02-21 23:31:56
+67860b09-01de-44cf-9686-1cf67afaa6ce,18.535921,73.852757,Stalking,A bike rider slowed down and kept watching pedestrians.,2026-02-25 18:13:40
+b58f7805-c0b6-4074-995b-239b77e6b88f,18.514062,73.874395,Suspicious Activity,Someone hiding behind parked vehicles and watching pedestrians.,2026-03-03 06:56:38
+4003486a-a98e-4b26-b1e4-5d8b938373d2,18.52525,73.871281,Poor lighting,Only one dim light is working along this stretch of road.,2026-03-03 03:16:38
+ac61a664-524a-438a-9241-64500abba5c4,18.511118,73.853102,Suspicious Activity,A person trying car door handles along the street.,2026-03-08 01:54:46
+1cc3254f-1a44-440a-ac12-583276a90dcd,18.511939,73.85678,Unsafe infrastructure,Open drainage canal without protective covering.,2026-03-09 10:15:56
+a44a99de-71bd-4dfb-8e6a-a31fc69e94df,18.505285,73.859366,Harassment,Someone was recording people walking past while making mocking comments.,2026-02-18 18:33:16
+6e8dbdbe-b20f-4589-90d9-a557fa23e76b,18.532945,73.843402,Poor lighting,The lights near the underpass are not functioning.,2026-03-01 05:14:32
+b11f185b-496f-479c-949a-e59737b728dc,18.518789,73.856946,Unsafe infrastructure,Cracked concrete slabs creating tripping hazards.,2026-02-15 23:18:47
+869afec2-f5de-4cff-8d18-842f39b29169,18.537978,73.842652,Harassment,Someone whistled loudly and shouted remarks as I walked by.,2026-03-12 14:11:02
+97ef1182-4609-452c-bcff-eef12927d0ce,18.523211,73.868917,Stalking,A person walked behind me and matched my pace repeatedly.,2026-02-12 08:09:23
+c211ee84-485a-49c7-a000-44236779545d,18.524904,73.861991,Unsafe infrastructure,Sharp metal rods sticking out from construction materials.,2026-03-11 08:00:33
