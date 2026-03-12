@@ -1,6 +1,6 @@
-import os
 from databases import Database
 from pydantic_settings import BaseSettings
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
 class Settings(BaseSettings):
@@ -24,5 +24,21 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+
+def _normalize_database_url(database_url: str) -> str:
+    if not database_url.startswith(("postgresql://", "postgres://")):
+        return database_url
+
+    parts = urlsplit(database_url)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    # Supabase pooler / PgBouncer does not support asyncpg's default statement cache.
+    query.setdefault("statement_cache_size", "0")
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment)
+    )
+
 # Use databases for async support
-database = Database(settings.DATABASE_URL)
+database = Database(
+    _normalize_database_url(settings.DATABASE_URL),
+    statement_cache_size=0,
+)

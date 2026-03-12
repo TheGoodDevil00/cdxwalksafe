@@ -30,6 +30,8 @@ __pycache__/
 ############################
 venv/
 .env/
+.env
+*.env
 .venv/
 env/
 
@@ -44,6 +46,7 @@ dist/
 # FastAPI / Backend Logs
 ############################
 *.log
+backend/.env
 
 ############################
 # OSM / Data Pipeline Output
