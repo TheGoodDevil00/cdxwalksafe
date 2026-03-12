@@ -1,0 +1,2 @@
+uvicorn logic.api:app --reload --port 9123
+flutter run -d chrome --dart-define=LOGIC_API_BASE_URL=http://127.0.0.1:9123
