@@ -5,17 +5,27 @@ class SafetyLegendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      color: Colors.white.withValues(alpha: 0.94),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x120F2A22),
+            blurRadius: 18,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
       child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 6,
           children: <Widget>[
-            _LegendItem(label: 'Risky', color: Colors.red),
-            _LegendItem(label: 'Cautious', color: Colors.yellow),
-            _LegendItem(label: 'Safe', color: Colors.green),
+            _LegendItem(label: 'Risky', color: Color(0xFFBF4F41)),
+            _LegendItem(label: 'Caution', color: Color(0xFFD09A20)),
+            _LegendItem(label: 'Safe', color: Color(0xFF2C8C63)),
           ],
         ),
       ),
@@ -32,14 +42,31 @@ class _LegendItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                blurRadius: 10,
+                color: color.withValues(alpha: 0.34),
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 6),
-        Text(label),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: const Color(0xFF314A45),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+        ),
       ],
     );
   }

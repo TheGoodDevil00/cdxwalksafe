@@ -22,12 +22,28 @@ class WalkSafeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData baseTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF0F6B63),
+        brightness: Brightness.light,
+      ),
+      useMaterial3: true,
+    );
+
     return MaterialApp(
       title: 'WalkSafe',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
+      theme: baseTheme.copyWith(
+        scaffoldBackgroundColor: const Color(0xFFF5F1E8),
+        textTheme: baseTheme.textTheme.apply(
+          bodyColor: const Color(0xFF16312D),
+          displayColor: const Color(0xFF16312D),
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Color(0xFF16312D),
+          contentTextStyle: TextStyle(color: Colors.white),
+        ),
       ),
       home: const SplashScreen(),
     );
