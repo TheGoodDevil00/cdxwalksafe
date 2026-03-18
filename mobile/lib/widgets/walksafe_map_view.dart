@@ -10,6 +10,7 @@ class WalkSafeMapView extends StatelessWidget {
     this.mapController,
     this.markers = const <Marker>[],
     this.safetyOverlays = const <CircleMarker>[],
+    this.overlayLayers = const <Widget>[],
     this.routePolylines = const <Polyline>[],
     this.onTap,
     this.onPositionChanged,
@@ -20,6 +21,7 @@ class WalkSafeMapView extends StatelessWidget {
   final MapController? mapController;
   final List<Marker> markers;
   final List<CircleMarker> safetyOverlays;
+  final List<Widget> overlayLayers;
   final List<Polyline> routePolylines;
   final void Function(LatLng point)? onTap;
   final void Function(LatLng center)? onPositionChanged;
@@ -42,6 +44,7 @@ class WalkSafeMapView extends StatelessWidget {
           userAgentPackageName: 'com.safewalk.mobile',
         ),
         if (safetyOverlays.isNotEmpty) CircleLayer(circles: safetyOverlays),
+        ...overlayLayers,
         if (routePolylines.isNotEmpty) PolylineLayer(polylines: routePolylines),
         if (markers.isNotEmpty) MarkerLayer(markers: markers),
       ],

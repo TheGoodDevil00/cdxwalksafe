@@ -1,0 +1,386 @@
+import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../models/incident_report.dart';
+import '../services/incident_storage_service.dart';
+import '../services/reporting_api_service.dart';
+import 'gradient_button.dart';
+
+class IncidentModal extends StatefulWidget {
+  const IncidentModal({super.key, required this.initialLocation, this.onClose});
+
+  final LatLng initialLocation;
+  final VoidCallback? onClose;
+
+  @override
+  State<IncidentModal> createState() => _IncidentModalState();
+}
+
+class _IncidentModalState extends State<IncidentModal> {
+  static const List<String> _incidentTypes = <String>[
+    'Poor Lighting',
+    'Suspicious Activity',
+    'No Sidewalk',
+  ];
+
+  final IncidentStorageService _storageService = IncidentStorageService();
+  final ReportingApiService _reportingApiService = ReportingApiService();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  String _selectedIncidentType = _incidentTypes.first;
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitReport() async {
+    if (_submitting) {
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+    });
+
+    final IncidentReport report = IncidentReport(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      incidentType: _selectedIncidentType,
+      latitude: widget.initialLocation.latitude,
+      longitude: widget.initialLocation.longitude,
+      description: _descriptionController.text.trim(),
+      createdAtIso: DateTime.now().toIso8601String(),
+    );
+
+    final int severity = _severityForType(_selectedIncidentType);
+    final String userHash =
+        'mobile-${DateTime.now().millisecondsSinceEpoch.toString()}';
+
+    final Map<String, dynamic>? remoteResponse = await _reportingApiService
+        .submitIncidentReport(
+          userHash: userHash,
+          incidentType: report.incidentType,
+          severity: severity,
+          latitude: report.latitude,
+          longitude: report.longitude,
+          description: report.description,
+        );
+
+    await _storageService.saveReport(report);
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _submitting = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          remoteResponse == null
+              ? 'Saved locally. Backend unavailable, but the report will still affect offline safety scoring.'
+              : 'Incident report submitted and synced to the backend.',
+        ),
+      ),
+    );
+    Navigator.of(context).pop();
+  }
+
+  void _showMediaUploadNotice() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Media attachments are not connected yet, so this report will be submitted without a file.',
+        ),
+      ),
+    );
+  }
+
+  int _severityForType(String incidentType) {
+    final String normalized = incidentType.toLowerCase();
+    if (normalized.contains('suspicious')) {
+      return 4;
+    }
+    return 3;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
+    return Material(
+      type: MaterialType.transparency,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.98),
+                borderRadius: BorderRadius.circular(34),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.14),
+                    blurRadius: 42,
+                    offset: const Offset(0, 18),
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF2F6EF6).withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          const SizedBox(width: 40),
+                          Expanded(
+                            child: Text(
+                              'New Incident Report',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: const Color(0xFF0D1726),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed:
+                                widget.onClose ??
+                                () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.close_rounded),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFFF4F7FB),
+                              foregroundColor: const Color(0xFF4A5C73),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      Text(
+                        'Category',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF1C2738),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: _incidentTypes
+                            .map((String type) {
+                              final bool isSelected =
+                                  type == _selectedIncidentType;
+                              return _CategoryPill(
+                                label: type,
+                                isSelected: isSelected,
+                                onTap: () {
+                                  setState(() {
+                                    _selectedIncidentType = type;
+                                  });
+                                },
+                              );
+                            })
+                            .toList(growable: false),
+                      ),
+                      const SizedBox(height: 28),
+                      Text(
+                        'Description of the incident...',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1C2738),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: _descriptionController,
+                        minLines: 4,
+                        maxLines: 6,
+                        decoration: InputDecoration(
+                          hintText:
+                              'Add context that could help others avoid this area.',
+                          hintStyle: const TextStyle(color: Color(0xFF9AA8BB)),
+                          filled: true,
+                          fillColor: const Color(0xFFF7F9FC),
+                          contentPadding: const EdgeInsets.all(18),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(22),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFD8E0EC),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(22),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFD8E0EC),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(22),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF4A82F7),
+                              width: 1.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      InkWell(
+                        onTap: _showMediaUploadNotice,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Ink(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF7F9FC),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFDDE5F1)),
+                          ),
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: const Icon(
+                                  Icons.add_a_photo_outlined,
+                                  color: Color(0xFF617286),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Text(
+                                'Add Photo/Video',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: const Color(0xFF617286),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF4F7FB),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Icon(
+                              Icons.place_outlined,
+                              size: 18,
+                              color: Color(0xFF4A82F7),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Pinned to current map view '
+                                '(${widget.initialLocation.latitude.toStringAsFixed(4)}, '
+                                '${widget.initialLocation.longitude.toStringAsFixed(4)})',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: const Color(0xFF617286),
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      GradientButton(
+                        label: 'Submit Report',
+                        onPressed: _submitting ? null : _submitReport,
+                        isLoading: _submitting,
+                        height: 62,
+                        borderRadius: 24,
+                        textStyle: theme.textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryPill extends StatelessWidget {
+  const _CategoryPill({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        gradient: isSelected
+            ? const LinearGradient(
+                colors: <Color>[Color(0xFF4C82F7), Color(0xFF6AA5FF)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
+            : null,
+        color: isSelected ? null : const Color(0xFFF2F4F8),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isSelected ? Colors.transparent : const Color(0xFFD5DCE7),
+        ),
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: isSelected ? Colors.white : const Color(0xFF5D6978),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

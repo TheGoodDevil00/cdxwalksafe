@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: <Color>[Color(0xFF00695C), Color(0xFF26A69A)],
+            colors: <Color>[Color(0xFF2E6DF6), Color(0xFF6CA4FF)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -59,8 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
                 ),
               ),
               SizedBox(height: 8),

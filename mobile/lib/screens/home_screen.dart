@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -5,15 +7,15 @@ import 'package:latlong2/latlong.dart';
 import '../models/place_suggestion.dart';
 import '../models/scored_route.dart';
 import '../models/safety_zone.dart';
-import '../screens/destination_search_screen.dart';
 import '../services/location_service.dart';
 import '../services/place_search_service.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
 import '../services/sos_service.dart';
-import '../widgets/route_summary_panel.dart';
-import '../widgets/safety_legend_card.dart';
+import '../widgets/route_info_card.dart';
+import '../widgets/safety_zone_overlay.dart';
 import '../widgets/walksafe_map_view.dart';
+import 'destination_search_screen.dart';
 import 'report_incident_screen.dart';
 import 'settings_profile_screen.dart';
 
@@ -38,13 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
   LatLng _startPoint = _defaultCenter;
   LatLng? _destinationPoint;
   String? _destinationLabel;
-  List<CircleMarker> _heatmapCircles = <CircleMarker>[];
+  List<SafetyZone> _safetyZones = <SafetyZone>[];
   List<Marker> _markers = <Marker>[];
   List<Polyline> _routePolylines = <Polyline>[];
   ScoredRoute? _selectedRoute;
   bool _isLoadingLocation = true;
   bool _isLoadingRoute = false;
   bool _showSafetyZones = true;
+  bool _isRouteActive = false;
 
   @override
   void initState() {
@@ -60,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadHomeMap() async {
     final List<SafetyZone> zones = await _heatmapService.loadSafetyZones();
-    final List<CircleMarker> circles = zones.map(_mapZoneToCircle).toList();
     final LatLng? userLocation = await _locationService.getCurrentLocation();
     if (!mounted) {
       return;
@@ -69,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final LatLng center = userLocation ?? _defaultCenter;
 
     setState(() {
-      _heatmapCircles = circles;
+      _safetyZones = zones;
       _isLoadingLocation = false;
       _cameraTarget = center;
       _startPoint = center;
@@ -78,9 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _routePolylines = <Polyline>[];
       _destinationPoint = null;
       _destinationLabel = null;
+      _isRouteActive = false;
     });
 
-    _mapController.move(center, 15);
+    _mapController.move(center, 15.2);
   }
 
   Future<void> _selectDestinationAndRoute(
@@ -91,12 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    _mapController.move(destination, 15.8);
-
     setState(() {
       _destinationPoint = destination;
       _destinationLabel = label ?? 'Pinned destination';
       _isLoadingRoute = true;
+      _isRouteActive = false;
       _markers = _buildNavigationMarkers(
         start: _startPoint,
         destination: destination,
@@ -104,6 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
     });
+
+    _mapController.move(destination, 15.8);
 
     try {
       final ScoredRoute? safestRoute = await _routingService.getSafestRoute(
@@ -114,25 +118,15 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final List<LatLng> route = safestRoute?.points ?? <LatLng>[];
+      final List<LatLng> routePoints = safestRoute?.points ?? <LatLng>[];
       setState(() {
         _selectedRoute = safestRoute;
-        _routePolylines = route.isEmpty
+        _routePolylines = routePoints.isEmpty
             ? <Polyline>[]
-            : <Polyline>[
-                Polyline(
-                  points: route,
-                  strokeWidth: 7,
-                  color: _routeColorForSafety(
-                    safestRoute?.averageSafetyScore ?? 0,
-                  ),
-                  borderStrokeWidth: 2.4,
-                  borderColor: Colors.white.withValues(alpha: 0.92),
-                ),
-              ];
+            : _buildRoutePolylines(routePoints);
       });
 
-      if (route.isEmpty && mounted) {
+      if (routePoints.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('No walking route found. Try another nearby point.'),
@@ -163,24 +157,39 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _openDestinationSearch() async {
-    final PlaceSuggestion? suggestion = await Navigator.of(context).push<PlaceSuggestion>(
-      MaterialPageRoute<PlaceSuggestion>(
-        builder: (_) => DestinationSearchScreen(
-          placeSearchService: _placeSearchService,
-          initialQuery: _destinationLabel,
-        ),
+  List<Polyline> _buildRoutePolylines(List<LatLng> routePoints) {
+    return <Polyline>[
+      Polyline(
+        points: routePoints,
+        strokeWidth: 14,
+        color: const Color(0xFF30C56A).withValues(alpha: 0.18),
       ),
-    );
+      Polyline(
+        points: routePoints,
+        strokeWidth: 8,
+        color: const Color(0xFF30C56A),
+        borderStrokeWidth: 4.4,
+        borderColor: Colors.white.withValues(alpha: 0.96),
+      ),
+    ];
+  }
+
+  Future<void> _openDestinationSearch() async {
+    final PlaceSuggestion? suggestion = await Navigator.of(context)
+        .push<PlaceSuggestion>(
+          MaterialPageRoute<PlaceSuggestion>(
+            builder: (_) => DestinationSearchScreen(
+              placeSearchService: _placeSearchService,
+              initialQuery: _destinationLabel,
+            ),
+          ),
+        );
 
     if (!mounted || suggestion == null) {
       return;
     }
 
-    await _selectDestinationAndRoute(
-      suggestion.point,
-      label: suggestion.title,
-    );
+    await _selectDestinationAndRoute(suggestion.point, label: suggestion.title);
   }
 
   void _clearRoute() {
@@ -190,22 +199,37 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
       _markers = _buildNavigationMarkers(start: _startPoint);
+      _isRouteActive = false;
     });
-    _mapController.move(_startPoint, 15);
+    _mapController.move(_startPoint, 15.2);
   }
 
   void _recenterOnUser() {
     _mapController.move(_startPoint, 15.2);
   }
 
-  Color _routeColorForSafety(double safetyScore) {
-    if (safetyScore >= 75) {
-      return const Color(0xFF2C8C63);
+  void _toggleSafetyZones() {
+    setState(() {
+      _showSafetyZones = !_showSafetyZones;
+    });
+  }
+
+  void _startRoute() {
+    if (_selectedRoute == null) {
+      return;
     }
-    if (safetyScore >= 55) {
-      return const Color(0xFFD09A20);
-    }
-    return const Color(0xFFBF4F41);
+
+    setState(() {
+      _isRouteActive = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Route started. Follow the green path and keep an eye on nearby danger zones.',
+        ),
+      ),
+    );
   }
 
   List<Marker> _buildNavigationMarkers({
@@ -215,9 +239,32 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<Marker> markers = <Marker>[
       _buildMapMarker(
         point: start,
-        icon: Icons.radio_button_checked_rounded,
-        color: const Color(0xFF0F6B63),
-        label: 'Start',
+        label: 'Your location',
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: <Color>[Color(0xFF34B3FF), Color(0xFF2E7CF6)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: Colors.white, width: 4),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: const Color(0xFF2E7CF6).withValues(alpha: 0.26),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.navigation_rounded,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
       ),
     ];
 
@@ -225,9 +272,33 @@ class _HomeScreenState extends State<HomeScreen> {
       markers.add(
         _buildMapMarker(
           point: destination,
-          icon: Icons.flag_rounded,
-          color: const Color(0xFF7C4DCC),
           label: _destinationLabel ?? 'Destination',
+          child: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(color: const Color(0xFF2E7CF6), width: 5),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.14),
+                  blurRadius: 18,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF2E7CF6),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -237,64 +308,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Marker _buildMapMarker({
     required LatLng point,
-    required IconData icon,
-    required Color color,
     required String label,
+    required Widget child,
   }) {
     return Marker(
       point: point,
-      width: 58,
-      height: 58,
+      width: 64,
+      height: 64,
       child: Tooltip(
         message: label,
-        child: Center(
-          child: Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  blurRadius: 12,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 8),
-                  color: Colors.black.withValues(alpha: 0.16),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-        ),
+        child: Center(child: child),
       ),
-    );
-  }
-
-  CircleMarker _mapZoneToCircle(SafetyZone zone) {
-    final Color baseColor = switch (zone.safetyLevel) {
-      SafetyLevel.risky => const Color(0xFFBF4F41),
-      SafetyLevel.cautious => const Color(0xFFD09A20),
-      SafetyLevel.safe => const Color(0xFF2C8C63),
-    };
-
-    return CircleMarker(
-      point: LatLng(zone.latitude, zone.longitude),
-      radius: zone.radiusMeters,
-      useRadiusInMeter: true,
-      color: baseColor.withValues(alpha: 0.22),
-      borderColor: baseColor.withValues(alpha: 0.85),
-      borderStrokeWidth: 2,
     );
   }
 
   Future<void> _openIncidentReport() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ReportIncidentScreen(
-          initialLocation: _destinationPoint ?? _cameraTarget,
-        ),
-      ),
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close incident report',
+      barrierColor: Colors.black.withValues(alpha: 0.30),
+      transitionDuration: const Duration(milliseconds: 220),
+      pageBuilder:
+          (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            return ReportIncidentScreen(
+              initialLocation: _destinationPoint ?? _cameraTarget,
+            );
+          },
+      transitionBuilder:
+          (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) {
+            final Animation<double> curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            );
+
+            return FadeTransition(
+              opacity: curvedAnimation,
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.96,
+                  end: 1,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            );
+          },
     );
   }
 
@@ -336,14 +403,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool showRouteCard = _selectedRoute != null || _isLoadingRoute;
+    final double actionBottomOffset = showRouteCard ? 240 : 28;
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
           WalkSafeMapView(
             mapController: _mapController,
             initialCenter: _cameraTarget,
-            initialZoom: 14,
-            safetyOverlays: _showSafetyZones ? _heatmapCircles : <CircleMarker>[],
+            initialZoom: 14.8,
+            overlayLayers: <Widget>[
+              SafetyZoneOverlay(
+                zones: _safetyZones,
+                isVisible: _showSafetyZones,
+              ),
+            ],
             routePolylines: _routePolylines,
             markers: _markers,
             onTap: (LatLng point) {
@@ -359,12 +434,16 @@ class _HomeScreenState extends State<HomeScreen> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: <Color>[Color(0xCCF5F1E8), Color(0x00F5F1E8)],
+                    colors: <Color>[
+                      Color(0x66FFFFFF),
+                      Color(0x18FFFFFF),
+                      Color(0x00FFFFFF),
+                    ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: SizedBox(height: 120, width: double.infinity),
+                child: SizedBox(height: 180, width: double.infinity),
               ),
             ),
           ),
@@ -372,157 +451,52 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Expanded(
-                        child: _TopPanel(
-                          child: Row(
-                            children: <Widget>[
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE4F2ED),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.shield_outlined,
-                                  color: Color(0xFF0F6B63),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                'WalkSafe',
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(
-                                      color: const Color(0xFF16312D),
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _RoundMapButton(
+                      _MapCircleButton(
                         icon: Icons.my_location_rounded,
                         tooltip: 'Recenter',
                         onPressed: _recenterOnUser,
                       ),
-                      const SizedBox(width: 8),
-                      _RoundMapButton(
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _SearchPanel(
+                          destinationLabel: _destinationLabel,
+                          isLoadingRoute: _isLoadingRoute,
+                          onTap: _openDestinationSearch,
+                          onClear: _destinationLabel == null || _isLoadingRoute
+                              ? null
+                              : _clearRoute,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _MapCircleButton(
                         icon: Icons.person_outline_rounded,
                         tooltip: 'Profile',
                         onPressed: _openSettingsScreen,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  _TopPanel(
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: _openDestinationSearch,
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE4F2ED),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Icon(
-                              Icons.search_rounded,
-                              color: Color(0xFF0F6B63),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  _destinationLabel ?? 'Search destination',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF16312D),
-                                      ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  _isLoadingRoute
-                                      ? 'Updating route...'
-                                      : 'Search or tap anywhere on the map',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: const Color(0xFF61746F),
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (_destinationLabel != null && !_isLoadingRoute)
-                            IconButton(
-                              tooltip: 'Clear route',
-                              onPressed: _clearRoute,
-                              icon: const Icon(Icons.close_rounded),
-                            )
-                          else if (_isLoadingRoute)
-                            const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2.2),
-                            )
-                          else
-                            const Icon(Icons.arrow_forward_rounded),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
                     children: <Widget>[
-                      const Expanded(child: SafetyLegendCard()),
-                      const SizedBox(width: 10),
-                      _TopPanel(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const Icon(
-                              Icons.layers_outlined,
-                              size: 18,
-                              color: Color(0xFF49635D),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Zones',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: const Color(0xFF49635D),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            const SizedBox(width: 2),
-                            Switch(
-                              value: _showSafetyZones,
-                              activeThumbColor: const Color(0xFF0F6B63),
-                              activeTrackColor: const Color(0xFF9FD3C4),
-                              onChanged: (bool value) {
-                                setState(() {
-                                  _showSafetyZones = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                      _MapToggleChip(
+                        label: 'Show Safety Zones',
+                        icon: _showSafetyZones
+                            ? Icons.visibility_rounded
+                            : Icons.visibility_off_rounded,
+                        isSelected: _showSafetyZones,
+                        onTap: _toggleSafetyZones,
                       ),
+                      if (_selectedRoute == null && !_isLoadingRoute)
+                        const _HintChip(
+                          icon: Icons.touch_app_rounded,
+                          label: 'Tap anywhere to preview a safe route',
+                        ),
                     ],
                   ),
                 ],
@@ -531,78 +505,61 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Positioned(
             right: 16,
-            bottom: _selectedRoute != null || _isLoadingRoute ? 220 : 112,
-            child: _RoundMapButton(
-              icon: Icons.my_location_rounded,
-              tooltip: 'Recenter',
-              onPressed: _recenterOnUser,
+            bottom: actionBottomOffset,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _MapCircleButton(
+                  icon: Icons.report_gmailerrorred_rounded,
+                  tooltip: 'Report incident',
+                  onPressed: _openIncidentReport,
+                ),
+                const SizedBox(height: 12),
+                _EmergencyButton(onPressed: _triggerSos),
+              ],
             ),
           ),
-          if (_selectedRoute != null || _isLoadingRoute)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 118,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                child: RouteSummaryPanel(
-                  key: ValueKey<String>(
-                    '${_destinationLabel ?? 'none'}-${_selectedRoute?.totalRisk ?? -1}-${_isLoadingRoute ? 'loading' : 'idle'}',
-                  ),
-                  route: _selectedRoute,
-                  isLoading: _isLoadingRoute,
-                  destinationLabel: _destinationLabel,
-                  onClearRoute: _clearRoute,
-                ),
-              ),
-            ),
           Positioned(
             left: 16,
             right: 16,
             bottom: 24,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFD7372F),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                    ),
-                    onPressed: _triggerSos,
-                    icon: const Icon(Icons.sos_rounded),
-                    label: const Text(
-                      'SOS',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 260),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                final Animation<Offset> offsetAnimation = Tween<Offset>(
+                  begin: const Offset(0, 0.12),
+                  end: Offset.zero,
+                ).animate(animation);
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFE0F3EC),
-                      foregroundColor: const Color(0xFF0F6B63),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
+                );
+              },
+              child: showRouteCard
+                  ? Align(
+                      key: ValueKey<String>(
+                        'route-card-${_destinationLabel ?? 'none'}-${_isLoadingRoute ? 'loading' : 'ready'}-${_isRouteActive ? 'active' : 'idle'}',
                       ),
-                    ),
-                    onPressed: _openIncidentReport,
-                    icon: const Icon(Icons.report_problem_outlined),
-                    label: const Text(
-                      'Report unsafe area',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              ],
+                      alignment: Alignment.bottomCenter,
+                      child: RouteInfoCard(
+                        route: _selectedRoute,
+                        isLoading: _isLoadingRoute,
+                        destinationLabel: _destinationLabel,
+                        buttonLabel: _isRouteActive
+                            ? 'ROUTE ACTIVE'
+                            : 'START ROUTE',
+                        onPrimaryPressed:
+                            _isLoadingRoute || _selectedRoute == null
+                            ? null
+                            : _startRoute,
+                      ),
+                    )
+                  : const SizedBox.shrink(key: ValueKey<String>('empty')),
             ),
           ),
           if (_isLoadingLocation)
@@ -610,9 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ColoredBox(
                 color: Color(0x66FFFFFF),
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF0F6B63),
-                  ),
+                  child: CircularProgressIndicator(color: Color(0xFF2E7CF6)),
                 ),
               ),
             ),
@@ -622,35 +577,134 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _TopPanel extends StatelessWidget {
-  const _TopPanel({required this.child});
+class _SearchPanel extends StatelessWidget {
+  const _SearchPanel({
+    required this.destinationLabel,
+    required this.isLoadingRoute,
+    required this.onTap,
+    required this.onClear,
+  });
 
-  final Widget child;
+  final String? destinationLabel;
+  final bool isLoadingRoute;
+  final VoidCallback onTap;
+  final VoidCallback? onClear;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x120F2A22),
-            blurRadius: 16,
-            offset: Offset(0, 8),
+    return _GlassPanel(
+      borderRadius: 24,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0x142F6EF6),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: Color(0xFF2F6EF6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      destinationLabel ?? 'Where are you walking to?',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: const Color(0xFF111C2A),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isLoadingRoute
+                          ? 'Building your safest route...'
+                          : 'Search or tap anywhere on the map',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: const Color(0xFF6A7789),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (isLoadingRoute)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    color: Color(0xFF2F6EF6),
+                  ),
+                )
+              else if (onClear != null)
+                IconButton(
+                  tooltip: 'Clear route',
+                  onPressed: onClear,
+                  icon: const Icon(Icons.close_rounded),
+                  color: const Color(0xFF4E5E73),
+                )
+              else
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Color(0xFF4E5E73),
+                ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: child,
+        ),
       ),
     );
   }
 }
 
-class _RoundMapButton extends StatelessWidget {
-  const _RoundMapButton({
+class _GlassPanel extends StatelessWidget {
+  const _GlassPanel({required this.child, required this.borderRadius});
+
+  final Widget child;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.70)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _MapCircleButton extends StatelessWidget {
+  const _MapCircleButton({
     required this.icon,
     required this.tooltip,
     required this.onPressed,
@@ -662,15 +716,182 @@ class _RoundMapButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.94),
-      elevation: 5,
-      shadowColor: Colors.black.withValues(alpha: 0.10),
-      borderRadius: BorderRadius.circular(18),
-      child: IconButton(
-        tooltip: tooltip,
-        onPressed: onPressed,
-        icon: Icon(icon, color: const Color(0xFF16312D)),
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Material(
+          color: Colors.white.withValues(alpha: 0.84),
+          child: IconButton(
+            tooltip: tooltip,
+            onPressed: onPressed,
+            icon: Icon(icon, color: const Color(0xFF162133)),
+            style: IconButton.styleFrom(
+              minimumSize: const Size(56, 56),
+              shape: const CircleBorder(),
+              side: BorderSide(color: Colors.white.withValues(alpha: 0.60)),
+              shadowColor: Colors.black.withValues(alpha: 0.10),
+              elevation: 6,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapToggleChip extends StatelessWidget {
+  const _MapToggleChip({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Colors.white.withValues(alpha: 0.96)
+            : Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isSelected
+              ? const Color(0x332F6EF6)
+              : Colors.white.withValues(alpha: 0.68),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isSelected
+                      ? const Color(0xFF2F6EF6)
+                      : const Color(0xFF54657A),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF162133),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HintChip extends StatelessWidget {
+  const _HintChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.66)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 18, color: const Color(0xFF617286)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF617286),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmergencyButton extends StatelessWidget {
+  const _EmergencyButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: <Color>[Color(0xFFE3424B), Color(0xFFD52A37)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: const Color(0xFFE3424B).withValues(alpha: 0.26),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(24),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.sos_rounded, color: Colors.white),
+                SizedBox(width: 8),
+                Text(
+                  'SOS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
