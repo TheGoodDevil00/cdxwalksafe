@@ -1,14 +1,20 @@
-from typing import Any, Dict, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class ReportCreate(BaseModel):
-    user_hash: str = Field(min_length=2, max_length=128)
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
+    user_hash: str = Field(default="anonymous", min_length=2, max_length=128)
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
-    incident_type: str = Field(min_length=2, max_length=120)
+    category: str = Field(
+        min_length=2,
+        max_length=120,
+        validation_alias=AliasChoices("category", "incident_type"),
+    )
     description: Optional[str] = None
     severity: int = Field(default=3, ge=1, le=5)
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -32,6 +38,8 @@ class RecentReport(BaseModel):
 
 
 class EmergencyAlertCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     user_hash: str = Field(min_length=2, max_length=128)
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)

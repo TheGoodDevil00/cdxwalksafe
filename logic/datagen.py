@@ -1,3 +1,8 @@
+# ============================================================
+# DEV ONLY - never import this file from any service or API
+# This file exists only for local development seeding
+# ============================================================
+
 import json
 import random
 import math

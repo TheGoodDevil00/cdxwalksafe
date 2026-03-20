@@ -5,17 +5,13 @@ import 'package:http/http.dart' as http;
 class ReportingApiService {
   ReportingApiService({http.Client? client, String? baseUrl})
     : _client = client ?? http.Client(),
-      _baseUrl =
-          baseUrl ??
-          const String.fromEnvironment(
-            'ROUTING_API_BASE_URL',
-            defaultValue: 'http://127.0.0.1:8000/api/v1',
-          );
+      _baseUrl = baseUrl ?? _envBaseUrl;
+
+  static const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
+  static const Duration _timeout = Duration(seconds: 10);
 
   final http.Client _client;
   final String _baseUrl;
-
-  static const Duration _timeout = Duration(seconds: 10);
 
   Future<Map<String, dynamic>?> submitIncidentReport({
     required String userHash,

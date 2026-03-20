@@ -8,29 +8,21 @@ import '../models/safety_zone.dart';
 class SafetyHeatmapService {
   SafetyHeatmapService({http.Client? client, String? apiBaseUrl})
     : _client = client ?? http.Client(),
-      _apiBaseUrl =
-          apiBaseUrl ??
-          const String.fromEnvironment(
-            'ROUTING_API_BASE_URL',
-            defaultValue: 'http://127.0.0.1:8000/api/v1',
-          );
+      _apiBaseUrl = apiBaseUrl ?? _baseUrl;
+
+  static const String _baseUrl = String.fromEnvironment('API_BASE_URL');
+  static const Duration _timeout = Duration(seconds: 10);
+  static const String _zonesCacheKey = 'walksafe_safety_zones_cache';
 
   final http.Client _client;
   final String _apiBaseUrl;
 
-  static const Duration _timeout = Duration(seconds: 10);
-  static const String _zonesCacheKey = 'walksafe_safety_zones_cache';
-  static const String _versionCacheKey = 'walksafe_safety_zones_version';
-
   Future<List<SafetyZone>> loadSafetyZones({bool refresh = false}) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SafetyZone> cachedZones = _loadCachedZones(prefs);
-    final String? cachedVersion = prefs.getString(_versionCacheKey);
 
     final Uri uri = Uri.parse('$_apiBaseUrl/safety-zones').replace(
       queryParameters: <String, String>{
-        if (cachedVersion != null && cachedVersion.isNotEmpty)
-          'version': cachedVersion,
         if (refresh) 'refresh': 'true',
       },
     );
@@ -40,91 +32,28 @@ class SafetyHeatmapService {
       if (response.statusCode == 200) {
         final Map<String, dynamic>? payload = _parseJsonMap(response.body);
         if (payload != null) {
-          final bool notModified = payload['not_modified'] == true;
-          if (notModified && cachedZones.isNotEmpty) {
-            return cachedZones;
-          }
-
-          final List<SafetyZone> zones = _parseZones(payload['zones']);
+          final List<SafetyZone> zones = _parseZones(payload['features']);
           if (zones.isNotEmpty) {
-            await _cacheZones(
-              prefs,
-              zones: zones,
-              datasetVersion: payload['dataset_version']?.toString(),
-            );
+            await _cacheZones(prefs, zones: zones);
             return zones;
           }
         }
       }
     } catch (_) {
-      // Fall through to cache/mock data.
+      // Fall through to cache.
     }
 
-    if (cachedZones.isNotEmpty) {
-      return cachedZones;
-    }
-    return getMockSafetyZones();
-  }
-
-  List<SafetyZone> getMockSafetyZones() {
-    return const <SafetyZone>[
-      SafetyZone(
-        id: 'zone_1',
-        latitude: 18.5246,
-        longitude: 73.8664,
-        safetyScore: 25,
-        classification: 'RISKY',
-      ),
-      SafetyZone(
-        id: 'zone_2',
-        latitude: 18.5175,
-        longitude: 73.8502,
-        safetyScore: 35,
-        classification: 'RISKY',
-      ),
-      SafetyZone(
-        id: 'zone_3',
-        latitude: 18.5311,
-        longitude: 73.8597,
-        safetyScore: 58,
-        classification: 'CAUTIOUS',
-      ),
-      SafetyZone(
-        id: 'zone_4',
-        latitude: 18.5131,
-        longitude: 73.8717,
-        safetyScore: 66,
-        classification: 'CAUTIOUS',
-      ),
-      SafetyZone(
-        id: 'zone_5',
-        latitude: 18.5272,
-        longitude: 73.8429,
-        safetyScore: 82,
-        classification: 'SAFE',
-      ),
-      SafetyZone(
-        id: 'zone_6',
-        latitude: 18.5067,
-        longitude: 73.8563,
-        safetyScore: 91,
-        classification: 'SAFE',
-      ),
-    ];
+    return cachedZones;
   }
 
   Future<void> _cacheZones(
     SharedPreferences prefs, {
     required List<SafetyZone> zones,
-    String? datasetVersion,
   }) async {
     final List<Map<String, dynamic>> serialized = zones
         .map((SafetyZone zone) => zone.toJson())
         .toList(growable: false);
     await prefs.setString(_zonesCacheKey, jsonEncode(serialized));
-    if (datasetVersion != null && datasetVersion.isNotEmpty) {
-      await prefs.setString(_versionCacheKey, datasetVersion);
-    }
   }
 
   List<SafetyZone> _loadCachedZones(SharedPreferences prefs) {
@@ -171,25 +100,89 @@ class SafetyHeatmapService {
     }
   }
 
-  List<SafetyZone> _parseZones(Object? rawZones) {
-    if (rawZones is! List) {
+  List<SafetyZone> _parseZones(Object? rawFeatures) {
+    if (rawFeatures is! List) {
       return <SafetyZone>[];
     }
 
     final List<SafetyZone> zones = <SafetyZone>[];
-    for (final dynamic item in rawZones) {
-      if (item is Map<String, dynamic>) {
-        zones.add(SafetyZone.fromJson(item));
-      } else if (item is Map) {
-        zones.add(
-          SafetyZone.fromJson(
-            item.map(
-              (dynamic key, dynamic value) => MapEntry(key.toString(), value),
-            ),
-          ),
-        );
+    for (final dynamic item in rawFeatures) {
+      final Map<String, dynamic>? feature = _coerceMap(item);
+      final Map<String, dynamic>? properties = _coerceMap(feature?['properties']);
+      final Map<String, dynamic>? geometry = _coerceMap(feature?['geometry']);
+      if (properties == null || geometry == null) {
+        continue;
       }
+
+      final List<double>? centroid = _polygonCentroid(geometry['coordinates']);
+      if (centroid == null) {
+        continue;
+      }
+
+      final double riskScore = _asDouble(properties['risk_score']) ?? 0;
+      zones.add(
+        SafetyZone(
+          id: properties['zone_id']?.toString() ?? '',
+          latitude: centroid[0],
+          longitude: centroid[1],
+          safetyScore: (1 - riskScore) * 100,
+          classification: properties['risk_level']?.toString().toUpperCase(),
+        ),
+      );
     }
     return zones;
+  }
+
+  Map<String, dynamic>? _coerceMap(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return value.map((dynamic key, dynamic val) => MapEntry(key.toString(), val));
+    }
+    return null;
+  }
+
+  List<double>? _polygonCentroid(Object? coordinates) {
+    if (coordinates is! List || coordinates.isEmpty) {
+      return null;
+    }
+
+    final Object? firstRingRaw = coordinates.first;
+    if (firstRingRaw is! List || firstRingRaw.isEmpty) {
+      return null;
+    }
+
+    double totalLat = 0;
+    double totalLon = 0;
+    int count = 0;
+    for (final dynamic point in firstRingRaw) {
+      if (point is! List || point.length < 2) {
+        continue;
+      }
+      final double? lon = _asDouble(point[0]);
+      final double? lat = _asDouble(point[1]);
+      if (lat == null || lon == null) {
+        continue;
+      }
+      totalLat += lat;
+      totalLon += lon;
+      count += 1;
+    }
+
+    if (count == 0) {
+      return null;
+    }
+    return <double>[totalLat / count, totalLon / count];
+  }
+
+  double? _asDouble(Object? value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value);
+    }
+    return null;
   }
 }

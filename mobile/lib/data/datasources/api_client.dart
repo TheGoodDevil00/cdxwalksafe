@@ -6,13 +6,11 @@ import 'package:latlong2/latlong.dart';
 import '../../domain/entities/route_path.dart';
 
 class ApiClient {
-  // Use localhost for Android emulator (10.0.2.2) or local IP for real device
-  // For Windows development, localhost is fine
-  static const String baseUrl = 'http://localhost:8000/api/v1';
+  static const String _baseUrl = String.fromEnvironment('API_BASE_URL');
 
   Future<List<RoutePath>> getRoutes(LatLng start, LatLng end) async {
-    final uri = Uri.parse('$baseUrl/route').replace(
-      queryParameters: {
+    final Uri uri = Uri.parse('$_baseUrl/route').replace(
+      queryParameters: <String, String>{
         'start_lat': start.latitude.toString(),
         'start_lon': start.longitude.toString(),
         'end_lat': end.latitude.toString(),
@@ -21,35 +19,38 @@ class ApiClient {
     );
 
     try {
-      final response = await http.get(uri);
+      final http.Response response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> pointsRaw = data['safest'] as List<dynamic>? ?? <dynamic>[];
+        final List<LatLng> points = pointsRaw
+            .whereType<Map>()
+            .map(
+              (p) => LatLng(
+                (p['lat'] as num).toDouble(),
+                (p['lon'] as num).toDouble(),
+              ),
+            )
+            .toList(growable: false);
 
-        List<RoutePath> routes = [];
-        data.forEach((key, value) {
-          // value is a list of points [{"lat":...}]
-          List<LatLng> points = (value as List)
-              .map((p) => LatLng(p['lat'], p['lon']))
-              .toList();
+        if (points.isEmpty) {
+          return <RoutePath>[];
+        }
 
-          // Mocking risk segments for now
-          routes.add(
-            RoutePath(
-              id: key,
-              points: points,
-              totalDistance: 0, //todo calc
-              safetyScore: key == 'safest' ? 0.9 : 0.5,
-              riskSegments: [],
-            ),
-          );
-        });
-        return routes;
+        return <RoutePath>[
+          RoutePath(
+            id: 'safest',
+            points: points,
+            totalDistance: 0,
+            safetyScore: 0,
+            riskSegments: const [],
+          ),
+        ];
       }
-      return [];
+      return <RoutePath>[];
     } catch (_) {
-      // Return empty or cached routes
-      return [];
+      return <RoutePath>[];
     }
   }
 }

@@ -7,6 +7,11 @@ Future<void> main() async {
   // Ensures plugins (maps, location, storage) are initialized before runApp.
   WidgetsFlutterBinding.ensureInitialized();
 
+  assert(
+    const String.fromEnvironment('API_BASE_URL').isNotEmpty,
+    'API_BASE_URL must be set. Run flutter with: --dart-define=API_BASE_URL=http://...',
+  );
+
   // Initialize Supabase only when environment values are provided.
   const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');

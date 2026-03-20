@@ -8,12 +8,9 @@ import '../models/logic_safety_score.dart';
 class LogicSafetyApiService {
   LogicSafetyApiService({http.Client? client, String? baseUrl})
     : _client = client ?? http.Client(),
-      _baseUrl =
-          baseUrl ??
-          const String.fromEnvironment(
-            'LOGIC_API_BASE_URL',
-            defaultValue: 'http://127.0.0.1:9123',
-          );
+      _baseUrl = baseUrl ?? _envBaseUrl;
+
+  static const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
 
   final http.Client _client;
   final String _baseUrl;
@@ -21,7 +18,6 @@ class LogicSafetyApiService {
   String get baseUrl => _baseUrl;
 
   Future<LogicSafetyScore> getNearestSafetyScore(LatLng point) async {
-    // Step 1: Build query URI for nearest-segment safety lookup.
     final Uri uri = Uri.parse('$_baseUrl/safety-score').replace(
       queryParameters: <String, String>{
         'lat': point.latitude.toString(),
@@ -29,7 +25,6 @@ class LogicSafetyApiService {
       },
     );
 
-    // Step 2: Call backend and parse response payload.
     final http.Response response = await _client.get(uri);
     if (response.statusCode != 200) {
       throw Exception(
