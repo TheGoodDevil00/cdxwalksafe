@@ -1,6 +1,6 @@
-# SafeWalk
+# WalkSafe
 
-SafeWalk is a safety-aware pedestrian navigation system that prioritizes personal security over distance or time created using Codex.
+WalkSafe is a safety-aware pedestrian navigation system that prioritizes personal security over distance or time created using Codex.
 
 ## Architecture
 
