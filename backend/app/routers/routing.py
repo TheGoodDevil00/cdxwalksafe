@@ -42,6 +42,7 @@ async def get_route(
 
 
 @router.post("/route/risk")
+@router.post("/route/segments/safety")
 async def route_risk(
     body: RouteCoordinates,
     db: AsyncSession = Depends(get_db),

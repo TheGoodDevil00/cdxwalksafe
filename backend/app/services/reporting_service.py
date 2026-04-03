@@ -1,9 +1,12 @@
 from typing import Any, Dict, List
 
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.reports import EmergencyAlertCreate, ReportCreate
+
+INCIDENT_MATCH_DISTANCE_METERS = 30.0
+INCIDENT_SEARCH_EXPAND_DEGREES = 0.0005
 
 
 class ReportingService:
@@ -78,6 +81,126 @@ class ReportingService:
         )
         rows = result.fetchall()
         return [dict(row._mapping) for row in rows]
+
+    async def get_segment_incident_aggregates(
+        self,
+        *,
+        road_segment_ids: List[int],
+        dataset_version: str | None,
+        db: AsyncSession,
+    ) -> Dict[int, Dict[str, Any]]:
+        if not road_segment_ids or not dataset_version:
+            return {}
+
+        query = text(
+            """
+            WITH route_segments AS (
+                SELECT id, geometry
+                FROM road_segments
+                WHERE dataset_version = :dataset_version
+                AND id IN :road_segment_ids
+            ),
+            route_bounds AS (
+                SELECT ST_Envelope(ST_Collect(geometry)) AS route_bbox
+                FROM route_segments
+            ),
+            matched_incidents AS (
+                SELECT
+                    nearest.road_segment_id,
+                    report.id AS incident_id,
+                    report.category,
+                    COALESCE(report.confidence, :default_confidence) AS confidence,
+                    COALESCE(report.status, 'pending') AS status,
+                    report.submitted_at
+                FROM incident_reports report
+                CROSS JOIN route_bounds bounds
+                JOIN LATERAL (
+                    SELECT
+                        rs.id AS road_segment_id,
+                        ST_Distance(rs.geometry::geography, report.location) AS distance_m
+                    FROM route_segments rs
+                    WHERE rs.geometry && ST_Expand(
+                        report.location::geometry,
+                        :incident_search_expand_degrees
+                    )
+                    ORDER BY rs.geometry <-> report.location::geometry
+                    LIMIT 1
+                ) AS nearest ON TRUE
+                WHERE bounds.route_bbox IS NOT NULL
+                AND report.location::geometry && ST_Expand(
+                    bounds.route_bbox,
+                    :incident_search_expand_degrees
+                )
+                AND nearest.distance_m <= :incident_match_distance_m
+                AND LOWER(COALESCE(report.status, 'pending')) NOT IN (
+                    'dismissed',
+                    'rejected'
+                )
+            )
+            SELECT
+                road_segment_id,
+                COUNT(*) AS incident_count,
+                ROUND(
+                    SUM(
+                        confidence
+                        * CASE LOWER(status)
+                            WHEN 'verified' THEN 1.0
+                            WHEN 'confirmed' THEN 1.0
+                            WHEN 'resolved' THEN 0.4
+                            ELSE 0.65
+                        END
+                        * CASE
+                            WHEN submitted_at >= NOW() - INTERVAL '7 days' THEN 1.0
+                            WHEN submitted_at >= NOW() - INTERVAL '30 days' THEN 0.8
+                            WHEN submitted_at >= NOW() - INTERVAL '90 days' THEN 0.55
+                            ELSE 0.3
+                        END
+                        * CASE category
+                            WHEN 'Stalking' THEN 1.0
+                            WHEN 'Harassment' THEN 0.9
+                            WHEN 'Suspicious Activity' THEN 0.8
+                            WHEN 'Unsafe infrastructure' THEN 0.7
+                            WHEN 'Poor lighting' THEN 0.6
+                            ELSE 0.65
+                        END
+                    )::numeric,
+                    3
+                ) AS incident_weight,
+                MAX(submitted_at) AS latest_incident_at,
+                ARRAY_REMOVE(ARRAY_AGG(DISTINCT category), NULL) AS incident_categories
+            FROM matched_incidents
+            GROUP BY road_segment_id
+            """
+        ).bindparams(bindparam("road_segment_ids", expanding=True))
+
+        result = await db.execute(
+            query,
+            {
+                "dataset_version": dataset_version,
+                "road_segment_ids": [int(segment_id) for segment_id in road_segment_ids],
+                "default_confidence": self.base_confidence,
+                "incident_match_distance_m": INCIDENT_MATCH_DISTANCE_METERS,
+                "incident_search_expand_degrees": INCIDENT_SEARCH_EXPAND_DEGREES,
+            },
+        )
+
+        aggregates: Dict[int, Dict[str, Any]] = {}
+        for row in result.fetchall():
+            mapping = row._mapping
+            categories = mapping["incident_categories"] or []
+            latest_incident_at = mapping["latest_incident_at"]
+            aggregates[int(mapping["road_segment_id"])] = {
+                "incident_count": int(mapping["incident_count"]),
+                "incident_weight": float(mapping["incident_weight"] or 0.0),
+                "incident_categories": [str(category) for category in categories],
+                "latest_incident_at": (
+                    latest_incident_at.isoformat()
+                    if latest_incident_at is not None
+                    else None
+                ),
+            }
+
+        return aggregates
 
     async def create_emergency_alert(
         self,
