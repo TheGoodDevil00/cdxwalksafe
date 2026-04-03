@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 enum SafetyLevel { risky, cautious, safe }
 
 class SafetyZone {
@@ -8,6 +10,7 @@ class SafetyZone {
     required this.safetyScore,
     this.radiusMeters = 120,
     this.classification,
+    this.polygonPoints = const <LatLng>[],
   });
 
   final String id;
@@ -16,6 +19,7 @@ class SafetyZone {
   final double safetyScore;
   final double radiusMeters;
   final String? classification;
+  final List<LatLng> polygonPoints;
 
   factory SafetyZone.fromJson(Map<String, dynamic> json) {
     double parseDouble(Object? value, {double fallback = 0}) {
@@ -28,6 +32,27 @@ class SafetyZone {
       return fallback;
     }
 
+    List<LatLng> parsePolygonPoints(Object? value) {
+      if (value is! List) {
+        return const <LatLng>[];
+      }
+
+      final List<LatLng> points = <LatLng>[];
+      for (final dynamic item in value) {
+        if (item is! List || item.length < 2) {
+          continue;
+        }
+
+        final double lon = parseDouble(item[0], fallback: double.nan);
+        final double lat = parseDouble(item[1], fallback: double.nan);
+        if (lat.isNaN || lon.isNaN) {
+          continue;
+        }
+        points.add(LatLng(lat, lon));
+      }
+      return points;
+    }
+
     return SafetyZone(
       id: '${json['id'] ?? ''}',
       latitude: parseDouble(json['lat'] ?? json['latitude']),
@@ -38,6 +63,7 @@ class SafetyZone {
         fallback: 120,
       ),
       classification: json['classification']?.toString(),
+      polygonPoints: parsePolygonPoints(json['polygon_points']),
     );
   }
 
@@ -49,6 +75,11 @@ class SafetyZone {
       'score': safetyScore,
       'radius_meters': radiusMeters,
       'classification': classification,
+      'polygon_points': polygonPoints
+          .map(
+            (LatLng point) => <double>[point.longitude, point.latitude],
+          )
+          .toList(growable: false),
     };
   }
 

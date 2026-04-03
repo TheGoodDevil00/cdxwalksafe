@@ -154,8 +154,9 @@ class SafetyHeatmapService {
         continue;
       }
 
-      final List<double>? centroid = _polygonCentroid(geometry['coordinates']);
-      if (centroid == null) {
+      final List<LatLng> polygonPoints = _polygonPoints(geometry['coordinates']);
+      final List<double>? centroid = _polygonCentroid(polygonPoints);
+      if (centroid == null || polygonPoints.length < 3) {
         continue;
       }
 
@@ -172,6 +173,7 @@ class SafetyHeatmapService {
           safetyScore: _safetyScoreFromRisk(riskScore),
           radiusMeters: _radiusMetersForRisk(riskScore, classification),
           classification: classification,
+          polygonPoints: polygonPoints,
         ),
       );
     }
@@ -224,37 +226,45 @@ class SafetyHeatmapService {
     return null;
   }
 
-  List<double>? _polygonCentroid(Object? coordinates) {
+  List<LatLng> _polygonPoints(Object? coordinates) {
     if (coordinates is! List || coordinates.isEmpty) {
-      return null;
+      return const <LatLng>[];
     }
 
     final Object? firstRingRaw = coordinates.first;
     if (firstRingRaw is! List || firstRingRaw.isEmpty) {
-      return null;
+      return const <LatLng>[];
     }
 
-    double totalLat = 0;
-    double totalLon = 0;
-    int count = 0;
+    final List<LatLng> points = <LatLng>[];
     for (final dynamic point in firstRingRaw) {
       if (point is! List || point.length < 2) {
         continue;
       }
+
       final double? lon = _asDouble(point[0]);
       final double? lat = _asDouble(point[1]);
       if (lat == null || lon == null) {
         continue;
       }
-      totalLat += lat;
-      totalLon += lon;
-      count += 1;
+      points.add(LatLng(lat, lon));
     }
+    return points;
+  }
 
-    if (count == 0) {
+  List<double>? _polygonCentroid(List<LatLng> points) {
+    if (points.isEmpty) {
       return null;
     }
-    return <double>[totalLat / count, totalLon / count];
+
+    double totalLat = 0;
+    double totalLon = 0;
+    for (final LatLng point in points) {
+      totalLat += point.latitude;
+      totalLon += point.longitude;
+    }
+
+    return <double>[totalLat / points.length, totalLon / points.length];
   }
 
   double? _asDouble(Object? value) {
