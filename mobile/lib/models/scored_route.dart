@@ -9,6 +9,7 @@ class ScoredRoute {
     required this.totalDistanceMeters,
     required this.averageSafetyScore,
     required this.totalRisk,
+    this.warning,
   });
 
   final List<LatLng> points;
@@ -16,4 +17,5 @@ class ScoredRoute {
   final double totalDistanceMeters;
   final double averageSafetyScore;
   final double totalRisk;
+  final String? warning;
 }

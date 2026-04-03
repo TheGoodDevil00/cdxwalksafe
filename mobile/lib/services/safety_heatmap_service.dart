@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/safety_zone.dart';
@@ -17,13 +18,23 @@ class SafetyHeatmapService {
   final http.Client _client;
   final String _apiBaseUrl;
 
-  Future<List<SafetyZone>> loadSafetyZones({bool refresh = false}) async {
+  Future<List<SafetyZone>> loadSafetyZones({
+    bool refresh = false,
+    double? minLat,
+    double? maxLat,
+    double? minLon,
+    double? maxLon,
+  }) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SafetyZone> cachedZones = _loadCachedZones(prefs);
 
     final Uri uri = Uri.parse('$_apiBaseUrl/safety-zones').replace(
       queryParameters: <String, String>{
         if (refresh) 'refresh': 'true',
+        if (minLat != null) 'min_lat': minLat.toString(),
+        if (maxLat != null) 'max_lat': maxLat.toString(),
+        if (minLon != null) 'min_lon': minLon.toString(),
+        if (maxLon != null) 'max_lon': maxLon.toString(),
       },
     );
 
@@ -34,7 +45,7 @@ class SafetyHeatmapService {
         if (payload != null) {
           final List<SafetyZone> zones = _parseZones(payload['features']);
           if (zones.isNotEmpty) {
-            await _cacheZones(prefs, zones: zones);
+            await _cacheZones(prefs, zones: _mergeZones(cachedZones, zones));
             return zones;
           }
         }
@@ -43,7 +54,35 @@ class SafetyHeatmapService {
       // Fall through to cache.
     }
 
-    return cachedZones;
+    return _filterZones(
+      cachedZones,
+      minLat: minLat,
+      maxLat: maxLat,
+      minLon: minLon,
+      maxLon: maxLon,
+    );
+  }
+
+  Future<List<SafetyZone>> loadSafetyZonesForPoints(
+    List<LatLng> points, {
+    bool refresh = false,
+    double paddingDegrees = 0.003,
+  }) async {
+    final _Bounds? bounds = _boundsFromPoints(
+      points,
+      paddingDegrees: paddingDegrees,
+    );
+    if (bounds == null) {
+      return loadSafetyZones(refresh: refresh);
+    }
+
+    return loadSafetyZones(
+      refresh: refresh,
+      minLat: bounds.minLat,
+      maxLat: bounds.maxLat,
+      minLon: bounds.minLon,
+      maxLon: bounds.maxLon,
+    );
   }
 
   Future<void> _cacheZones(
@@ -72,8 +111,7 @@ class SafetyHeatmapService {
           .map(
             (Map item) => SafetyZone.fromJson(
               item.map(
-                (dynamic key, dynamic value) =>
-                    MapEntry(key.toString(), value),
+                (dynamic key, dynamic value) => MapEntry(key.toString(), value),
               ),
             ),
           )
@@ -108,7 +146,9 @@ class SafetyHeatmapService {
     final List<SafetyZone> zones = <SafetyZone>[];
     for (final dynamic item in rawFeatures) {
       final Map<String, dynamic>? feature = _coerceMap(item);
-      final Map<String, dynamic>? properties = _coerceMap(feature?['properties']);
+      final Map<String, dynamic>? properties = _coerceMap(
+        feature?['properties'],
+      );
       final Map<String, dynamic>? geometry = _coerceMap(feature?['geometry']);
       if (properties == null || geometry == null) {
         continue;
@@ -120,17 +160,56 @@ class SafetyHeatmapService {
       }
 
       final double riskScore = _asDouble(properties['risk_score']) ?? 0;
+      final String classification = _normalizeClassification(
+        properties['risk_level']?.toString(),
+        riskScore,
+      );
       zones.add(
         SafetyZone(
           id: properties['zone_id']?.toString() ?? '',
           latitude: centroid[0],
           longitude: centroid[1],
-          safetyScore: (1 - riskScore) * 100,
-          classification: properties['risk_level']?.toString().toUpperCase(),
+          safetyScore: _safetyScoreFromRisk(riskScore),
+          radiusMeters: _radiusMetersForRisk(riskScore, classification),
+          classification: classification,
         ),
       );
     }
     return zones;
+  }
+
+  List<SafetyZone> _mergeZones(
+    List<SafetyZone> existing,
+    List<SafetyZone> fresh,
+  ) {
+    final Map<String, SafetyZone> merged = <String, SafetyZone>{
+      for (final SafetyZone zone in existing) zone.id: zone,
+    };
+    for (final SafetyZone zone in fresh) {
+      merged[zone.id] = zone;
+    }
+    return merged.values.toList(growable: false);
+  }
+
+  List<SafetyZone> _filterZones(
+    List<SafetyZone> zones, {
+    double? minLat,
+    double? maxLat,
+    double? minLon,
+    double? maxLon,
+  }) {
+    if (minLat == null || maxLat == null || minLon == null || maxLon == null) {
+      return zones;
+    }
+
+    return zones
+        .where((SafetyZone zone) {
+          return zone.latitude >= minLat &&
+              zone.latitude <= maxLat &&
+              zone.longitude >= minLon &&
+              zone.longitude <= maxLon;
+        })
+        .toList(growable: false);
   }
 
   Map<String, dynamic>? _coerceMap(Object? value) {
@@ -138,7 +217,9 @@ class SafetyHeatmapService {
       return value;
     }
     if (value is Map) {
-      return value.map((dynamic key, dynamic val) => MapEntry(key.toString(), val));
+      return value.map(
+        (dynamic key, dynamic val) => MapEntry(key.toString(), val),
+      );
     }
     return null;
   }
@@ -185,4 +266,88 @@ class SafetyHeatmapService {
     }
     return null;
   }
+
+  _Bounds? _boundsFromPoints(
+    List<LatLng> points, {
+    required double paddingDegrees,
+  }) {
+    if (points.isEmpty) {
+      return null;
+    }
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLon = points.first.longitude;
+    double maxLon = points.first.longitude;
+
+    for (final LatLng point in points.skip(1)) {
+      if (point.latitude < minLat) {
+        minLat = point.latitude;
+      }
+      if (point.latitude > maxLat) {
+        maxLat = point.latitude;
+      }
+      if (point.longitude < minLon) {
+        minLon = point.longitude;
+      }
+      if (point.longitude > maxLon) {
+        maxLon = point.longitude;
+      }
+    }
+
+    return _Bounds(
+      minLat: minLat - paddingDegrees,
+      maxLat: maxLat + paddingDegrees,
+      minLon: minLon - paddingDegrees,
+      maxLon: maxLon + paddingDegrees,
+    );
+  }
+
+  double _safetyScoreFromRisk(double riskScore) {
+    final double normalizedRisk = riskScore <= 1 ? riskScore * 100 : riskScore;
+    return (100 - normalizedRisk).clamp(0, 100).toDouble();
+  }
+
+  double _radiusMetersForRisk(double riskScore, String classification) {
+    final double normalizedRisk = riskScore <= 1 ? riskScore * 100 : riskScore;
+    if (classification == 'RISKY' || normalizedRisk >= 70) {
+      return 180;
+    }
+    if (classification == 'CAUTIOUS' || normalizedRisk >= 40) {
+      return 145;
+    }
+    return 115;
+  }
+
+  String _normalizeClassification(String? riskLevel, double riskScore) {
+    final String normalized = (riskLevel ?? '').trim().toUpperCase();
+    if (normalized == 'SAFE' ||
+        normalized == 'CAUTIOUS' ||
+        normalized == 'RISKY') {
+      return normalized;
+    }
+
+    final double normalizedRisk = riskScore <= 1 ? riskScore * 100 : riskScore;
+    if (normalizedRisk >= 70) {
+      return 'RISKY';
+    }
+    if (normalizedRisk >= 40) {
+      return 'CAUTIOUS';
+    }
+    return 'SAFE';
+  }
+}
+
+class _Bounds {
+  const _Bounds({
+    required this.minLat,
+    required this.maxLat,
+    required this.minLon,
+    required this.maxLon,
+  });
+
+  final double minLat;
+  final double maxLat;
+  final double minLon;
+  final double maxLon;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/route_segment_safety.dart';
 import '../models/scored_route.dart';
 import 'gradient_button.dart';
 
@@ -142,9 +143,7 @@ class _ReadyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int safetyScore = route.averageSafetyScore.round().clamp(0, 100);
-    final int etaMinutes = (route.totalDistanceMeters / 75)
-        .clamp(1, 180)
-        .round();
+    final _RouteCardSummary summary = _RouteCardSummary.fromRoute(route);
 
     return Column(
       key: const ValueKey<String>('ready'),
@@ -177,11 +176,49 @@ class _ReadyState extends StatelessWidget {
             Expanded(
               child: _MetricBlock(
                 label: 'EST. TIME',
-                value: '$etaMinutes MIN',
+                value: '${summary.etaMinutes} MIN',
                 alignEnd: true,
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: <Widget>[
+            _SummaryChip(
+              icon: Icons.route_rounded,
+              label: summary.headline,
+              backgroundColor: summary.highlightColor.withValues(alpha: 0.12),
+              foregroundColor: summary.highlightColor,
+            ),
+            _SummaryChip(
+              icon: Icons.warning_amber_rounded,
+              label: 'Watch-outs: ${summary.watchOutLabel}',
+              backgroundColor: const Color(0xFFF8F1E3),
+              foregroundColor: const Color(0xFFB97C11),
+            ),
+            _SummaryChip(
+              icon: Icons.local_fire_department_rounded,
+              label: summary.incidentLabel,
+              backgroundColor: const Color(0xFFFCEBE7),
+              foregroundColor: const Color(0xFFC75B48),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Text(
+          route.warning ?? summary.advice,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: route.warning == null
+                ? const Color(0xFF5E6D80)
+                : const Color(0xFF8B5A14),
+            height: 1.35,
+            fontWeight: route.warning == null
+                ? FontWeight.w500
+                : FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 22),
         GradientButton(
@@ -196,6 +233,47 @@ class _ReadyState extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  const _SummaryChip({
+    required this.icon,
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 16, color: foregroundColor),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: foregroundColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -247,3 +325,111 @@ class _MetricBlock extends StatelessWidget {
     );
   }
 }
+
+class _RouteCardSummary {
+  const _RouteCardSummary({
+    required this.etaMinutes,
+    required this.headline,
+    required this.watchOutLabel,
+    required this.incidentLabel,
+    required this.advice,
+    required this.highlightColor,
+  });
+
+  final int etaMinutes;
+  final String headline;
+  final String watchOutLabel;
+  final String incidentLabel;
+  final String advice;
+  final Color highlightColor;
+
+  factory _RouteCardSummary.fromRoute(ScoredRoute route) {
+    final List<RouteSegmentSafety> matchedSegments = route.segments
+        .where((RouteSegmentSafety segment) => segment.safetyLevel != 'UNKNOWN')
+        .toList(growable: false);
+    final int riskySegments = matchedSegments
+        .where(
+          (RouteSegmentSafety segment) => _segmentTier(segment) == _Tier.risky,
+        )
+        .length;
+    final int cautiousSegments = matchedSegments
+        .where(
+          (RouteSegmentSafety segment) =>
+              _segmentTier(segment) == _Tier.cautious,
+        )
+        .length;
+    final int incidentHotspots = matchedSegments
+        .where(
+          (RouteSegmentSafety segment) =>
+              segment.safetyPenalty > 0.5 || segment.incidentRisk > 0.05,
+        )
+        .length;
+    final int etaMinutes = (route.totalDistanceMeters / 75)
+        .clamp(1, 180)
+        .round();
+
+    if (route.averageSafetyScore >= 75) {
+      return _RouteCardSummary(
+        etaMinutes: etaMinutes,
+        headline: 'Steadier route',
+        watchOutLabel: riskySegments > 0
+            ? 'Moderate'
+            : (cautiousSegments > 0 ? 'Low' : 'Minimal'),
+        incidentLabel: incidentHotspots > 0
+            ? '$incidentHotspots live hotspots'
+            : 'No live hotspots',
+        advice: incidentHotspots > 0
+            ? 'Recent incident activity is lowering safety on a few nearby stretches.'
+            : 'This route is staying on the calmer side right now.',
+        highlightColor: const Color(0xFF2C8C63),
+      );
+    }
+
+    if (route.averageSafetyScore >= 55) {
+      return _RouteCardSummary(
+        etaMinutes: etaMinutes,
+        headline: 'Mostly okay with caution',
+        watchOutLabel: riskySegments > 0 ? 'High' : 'Moderate',
+        incidentLabel: incidentHotspots > 0
+            ? '$incidentHotspots active hotspots'
+            : 'Low incident activity',
+        advice: incidentHotspots > 0
+            ? 'Stay alert near the highlighted sections where recent reports are clustered.'
+            : 'A few stretches need extra attention, especially after dark.',
+        highlightColor: const Color(0xFFD79C29),
+      );
+    }
+
+    return _RouteCardSummary(
+      etaMinutes: etaMinutes,
+      headline: 'Stay extra alert',
+      watchOutLabel: riskySegments > 0 ? 'High' : 'Moderate',
+      incidentLabel: incidentHotspots > 0
+          ? '$incidentHotspots higher-risk hotspots'
+          : 'Safety score is low',
+      advice: incidentHotspots > 0
+          ? 'Recent incident clusters are materially affecting this route.'
+          : 'Keep to brighter, busier roads and reassess if conditions feel off.',
+      highlightColor: const Color(0xFFD45A47),
+    );
+  }
+
+  static _Tier _segmentTier(RouteSegmentSafety segment) {
+    final String normalizedLevel = (segment.safetyLevel ?? '').toUpperCase();
+    if (normalizedLevel == 'RISKY') {
+      return _Tier.risky;
+    }
+    if (normalizedLevel == 'CAUTIOUS') {
+      return _Tier.cautious;
+    }
+    if (segment.safetyScore < 40) {
+      return _Tier.risky;
+    }
+    if (segment.safetyScore < 70) {
+      return _Tier.cautious;
+    }
+    return _Tier.safe;
+  }
+}
+
+enum _Tier { safe, cautious, risky }

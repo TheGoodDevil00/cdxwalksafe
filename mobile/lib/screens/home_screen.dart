@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/place_suggestion.dart';
+import '../models/route_segment_safety.dart';
 import '../models/scored_route.dart';
 import '../models/safety_zone.dart';
 import '../services/location_service.dart';
@@ -62,13 +64,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadHomeMap() async {
-    final List<SafetyZone> zones = await _heatmapService.loadSafetyZones();
     final LatLng? userLocation = await _locationService.getCurrentLocation();
     if (!mounted) {
       return;
     }
 
     final LatLng center = userLocation ?? _defaultCenter;
+    final List<SafetyZone> zones = await _heatmapService
+        .loadSafetyZonesForPoints(<LatLng>[center], refresh: true);
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       _safetyZones = zones;
@@ -119,11 +125,24 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final List<LatLng> routePoints = safestRoute?.points ?? <LatLng>[];
+      final List<SafetyZone> nearbyZones = await _heatmapService
+          .loadSafetyZonesForPoints(
+            routePoints.isNotEmpty
+                ? <LatLng>[_startPoint, destination, ...routePoints]
+                : <LatLng>[_startPoint, destination],
+            refresh: true,
+          );
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _selectedRoute = safestRoute;
+        if (nearbyZones.isNotEmpty) {
+          _safetyZones = nearbyZones;
+        }
         _routePolylines = routePoints.isEmpty
             ? <Polyline>[]
-            : _buildRoutePolylines(routePoints);
+            : _buildRoutePolylines(safestRoute!);
       });
 
       if (routePoints.isEmpty) {
@@ -157,21 +176,77 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  List<Polyline> _buildRoutePolylines(List<LatLng> routePoints) {
-    return <Polyline>[
+  Future<void> _refreshNearbySafetyZones() async {
+    final List<SafetyZone> zones = await _heatmapService
+        .loadSafetyZonesForPoints(<LatLng>[_startPoint], refresh: true);
+    if (!mounted || zones.isEmpty) {
+      return;
+    }
+    setState(() {
+      _safetyZones = zones;
+    });
+  }
+
+  List<Polyline> _buildRoutePolylines(ScoredRoute route) {
+    final List<LatLng> routePoints = route.points;
+    if (routePoints.isEmpty) {
+      return <Polyline>[];
+    }
+
+    final List<RouteSegmentSafety> scoredSegments = route.segments
+        .where((RouteSegmentSafety segment) => segment.safetyLevel != 'UNKNOWN')
+        .toList(growable: false);
+    final List<Polyline> polylines = <Polyline>[
       Polyline(
         points: routePoints,
-        strokeWidth: 14,
-        color: const Color(0xFF30C56A).withValues(alpha: 0.18),
+        strokeWidth: 16,
+        color: Colors.white.withValues(alpha: 0.84),
       ),
       Polyline(
         points: routePoints,
-        strokeWidth: 8,
-        color: const Color(0xFF30C56A),
-        borderStrokeWidth: 4.4,
-        borderColor: Colors.white.withValues(alpha: 0.96),
+        strokeWidth: 11,
+        color: const Color(0xFF2F6EF6).withValues(alpha: 0.14),
       ),
     ];
+
+    if (scoredSegments.isEmpty) {
+      polylines.add(
+        Polyline(
+          points: routePoints,
+          strokeWidth: 8,
+          color: const Color(0xFF30C56A),
+          borderStrokeWidth: 4.4,
+          borderColor: Colors.white.withValues(alpha: 0.96),
+        ),
+      );
+      return polylines;
+    }
+
+    for (final RouteSegmentSafety segment in scoredSegments) {
+      polylines.add(
+        Polyline(
+          points: <LatLng>[segment.start, segment.end],
+          strokeWidth: 8.2,
+          color: _routeSegmentColor(segment),
+          borderStrokeWidth: 2.8,
+          borderColor: Colors.white.withValues(alpha: 0.90),
+        ),
+      );
+    }
+    return polylines;
+  }
+
+  Color _routeSegmentColor(RouteSegmentSafety segment) {
+    if (segment.safetyPenalty >= 8 || segment.incidentRisk >= 0.6) {
+      return const Color(0xFFE24A3B);
+    }
+    if (segment.safetyScore >= 75) {
+      return const Color(0xFF30C56A);
+    }
+    if (segment.safetyScore >= 55) {
+      return const Color(0xFFF2A53B);
+    }
+    return const Color(0xFFD7644F);
   }
 
   Future<void> _openDestinationSearch() async {
@@ -201,6 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _markers = _buildNavigationMarkers(start: _startPoint);
       _isRouteActive = false;
     });
+    unawaited(_refreshNearbySafetyZones());
     _mapController.move(_startPoint, 15.2);
   }
 
@@ -226,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Route started. Follow the green path and keep an eye on nearby danger zones.',
+          'Route started. Follow the highlighted path and keep an eye on nearby danger zones.',
         ),
       ),
     );
@@ -404,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final bool showRouteCard = _selectedRoute != null || _isLoadingRoute;
-    final double actionBottomOffset = showRouteCard ? 240 : 28;
+    final double actionBottomOffset = showRouteCard ? 288 : 28;
 
     return Scaffold(
       body: Stack(
