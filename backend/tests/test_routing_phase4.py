@@ -72,6 +72,12 @@ class RoutingPhase4Tests(unittest.IsolatedAsyncioTestCase):
         query, params = db.calls[0]
         self.assertIn("FROM incident_reports report", query)
         self.assertIn("FROM road_segments", query)
+        self.assertIn(
+            "LOWER(COALESCE(report.status, 'pending')) = 'verified'",
+            query,
+        )
+        self.assertNotIn("WHEN 'confirmed' THEN 1.0", query)
+        self.assertNotIn("WHEN 'resolved' THEN 0.4", query)
         self.assertEqual(params["dataset_version"], "20260403-174632")
         self.assertEqual(params["road_segment_ids"], [101, 102])
         self.assertEqual(aggregates[101]["incident_count"], 2)

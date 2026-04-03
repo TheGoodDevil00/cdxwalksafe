@@ -188,10 +188,7 @@ class ReportingService:
                     :incident_search_expand_degrees
                 )
                 AND nearest.distance_m <= :incident_match_distance_m
-                AND LOWER(COALESCE(report.status, 'pending')) NOT IN (
-                    'dismissed',
-                    'rejected'
-                )
+                AND LOWER(COALESCE(report.status, 'pending')) = 'verified'
             )
             SELECT
                 road_segment_id,
@@ -199,12 +196,6 @@ class ReportingService:
                 ROUND(
                     SUM(
                         confidence
-                        * CASE LOWER(status)
-                            WHEN 'verified' THEN 1.0
-                            WHEN 'confirmed' THEN 1.0
-                            WHEN 'resolved' THEN 0.4
-                            ELSE 0.65
-                        END
                         * CASE
                             WHEN submitted_at >= NOW() - INTERVAL '7 days' THEN 1.0
                             WHEN submitted_at >= NOW() - INTERVAL '30 days' THEN 0.8
