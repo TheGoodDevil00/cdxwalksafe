@@ -17,17 +17,23 @@ class IncidentModal extends StatefulWidget {
 }
 
 class _IncidentModalState extends State<IncidentModal> {
-  static const List<String> _incidentTypes = <String>[
-    'Poor Lighting',
-    'Suspicious Activity',
-    'No Sidewalk',
+  static const List<_IncidentCategory> _incidentTypes = <_IncidentCategory>[
+    _IncidentCategory(label: 'Poor lighting', value: 'Poor lighting'),
+    _IncidentCategory(
+      label: 'Suspicious Activity',
+      value: 'Suspicious Activity',
+    ),
+    _IncidentCategory(
+      label: 'Unsafe infrastructure',
+      value: 'Unsafe infrastructure',
+    ),
   ];
 
   final IncidentStorageService _storageService = IncidentStorageService();
   final ReportingApiService _reportingApiService = ReportingApiService();
   final TextEditingController _descriptionController = TextEditingController();
 
-  String _selectedIncidentType = _incidentTypes.first;
+  String _selectedIncidentType = _incidentTypes.first.value;
   bool _submitting = false;
 
   @override
@@ -81,8 +87,8 @@ class _IncidentModalState extends State<IncidentModal> {
       SnackBar(
         content: Text(
           remoteResponse == null
-              ? 'Saved locally. Backend unavailable, but the report will still affect offline safety scoring.'
-              : 'Incident report submitted and synced to the backend.',
+              ? 'Saved locally. It will influence safety scores once successfully submitted and reviewed.'
+              : 'Report submitted. It will influence safety scores once reviewed.',
         ),
       ),
     );
@@ -180,15 +186,15 @@ class _IncidentModalState extends State<IncidentModal> {
                         spacing: 10,
                         runSpacing: 10,
                         children: _incidentTypes
-                            .map((String type) {
+                            .map((_IncidentCategory type) {
                               final bool isSelected =
-                                  type == _selectedIncidentType;
+                                  type.value == _selectedIncidentType;
                               return _CategoryPill(
-                                label: type,
+                                label: type.label,
                                 isSelected: isSelected,
                                 onTap: () {
                                   setState(() {
-                                    _selectedIncidentType = type;
+                                    _selectedIncidentType = type.value;
                                   });
                                 },
                               );
@@ -383,4 +389,11 @@ class _CategoryPill extends StatelessWidget {
       ),
     );
   }
+}
+
+class _IncidentCategory {
+  const _IncidentCategory({required this.label, required this.value});
+
+  final String label;
+  final String value;
 }
