@@ -44,6 +44,7 @@ class EmergencyAlertCreate(BaseModel):
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
     message: Optional[str] = None
+    trusted_contacts: list[str] = Field(default_factory=list, max_length=10)
     contacts_notified: int = Field(default=0, ge=0)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -53,3 +54,5 @@ class EmergencyAlertResponse(BaseModel):
     status: str
     created_at: Optional[datetime] = None
     message: str
+    contacts_notified: int = 0
+    trusted_contacts: list[str] = Field(default_factory=list)

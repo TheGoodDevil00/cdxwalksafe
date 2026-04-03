@@ -40,6 +40,7 @@ class ReportingApiService {
     required double latitude,
     required double longitude,
     String? message,
+    List<String> trustedContacts = const <String>[],
     int contactsNotified = 0,
   }) async {
     final Uri uri = Uri.parse('$_baseUrl/report/emergency');
@@ -48,6 +49,7 @@ class ReportingApiService {
       'lat': latitude,
       'lon': longitude,
       'message': message,
+      'trusted_contacts': trustedContacts,
       'contacts_notified': contactsNotified,
       'metadata': <String, dynamic>{'source': 'mobile_app'},
     };

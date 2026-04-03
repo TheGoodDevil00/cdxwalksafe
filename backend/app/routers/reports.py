@@ -65,6 +65,12 @@ async def create_emergency_alert(
     return EmergencyAlertResponse(
         id=str(created.get("id", "")),
         status=str(created.get("status", "pending")),
-        created_at=created.get("submitted_at"),
+        created_at=created.get("created_at"),
         message=str(created.get("message", "Emergency alert has been recorded.")),
+        contacts_notified=int(created.get("contacts_notified", 0)),
+        trusted_contacts=[
+            str(contact)
+            for contact in (created.get("trusted_contacts") or [])
+            if contact is not None
+        ],
     )

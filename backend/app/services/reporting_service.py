@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 
 from sqlalchemy import bindparam, text
@@ -12,6 +13,61 @@ INCIDENT_SEARCH_EXPAND_DEGREES = 0.0005
 class ReportingService:
     def __init__(self) -> None:
         self.base_confidence = 0.5
+
+    def _normalize_trusted_contacts(self, trusted_contacts: List[str]) -> List[str]:
+        normalized_contacts: List[str] = []
+        seen_contacts: set[str] = set()
+        for raw_contact in trusted_contacts:
+            if not isinstance(raw_contact, str):
+                continue
+            contact = raw_contact.strip()
+            if not contact:
+                continue
+            contact_key = contact.casefold()
+            if contact_key in seen_contacts:
+                continue
+            seen_contacts.add(contact_key)
+            normalized_contacts.append(contact)
+        return normalized_contacts
+
+    async def ensure_emergency_alerts_table(self, db: AsyncSession) -> None:
+        await db.execute(
+            text(
+                """
+                CREATE TABLE IF NOT EXISTS emergency_alerts (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    user_hash TEXT NOT NULL,
+                    latitude DOUBLE PRECISION NOT NULL,
+                    longitude DOUBLE PRECISION NOT NULL,
+                    location GEOGRAPHY(POINT, 4326) GENERATED ALWAYS AS (
+                        ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
+                    ) STORED,
+                    status TEXT NOT NULL DEFAULT 'triggered',
+                    message TEXT,
+                    contacts_notified INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                    resolved_at TIMESTAMP WITH TIME ZONE,
+                    metadata JSONB NOT NULL DEFAULT '{}'::jsonb
+                )
+                """
+            )
+        )
+        await db.execute(
+            text(
+                """
+                CREATE INDEX IF NOT EXISTS idx_emergency_alerts_location
+                ON emergency_alerts USING GIST(location)
+                """
+            )
+        )
+        await db.execute(
+            text(
+                """
+                CREATE INDEX IF NOT EXISTS idx_emergency_alerts_created_at
+                ON emergency_alerts (created_at DESC)
+                """
+            )
+        )
 
     async def create_report(
         self,
@@ -207,33 +263,46 @@ class ReportingService:
         alert: EmergencyAlertCreate,
         db: AsyncSession,
     ) -> Dict[str, Any]:
+        await self.ensure_emergency_alerts_table(db)
+        trusted_contacts = self._normalize_trusted_contacts(alert.trusted_contacts)
+        notified_contacts = trusted_contacts[:]
+        contacts_notified = len(notified_contacts)
+        metadata = dict(alert.metadata)
+        metadata["source"] = metadata.get("source", "mobile_app")
+        metadata["trusted_contacts"] = trusted_contacts
+        metadata["trusted_contacts_notified"] = notified_contacts
+
         result = await db.execute(
             text(
                 """
-                INSERT INTO incident_reports (
+                INSERT INTO emergency_alerts (
                     user_hash,
-                    category,
-                    description,
-                    location,
+                    latitude,
+                    longitude,
                     status,
-                    confidence
+                    message,
+                    contacts_notified,
+                    metadata
                 )
                 VALUES (
                     :user_hash,
-                    'emergency_alert',
-                    :description,
-                    ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
-                    'pending',
-                    1.0
+                    :lat,
+                    :lon,
+                    'triggered',
+                    :message,
+                    :contacts_notified,
+                    CAST(:metadata AS JSONB)
                 )
-                RETURNING id::text AS id, status, submitted_at
+                RETURNING id::text AS id, status, created_at, contacts_notified, metadata
                 """
             ),
             {
                 "user_hash": alert.user_hash,
-                "description": alert.message or "Emergency alert triggered",
-                "lon": alert.lon,
                 "lat": alert.lat,
+                "lon": alert.lon,
+                "message": alert.message or "Emergency alert triggered",
+                "contacts_notified": contacts_notified,
+                "metadata": json.dumps(metadata),
             },
         )
         row = result.fetchone()
@@ -241,6 +310,7 @@ class ReportingService:
             raise RuntimeError("Emergency alert insert returned no row.")
         payload = dict(row._mapping)
         payload["message"] = alert.message or "Emergency alert triggered"
+        payload["trusted_contacts"] = notified_contacts
         return payload
 
 
