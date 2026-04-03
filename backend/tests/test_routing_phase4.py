@@ -4,10 +4,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
+from shapely.geometry import LineString, Polygon
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.services.reporting_service import ReportingService
 from app.services.risk_engine import score_route
+from app.services.safety_dataset_cache import (
+    CachedRoadSegment,
+    CachedSafetyZone,
+    SafetyDatasetSnapshot,
+)
 
 
 class FakeRow:
@@ -79,50 +86,49 @@ class RoutingPhase4Tests(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_score_route_applies_incident_penalties_to_segment_scores(self):
-        db = FakeAsyncSession(
-            [
-                FakeRow(
-                    {
-                        "dataset_version": "20260403-174632",
-                        "segment_index": 1,
-                        "start_lat": 18.52,
-                        "start_lon": 73.85,
-                        "end_lat": 18.525,
-                        "end_lon": 73.855,
-                        "route_length_m": 100.0,
-                        "road_segment_id": 101,
-                        "segment_safety_score": 70.0,
-                        "road_type": "residential",
-                        "lighting": True,
-                        "match_distance_m": 1.1,
-                        "zone_id": None,
-                        "zone_risk_level": None,
-                        "zone_risk_score": None,
-                    }
+        db = object()
+        snapshot = SafetyDatasetSnapshot(
+            road_dataset_version="20260403-174632",
+            zone_dataset_version="20260403-174632",
+            road_segments=[
+                CachedRoadSegment(
+                    segment_id=101,
+                    safety_score=70.0,
+                    road_type="residential",
+                    lighting=True,
+                    geometry=LineString([(73.85, 18.52), (73.855, 18.525)]),
                 ),
-                FakeRow(
-                    {
-                        "dataset_version": "20260403-174632",
-                        "segment_index": 2,
-                        "start_lat": 18.525,
-                        "start_lon": 73.855,
-                        "end_lat": 18.53,
-                        "end_lon": 73.86,
-                        "route_length_m": 100.0,
-                        "road_segment_id": 102,
-                        "segment_safety_score": 80.0,
-                        "road_type": "tertiary",
-                        "lighting": False,
-                        "match_distance_m": 0.8,
-                        "zone_id": "zone-1",
-                        "zone_risk_level": "cautious",
-                        "zone_risk_score": 0.35,
-                    }
+                CachedRoadSegment(
+                    segment_id=102,
+                    safety_score=80.0,
+                    road_type="tertiary",
+                    lighting=False,
+                    geometry=LineString([(73.855, 18.525), (73.86, 18.53)]),
                 ),
-            ]
+            ],
+            safety_zones=[
+                CachedSafetyZone(
+                    zone_id="zone-1",
+                    risk_level="cautious",
+                    risk_score=0.35,
+                    dataset_version="20260403-174632",
+                    geometry=Polygon(
+                        [
+                            (73.854, 18.524),
+                            (73.861, 18.524),
+                            (73.861, 18.531),
+                            (73.854, 18.531),
+                            (73.854, 18.524),
+                        ]
+                    ),
+                )
+            ],
         )
 
         with patch(
+            "app.services.risk_engine.safety_dataset_cache.get_snapshot",
+            new=AsyncMock(return_value=snapshot),
+        ), patch(
             "app.services.risk_engine.reporting_service.get_segment_incident_aggregates",
             new=AsyncMock(
                 return_value={

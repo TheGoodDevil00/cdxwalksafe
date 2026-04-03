@@ -4,6 +4,7 @@ alembic==1.13.1
 asyncpg==0.31.0
 sqlalchemy[asyncio]==2.0.48
 geoalchemy2==0.15.1
+shapely==2.1.2
 h3==4.4.2
 httpx==0.27.0
 polyline==2.0.1
