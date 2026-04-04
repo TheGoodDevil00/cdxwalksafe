@@ -22,6 +22,8 @@ import 'destination_search_screen.dart';
 import 'report_incident_screen.dart';
 import 'settings_profile_screen.dart';
 
+enum NavigationState { idle, planning, active, arrived }
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -50,18 +52,58 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingLocation = true;
   bool _isLoadingRoute = false;
   bool _showSafetyZones = true;
-  bool _isRouteActive = false;
+  NavigationState _navState = NavigationState.idle;
+  StreamSubscription<Position>? _positionSubscription;
+  Position? _currentPosition;
+  DateTime? _lastRerouteTime;
+  // ignore: unused_field
+  double _currentHeading = 0.0;
+  // ignore: unused_field
+  bool _headingUpMode = false;
+  // ignore: unused_field
+  bool _cardExpanded = false;
+  // ignore: prefer_final_fields
+  bool _mapReady = false;
+  bool _isRerouting = false;
+
+  LatLng get _liveUserPoint => _currentPosition == null
+      ? _startPoint
+      : LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
 
   @override
   void initState() {
     super.initState();
     _loadHomeMap();
+    _startPositionTracking();
   }
 
   @override
   void dispose() {
+    _positionSubscription?.cancel();
     _mapController.dispose();
     super.dispose();
+  }
+
+  void _syncMarkers() {
+    _markers = _buildNavigationMarkers(
+      start: _liveUserPoint,
+      destination: _destinationPoint,
+    );
+  }
+
+  void _resetMapBearing() {
+    if (_mapReady) {
+      _mapController.rotate(0);
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _currentHeading = 0.0;
+      _headingUpMode = false;
+    });
   }
 
   Future<void> _loadHomeMap() async {
@@ -82,43 +124,53 @@ class _HomeScreenState extends State<HomeScreen> {
       _isLoadingLocation = false;
       _cameraTarget = center;
       _startPoint = center;
-      _markers = _buildNavigationMarkers(start: center);
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
       _destinationPoint = null;
       _destinationLabel = null;
-      _isRouteActive = false;
+      _navState = NavigationState.idle;
+      _cardExpanded = false;
+      _lastRerouteTime = null;
+      _isRerouting = false;
+      _syncMarkers();
     });
 
     _mapController.move(center, 15.2);
   }
 
-  Future<void> _selectDestinationAndRoute(
-    LatLng destination, {
+  Future<void> _loadRoute({
+    required LatLng start,
+    required LatLng destination,
     String? label,
+    bool moveCamera = true,
   }) async {
     if (_isLoadingLocation || _isLoadingRoute) {
       return;
     }
 
+    final bool keepActive = _navState == NavigationState.active;
+
     setState(() {
+      _startPoint = start;
       _destinationPoint = destination;
-      _destinationLabel = label ?? 'Pinned destination';
+      _destinationLabel = label ?? _destinationLabel ?? 'Pinned destination';
       _isLoadingRoute = true;
-      _isRouteActive = false;
-      _markers = _buildNavigationMarkers(
-        start: _startPoint,
-        destination: destination,
-      );
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
+      if (!keepActive) {
+        _navState = NavigationState.idle;
+        _cardExpanded = false;
+      }
+      _syncMarkers();
     });
 
-    _mapController.move(destination, 15.8);
+    if (moveCamera) {
+      _mapController.move(destination, 15.8);
+    }
 
     try {
       final ScoredRoute? safestRoute = await _routingService.getSafestRoute(
-        _startPoint,
+        start,
         destination,
       );
       if (!mounted) {
@@ -129,13 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
       final List<SafetyZone> nearbyZones = await _heatmapService
           .loadSafetyZonesForPoints(
             routePoints.isNotEmpty
-                ? <LatLng>[_startPoint, destination, ...routePoints]
-                : <LatLng>[_startPoint, destination],
+                ? <LatLng>[start, destination, ...routePoints]
+                : <LatLng>[start, destination],
             refresh: true,
           );
       if (!mounted) {
         return;
       }
+
       setState(() {
         _selectedRoute = safestRoute;
         if (nearbyZones.isNotEmpty) {
@@ -144,6 +197,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _routePolylines = routePoints.isEmpty
             ? <Polyline>[]
             : _buildRoutePolylines(safestRoute!);
+        _navState = routePoints.isEmpty
+            ? NavigationState.idle
+            : keepActive
+            ? NavigationState.active
+            : NavigationState.planning;
+        _syncMarkers();
       });
 
       if (routePoints.isEmpty) {
@@ -160,6 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _selectedRoute = null;
         _routePolylines = <Polyline>[];
+        _navState = NavigationState.idle;
+        _syncMarkers();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -177,6 +238,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _selectDestinationAndRoute(
+    LatLng destination, {
+    String? label,
+  }) async {
+    await _loadRoute(
+      start: _liveUserPoint,
+      destination: destination,
+      label: label,
+    );
+  }
+
   Future<void> _refreshNearbySafetyZones() async {
     final List<SafetyZone> zones = await _heatmapService
         .loadSafetyZonesForPoints(<LatLng>[_startPoint], refresh: true);
@@ -186,6 +258,139 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _safetyZones = zones;
     });
+  }
+
+  void _startPositionTracking() {
+    _positionSubscription?.cancel();
+
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+      ),
+    ).listen(
+      _onPositionUpdate,
+      onError: (Object error) {
+        debugPrint('Position stream error: $error');
+      },
+    );
+  }
+
+  void _onPositionUpdate(Position position) {
+    if (!mounted) {
+      return;
+    }
+
+    final LatLng userPoint = LatLng(position.latitude, position.longitude);
+
+    setState(() {
+      _currentPosition = position;
+      _startPoint = userPoint;
+      _cameraTarget = userPoint;
+      _syncMarkers();
+    });
+
+    if (_navState != NavigationState.active) {
+      return;
+    }
+
+    if (_destinationPoint != null) {
+      final double distanceToDestination = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        _destinationPoint!.latitude,
+        _destinationPoint!.longitude,
+      );
+
+      if (distanceToDestination < 30) {
+        _onArrived();
+        return;
+      }
+    }
+
+    if (_selectedRoute != null && _selectedRoute!.points.isNotEmpty) {
+      double minDistanceToRoute = double.infinity;
+      for (final LatLng point in _selectedRoute!.points) {
+        final double distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          point.latitude,
+          point.longitude,
+        );
+        if (distance < minDistanceToRoute) {
+          minDistanceToRoute = distance;
+        }
+      }
+
+      if (minDistanceToRoute > 50) {
+        final DateTime now = DateTime.now();
+        final bool cooldownExpired =
+            _lastRerouteTime == null ||
+            now.difference(_lastRerouteTime!).inSeconds > 10;
+
+        if (cooldownExpired && !_isRerouting) {
+          _lastRerouteTime = now;
+          unawaited(_reroute(from: userPoint));
+        }
+      }
+    }
+  }
+
+  void _onArrived() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _navState = NavigationState.arrived;
+      _cardExpanded = true;
+      _isRerouting = false;
+      _lastRerouteTime = null;
+    });
+
+    _resetMapBearing();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('You have arrived at your destination.'),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  Future<void> _reroute({required LatLng from}) async {
+    if (_destinationPoint == null) {
+      return;
+    }
+
+    setState(() {
+      _isRerouting = true;
+    });
+
+    try {
+      await _loadRoute(
+        start: from,
+        destination: _destinationPoint!,
+        label: _destinationLabel,
+        moveCamera: false,
+      );
+
+      if (mounted &&
+          _selectedRoute != null &&
+          _selectedRoute!.points.isNotEmpty) {
+        setState(() {
+          _navState = NavigationState.active;
+        });
+      }
+    } catch (error) {
+      debugPrint('Reroute failed: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRerouting = false;
+        });
+      }
+    }
   }
 
   List<Polyline> _buildRoutePolylines(ScoredRoute route) {
@@ -274,15 +479,19 @@ class _HomeScreenState extends State<HomeScreen> {
       _destinationLabel = null;
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
-      _markers = _buildNavigationMarkers(start: _startPoint);
-      _isRouteActive = false;
+      _navState = NavigationState.idle;
+      _cardExpanded = false;
+      _lastRerouteTime = null;
+      _isRerouting = false;
+      _syncMarkers();
     });
     unawaited(_refreshNearbySafetyZones());
-    _mapController.move(_startPoint, 15.2);
+    _resetMapBearing();
+    _mapController.move(_liveUserPoint, 15.2);
   }
 
   void _recenterOnUser() {
-    _mapController.move(_startPoint, 15.2);
+    _mapController.move(_liveUserPoint, 15.2);
   }
 
   void _toggleSafetyZones() {
@@ -297,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
-      _isRouteActive = true;
+      _navState = NavigationState.active;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -663,14 +872,14 @@ class _HomeScreenState extends State<HomeScreen> {
               child: showRouteCard
                   ? Align(
                       key: ValueKey<String>(
-                        'route-card-${_destinationLabel ?? 'none'}-${_isLoadingRoute ? 'loading' : 'ready'}-${_isRouteActive ? 'active' : 'idle'}',
+                        'route-card-${_destinationLabel ?? 'none'}-${_isLoadingRoute ? 'loading' : 'ready'}-${_navState.name}',
                       ),
                       alignment: Alignment.bottomCenter,
                       child: RouteInfoCard(
                         route: _selectedRoute,
                         isLoading: _isLoadingRoute,
                         destinationLabel: _destinationLabel,
-                        buttonLabel: _isRouteActive
+                        buttonLabel: _navState == NavigationState.active
                             ? 'ROUTE ACTIVE'
                             : 'START ROUTE',
                         onPrimaryPressed:
