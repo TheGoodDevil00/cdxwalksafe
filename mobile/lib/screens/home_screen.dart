@@ -15,6 +15,7 @@ import '../services/place_search_service.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
 import '../services/sos_service.dart';
+import '../widgets/gradient_button.dart';
 import '../widgets/route_info_card.dart';
 import '../widgets/safety_zone_overlay.dart';
 import '../widgets/walksafe_map_view.dart';
@@ -58,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime? _lastRerouteTime;
   double _currentHeading = 0.0;
   bool _headingUpMode = false;
-  // ignore: unused_field
   bool _cardExpanded = false;
   bool _mapReady = false;
   bool _isRerouting = false;
@@ -539,6 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _navState = NavigationState.active;
+      _cardExpanded = false;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -548,6 +549,401 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _stopNavigation() {
+    setState(() {
+      _navState = NavigationState.idle;
+      _cardExpanded = false;
+      _isRerouting = false;
+      _lastRerouteTime = null;
+      _selectedRoute = null;
+      _routePolylines = <Polyline>[];
+      _destinationPoint = null;
+      _destinationLabel = null;
+      _syncMarkers();
+    });
+
+    _resetMapBearing();
+    unawaited(_refreshNearbySafetyZones());
+  }
+
+  int _routeEtaMinutes(ScoredRoute route) =>
+      (route.totalDistanceMeters / 75).clamp(1, 180).round();
+
+  int _routeSafetyPercent(ScoredRoute route) =>
+      route.averageSafetyScore.round().clamp(0, 100).toInt();
+
+  String _navigationAdvisoryText(ScoredRoute route) {
+    final String? warning = route.warning?.trim();
+    if (warning != null && warning.isNotEmpty) {
+      return warning;
+    }
+
+    final int safetyScore = _routeSafetyPercent(route);
+    if (safetyScore >= 75) {
+      return 'This route is staying on calmer stretches right now.';
+    }
+    if (safetyScore >= 55) {
+      return 'Stay alert near the highlighted sections as conditions change.';
+    }
+    return 'Keep to brighter, busier roads and reassess if conditions feel off.';
+  }
+
+  Widget _buildBottomCardShell({
+    required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.fromLTRB(22, 22, 22, 22),
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(32)),
+  }) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 560),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.96),
+          borderRadius: borderRadius,
+          border: Border.all(color: const Color(0xFFF0F4FA)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: const Color(0xFF12366E).withValues(alpha: 0.10),
+              blurRadius: 36,
+              offset: const Offset(0, 18),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCollapsedNavigationStrip(ScoredRoute route) {
+    final int etaMinutes = _routeEtaMinutes(route);
+    final int safetyScore = _routeSafetyPercent(route);
+
+    return _buildBottomCardShell(
+      borderRadius: const BorderRadius.all(Radius.circular(28)),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: const ValueKey<String>('active-strip'),
+          onTap: () {
+            setState(() {
+              _cardExpanded = true;
+            });
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: SizedBox(
+            height: 72,
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0x142F6EF6),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.navigation_rounded,
+                    color: Color(0xFF2F6EF6),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Navigating',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: const Color(0xFF111C2A),
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$etaMinutes min · $safetyScore% safe',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF5E6D80),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  color: Color(0xFF4E5E73),
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedNavigationCard(ScoredRoute route) {
+    final int etaMinutes = _routeEtaMinutes(route);
+    final int safetyScore = _routeSafetyPercent(route);
+    final ThemeData theme = Theme.of(context);
+
+    return _buildBottomCardShell(
+      child: Column(
+        key: const ValueKey<String>('active-expanded-card'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Active navigation',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: const Color(0xFF0E1B2A),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _cardExpanded = false;
+                  });
+                },
+                child: const Text('Collapse'),
+              ),
+            ],
+          ),
+          if (_destinationLabel != null &&
+              _destinationLabel!.trim().isNotEmpty) ...<Widget>[
+            Text(
+              _destinationLabel!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF66768D),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _NavigationMetric(
+                  label: 'Safety score',
+                  value: '$safetyScore%',
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _NavigationMetric(
+                  label: 'ETA',
+                  value: '$etaMinutes min',
+                  alignEnd: true,
+                ),
+              ),
+            ],
+          ),
+          if (_isRerouting) ...<Widget>[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0x142F6EF6),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      color: Color(0xFF2F6EF6),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Rerouting to keep you on the safest path...',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: const Color(0xFF2F6EF6),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          Text(
+            _navigationAdvisoryText(route),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: route.warning == null
+                  ? const Color(0xFF5E6D80)
+                  : const Color(0xFF8B5A14),
+              height: 1.35,
+              fontWeight: route.warning == null
+                  ? FontWeight.w500
+                  : FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 22),
+          GradientButton(
+            label: 'STOP NAVIGATION',
+            onPressed: _stopNavigation,
+            height: 62,
+            borderRadius: 24,
+            gradient: const LinearGradient(
+              colors: <Color>[Color(0xFFE24A3B), Color(0xFFD7644F)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            textStyle: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildArrivalCard() {
+    final ThemeData theme = Theme.of(context);
+
+    return _buildBottomCardShell(
+      child: Column(
+        key: const ValueKey<String>('arrival-card'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0x1730C56A),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF30C56A),
+                  size: 30,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'You have arrived',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: const Color(0xFF0E1B2A),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'You are within walking distance of your destination.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF5E6D80),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          GradientButton(
+            label: 'DONE',
+            onPressed: _stopNavigation,
+            height: 62,
+            borderRadius: 24,
+            textStyle: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomCard() {
+    if (_isLoadingRoute) {
+      return Align(
+        key: const ValueKey<String>('route-loading'),
+        alignment: Alignment.bottomCenter,
+        child: RouteInfoCard(
+          route: _selectedRoute,
+          isLoading: true,
+          destinationLabel: _destinationLabel,
+          buttonLabel: 'START NAVIGATION',
+          onPrimaryPressed: null,
+        ),
+      );
+    }
+
+    if (_navState == NavigationState.planning && _selectedRoute != null) {
+      return Align(
+        key: const ValueKey<String>('route-planning'),
+        alignment: Alignment.bottomCenter,
+        child: RouteInfoCard(
+          route: _selectedRoute,
+          isLoading: false,
+          destinationLabel: _destinationLabel,
+          buttonLabel: 'START NAVIGATION',
+          onPrimaryPressed: _startRoute,
+        ),
+      );
+    }
+
+    if (_navState == NavigationState.active && _selectedRoute != null) {
+      final ScoredRoute route = _selectedRoute!;
+      return Align(
+        key: ValueKey<String>(
+          _cardExpanded ? 'route-active-expanded' : 'route-active-collapsed',
+        ),
+        alignment: Alignment.bottomCenter,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          child: _cardExpanded
+              ? _buildExpandedNavigationCard(route)
+              : _buildCollapsedNavigationStrip(route),
+        ),
+      );
+    }
+
+    if (_navState == NavigationState.arrived) {
+      return Align(
+        key: const ValueKey<String>('route-arrived'),
+        alignment: Alignment.bottomCenter,
+        child: _buildArrivalCard(),
+      );
+    }
+
+    return const SizedBox.shrink(key: ValueKey<String>('route-empty'));
   }
 
   List<Marker> _buildNavigationMarkers({
@@ -764,8 +1160,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showRouteCard = _selectedRoute != null || _isLoadingRoute;
-    final double actionBottomOffset = showRouteCard ? 288 : 28;
+    final bool showBottomCard =
+        _isLoadingRoute ||
+        _navState == NavigationState.planning ||
+        _navState == NavigationState.active ||
+        _navState == NavigationState.arrived;
+    final double actionBottomOffset =
+        _navState == NavigationState.active && !_cardExpanded
+        ? 104
+        : showBottomCard
+        ? 288
+        : 28;
 
     return Scaffold(
       body: Stack(
@@ -874,9 +1279,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             right: 16,
             bottom: actionBottomOffset,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
                 if (_showCompassReset) ...<Widget>[
                   _MapCircleButton(
                     icon: Icons.explore_rounded,
@@ -916,26 +1321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              child: showRouteCard
-                  ? Align(
-                      key: ValueKey<String>(
-                        'route-card-${_destinationLabel ?? 'none'}-${_isLoadingRoute ? 'loading' : 'ready'}-${_navState.name}',
-                      ),
-                      alignment: Alignment.bottomCenter,
-                      child: RouteInfoCard(
-                        route: _selectedRoute,
-                        isLoading: _isLoadingRoute,
-                        destinationLabel: _destinationLabel,
-                        buttonLabel: _navState == NavigationState.active
-                            ? 'ROUTE ACTIVE'
-                            : 'START ROUTE',
-                        onPrimaryPressed:
-                            _isLoadingRoute || _selectedRoute == null
-                            ? null
-                            : _startRoute,
-                      ),
-                    )
-                  : const SizedBox.shrink(key: ValueKey<String>('empty')),
+              child: _buildBottomCard(),
             ),
           ),
           if (_isLoadingLocation)
@@ -1111,6 +1497,49 @@ class _MapCircleButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _NavigationMetric extends StatelessWidget {
+  const _NavigationMetric({
+    required this.label,
+    required this.value,
+    this.alignEnd = false,
+  });
+
+  final String label;
+  final String value;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final CrossAxisAlignment alignment = alignEnd
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start;
+
+    return Column(
+      crossAxisAlignment: alignment,
+      children: <Widget>[
+        Text(
+          label,
+          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: const Color(0xFF617286),
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            color: const Color(0xFF0C1522),
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
     );
   }
 }
