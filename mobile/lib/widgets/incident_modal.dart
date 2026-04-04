@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../models/incident_report.dart';
-import '../services/incident_storage_service.dart';
 import '../services/reporting_api_service.dart';
 import 'gradient_button.dart';
 
@@ -29,12 +27,12 @@ class _IncidentModalState extends State<IncidentModal> {
     ),
   ];
 
-  final IncidentStorageService _storageService = IncidentStorageService();
   final ReportingApiService _reportingApiService = ReportingApiService();
   final TextEditingController _descriptionController = TextEditingController();
 
   String _selectedIncidentType = _incidentTypes.first.value;
   bool _submitting = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -49,32 +47,33 @@ class _IncidentModalState extends State<IncidentModal> {
 
     setState(() {
       _submitting = true;
+      _errorMessage = null;
     });
-
-    final IncidentReport report = IncidentReport(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      incidentType: _selectedIncidentType,
-      latitude: widget.initialLocation.latitude,
-      longitude: widget.initialLocation.longitude,
-      description: _descriptionController.text.trim(),
-      createdAtIso: DateTime.now().toIso8601String(),
-    );
 
     final int severity = _severityForType(_selectedIncidentType);
     final String userHash =
         'mobile-${DateTime.now().millisecondsSinceEpoch.toString()}';
 
-    final Map<String, dynamic>? remoteResponse = await _reportingApiService
-        .submitIncidentReport(
+    try {
+      await _reportingApiService.submitIncidentReport(
           userHash: userHash,
-          incidentType: report.incidentType,
+          incidentType: _selectedIncidentType,
           severity: severity,
-          latitude: report.latitude,
-          longitude: report.longitude,
-          description: report.description,
+          latitude: widget.initialLocation.latitude,
+          longitude: widget.initialLocation.longitude,
+          description: _descriptionController.text.trim(),
         );
+    } on ReportSubmissionException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _submitting = false;
+        _errorMessage = e.message;
+      });
+      return;
+    }
 
-    await _storageService.saveReport(report);
     if (!mounted) {
       return;
     }
@@ -84,11 +83,9 @@ class _IncidentModalState extends State<IncidentModal> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text(
-          remoteResponse == null
-              ? 'Saved locally. It will influence safety scores once successfully submitted and reviewed.'
-              : 'Report submitted. It will influence safety scores once reviewed.',
+          'Report submitted. It will influence safety scores once reviewed.',
         ),
       ),
     );
@@ -317,6 +314,14 @@ class _IncidentModalState extends State<IncidentModal> {
                         ),
                       ),
                       const SizedBox(height: 28),
+                      if (_errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
                       GradientButton(
                         label: 'Submit Report',
                         onPressed: _submitting ? null : _submitReport,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/trusted_contacts_service.dart';
 
 /// Screen where the user adds or edits their trusted emergency contacts.
-/// Accessible from Settings. Contacts are saved locally.
+/// Accessible from Settings. Contacts are stored on this device.
 class TrustedContactsScreen extends StatefulWidget {
   const TrustedContactsScreen({super.key});
 
