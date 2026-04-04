@@ -15,6 +15,9 @@ ROADMAP.md
 instruc.txt
 FUTURE.md
 steps.md
+/walksafe_phase*_prompt*.md
+/deploymentsteps.txt
+/commandsteps/
 
 ############################
 # Python
@@ -103,6 +106,8 @@ Thumbs.db
 *.tmp
 *.temp
 *.bak
+/.pytest_cache/
+/cache/
 backend/valhalla_tiles/
 logic/outputs/pune_walk.graphml
 logic/outputs/

@@ -36,13 +36,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://10.0.2.2:8000",
-        "https://unflickering-marissa-lingually.ngrok-free.dev",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*", "ngrok-skip-browser-warning"],
 )
