@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/place_suggestion.dart';
@@ -442,9 +443,52 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _triggerSos() async {
+    Position? position;
+    try {
+      position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      ).timeout(const Duration(seconds: 10));
+    } catch (_) {
+      position = null;
+    }
+
+    if (position == null) {
+      if (mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: const Text('Location required for SOS'),
+            content: const Text(
+              'WalkSafe needs your GPS location to send an accurate SOS alert.\n\n'
+              'Please enable location permissions in your phone settings, then try again.\n\n'
+              'If you need immediate help, call 112.',
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Geolocator.openLocationSettings();
+                },
+                child: const Text('Open settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final bool sent = await _sosService.sendEmergencyAlert(
-      latitude: _cameraTarget.latitude,
-      longitude: _cameraTarget.longitude,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
     if (!mounted) {
       return;
@@ -454,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(sent ? 'SOS Alert Sent' : 'SOS Offline Fallback'),
+          title: Text(sent ? 'SOS Alert Sent' : 'SOS Alert Failed'),
           content: Text(
             sent
                 ? 'Your emergency alert has been recorded. Move toward a brighter, busier area if you can.'

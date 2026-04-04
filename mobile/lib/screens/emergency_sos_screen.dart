@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
-import '../services/location_service.dart';
 import '../services/sos_service.dart';
 
 class EmergencySosScreen extends StatefulWidget {
@@ -11,11 +11,7 @@ class EmergencySosScreen extends StatefulWidget {
 }
 
 class _EmergencySosScreenState extends State<EmergencySosScreen> {
-  static const double _fallbackLat = 18.5204;
-  static const double _fallbackLon = 73.8567;
-
   final SosService _sosService = SosService();
-  final LocationService _locationService = LocationService();
   bool _sending = false;
 
   Future<void> _sendEmergencyAlert() async {
@@ -23,10 +19,55 @@ class _EmergencySosScreenState extends State<EmergencySosScreen> {
       _sending = true;
     });
 
-    final location = await _locationService.getCurrentLocation();
+    Position? position;
+    try {
+      position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      ).timeout(const Duration(seconds: 10));
+    } catch (_) {
+      position = null;
+    }
+
+    if (position == null) {
+      if (mounted) {
+        setState(() {
+          _sending = false;
+        });
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: const Text('Location required for SOS'),
+            content: const Text(
+              'WalkSafe needs your GPS location to send an accurate SOS alert.\n\n'
+              'Please enable location permissions in your phone settings, then try again.\n\n'
+              'If you need immediate help, call 112.',
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Geolocator.openLocationSettings();
+                },
+                child: const Text('Open settings'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final bool sent = await _sosService.sendEmergencyAlert(
-      latitude: location?.latitude ?? _fallbackLat,
-      longitude: location?.longitude ?? _fallbackLon,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
     if (!mounted) {
       return;
