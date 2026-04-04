@@ -92,16 +92,6 @@ class _IncidentModalState extends State<IncidentModal> {
     Navigator.of(context).pop();
   }
 
-  void _showMediaUploadNotice() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Media attachments are not connected yet, so this report will be submitted without a file.',
-        ),
-      ),
-    );
-  }
-
   int _severityForType(String incidentType) {
     final String normalized = incidentType.toLowerCase();
     if (normalized.contains('suspicious')) {
@@ -240,46 +230,7 @@ class _IncidentModalState extends State<IncidentModal> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      InkWell(
-                        onTap: _showMediaUploadNotice,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Ink(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF7F9FC),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFDDE5F1)),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: const Icon(
-                                  Icons.add_a_photo_outlined,
-                                  color: Color(0xFF617286),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Text(
-                                'Add Photo/Video',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: const Color(0xFF617286),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
+                      // Media upload: planned for a future release. Not implemented in v1.
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
