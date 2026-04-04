@@ -14,6 +14,7 @@ class WalkSafeMapView extends StatelessWidget {
     this.routePolylines = const <Polyline>[],
     this.onTap,
     this.onPositionChanged,
+    this.onMapReady,
   });
 
   final LatLng initialCenter;
@@ -25,6 +26,7 @@ class WalkSafeMapView extends StatelessWidget {
   final List<Polyline> routePolylines;
   final void Function(LatLng point)? onTap;
   final void Function(LatLng center)? onPositionChanged;
+  final VoidCallback? onMapReady;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class WalkSafeMapView extends StatelessWidget {
       options: MapOptions(
         initialCenter: initialCenter,
         initialZoom: initialZoom,
+        onMapReady: onMapReady,
         onTap: (_, LatLng point) => onTap?.call(point),
         onPositionChanged: (MapCamera camera, bool hasGesture) {
           onPositionChanged?.call(camera.center);

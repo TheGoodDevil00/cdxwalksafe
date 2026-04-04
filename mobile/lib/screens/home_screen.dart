@@ -56,19 +56,18 @@ class _HomeScreenState extends State<HomeScreen> {
   StreamSubscription<Position>? _positionSubscription;
   Position? _currentPosition;
   DateTime? _lastRerouteTime;
-  // ignore: unused_field
   double _currentHeading = 0.0;
-  // ignore: unused_field
   bool _headingUpMode = false;
   // ignore: unused_field
   bool _cardExpanded = false;
-  // ignore: prefer_final_fields
   bool _mapReady = false;
   bool _isRerouting = false;
 
   LatLng get _liveUserPoint => _currentPosition == null
       ? _startPoint
       : LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
+
+  bool get _showCompassReset => _headingUpMode && _currentHeading.abs() > 1;
 
   @override
   void initState() {
@@ -308,6 +307,24 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
+    if (_navState == NavigationState.active && _mapReady) {
+      final double zoom = _mapController.camera.zoom;
+      final double heading = position.heading;
+      final bool isMoving = position.speed > 0.5;
+      final bool headingValid = heading >= 0;
+
+      if (isMoving && headingValid) {
+        setState(() {
+          _currentHeading = heading;
+          _headingUpMode = true;
+        });
+
+        _mapController.moveAndRotate(userPoint, zoom, -heading);
+      } else {
+        _mapController.move(userPoint, zoom);
+      }
+    }
+
     if (_selectedRoute != null && _selectedRoute!.points.isNotEmpty) {
       double minDistanceToRoute = double.infinity;
       for (final LatLng point in _selectedRoute!.points) {
@@ -334,6 +351,21 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     }
+  }
+
+  void _onCompassResetPressed() {
+    if (_mapReady) {
+      _mapController.rotate(0);
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _currentHeading = 0.0;
+      _headingUpMode = false;
+    });
   }
 
   void _onArrived() {
@@ -742,6 +774,13 @@ class _HomeScreenState extends State<HomeScreen> {
             mapController: _mapController,
             initialCenter: _cameraTarget,
             initialZoom: 14.8,
+            onMapReady: () {
+              if (mounted) {
+                setState(() {
+                  _mapReady = true;
+                });
+              }
+            },
             overlayLayers: <Widget>[
               SafetyZoneOverlay(
                 zones: _safetyZones,
@@ -838,6 +877,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
+                if (_showCompassReset) ...<Widget>[
+                  _MapCircleButton(
+                    icon: Icons.explore_rounded,
+                    tooltip: 'Reset compass',
+                    onPressed: _onCompassResetPressed,
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 _MapCircleButton(
                   icon: Icons.report_gmailerrorred_rounded,
                   tooltip: 'Report incident',
