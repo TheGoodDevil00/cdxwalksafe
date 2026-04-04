@@ -8,6 +8,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
 from app.db.session import AsyncSessionLocal
+from app.routers.admin import router as admin_router
 from app.routers import reports, routing
 from app.services.safety_dataset_cache import safety_dataset_cache
 
@@ -56,6 +57,7 @@ class NgrokHeaderMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(NgrokHeaderMiddleware)
 
+app.include_router(admin_router)
 app.include_router(routing.router)
 app.include_router(reports.router)
 
