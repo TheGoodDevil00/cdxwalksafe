@@ -37,6 +37,11 @@ class RecentReport(BaseModel):
     status: str
 
 
+class TrustedContactPayload(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    phone: str = Field(min_length=1, max_length=32)
+
+
 class EmergencyAlertCreate(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -44,7 +49,10 @@ class EmergencyAlertCreate(BaseModel):
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
     message: Optional[str] = None
-    trusted_contacts: list[str] = Field(default_factory=list, max_length=10)
+    trusted_contacts: list[str | TrustedContactPayload] = Field(
+        default_factory=list,
+        max_length=10,
+    )
     contacts_notified: int = Field(default=0, ge=0)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
@@ -55,4 +63,4 @@ class EmergencyAlertResponse(BaseModel):
     created_at: Optional[datetime] = None
     message: str
     contacts_notified: int = 0
-    trusted_contacts: list[str] = Field(default_factory=list)
+    trusted_contacts: list[str | TrustedContactPayload] = Field(default_factory=list)

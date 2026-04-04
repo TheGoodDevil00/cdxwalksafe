@@ -1,11 +1,7 @@
 import 'reporting_api_service.dart';
+import 'trusted_contacts_service.dart';
 
 class SosService {
-  static const List<String> _defaultTrustedContacts = <String>[
-    'sister@walksafe.local',
-    'roommate@walksafe.local',
-  ];
-
   SosService({ReportingApiService? reportingApiService})
     : _reportingApiService = reportingApiService ?? ReportingApiService();
 
@@ -15,9 +11,9 @@ class SosService {
     required double latitude,
     required double longitude,
     String? message,
-    List<String>? trustedContacts,
+    List<TrustedContact>? trustedContacts,
   }) async {
-    final List<String> resolvedContacts = _resolveTrustedContacts(
+    final List<TrustedContact> resolvedContacts = await _resolveTrustedContacts(
       trustedContacts,
     );
     final String userHash = 'mobile-sos-${DateTime.now().millisecondsSinceEpoch}';
@@ -27,7 +23,14 @@ class SosService {
           latitude: latitude,
           longitude: longitude,
           message: message ?? 'Emergency trigger from mobile app',
-          trustedContacts: resolvedContacts,
+          trustedContacts: resolvedContacts
+              .map(
+                (TrustedContact contact) => <String, String>{
+                  'name': contact.name.trim(),
+                  'phone': contact.phone.trim(),
+                },
+              )
+              .toList(growable: false),
           contactsNotified: resolvedContacts.length,
         );
     final int contactsNotified =
@@ -35,23 +38,29 @@ class SosService {
     return response != null && contactsNotified >= resolvedContacts.length;
   }
 
-  List<String> _resolveTrustedContacts(List<String>? trustedContacts) {
-    final List<String> sourceContacts =
+  Future<List<TrustedContact>> _resolveTrustedContacts(
+    List<TrustedContact>? trustedContacts,
+  ) async {
+    final List<TrustedContact> sourceContacts =
         trustedContacts == null || trustedContacts.isEmpty
-        ? _defaultTrustedContacts
+        ? await TrustedContactsService.load()
         : trustedContacts;
-    final List<String> normalizedContacts = <String>[];
+    final List<TrustedContact> normalizedContacts = <TrustedContact>[];
     final Set<String> seenContacts = <String>{};
-    for (final String contact in sourceContacts) {
-      final String trimmedContact = contact.trim();
-      if (trimmedContact.isEmpty) {
+    for (final TrustedContact contact in sourceContacts) {
+      final String trimmedName = contact.name.trim();
+      final String trimmedPhone = contact.phone.trim();
+      if (trimmedName.isEmpty || trimmedPhone.isEmpty) {
         continue;
       }
-      final String normalizedKey = trimmedContact.toLowerCase();
+      final String normalizedKey =
+          '${trimmedName.toLowerCase()}|${trimmedPhone.toLowerCase()}';
       if (!seenContacts.add(normalizedKey)) {
         continue;
       }
-      normalizedContacts.add(trimmedContact);
+      normalizedContacts.add(
+        TrustedContact(name: trimmedName, phone: trimmedPhone),
+      );
     }
     return normalizedContacts;
   }

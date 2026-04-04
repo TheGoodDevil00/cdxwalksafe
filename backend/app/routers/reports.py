@@ -16,6 +16,26 @@ from app.services.reporting_service import reporting_service
 router = APIRouter()
 
 
+def _serialize_trusted_contact(contact: object) -> object:
+    if isinstance(contact, dict):
+        name = str(contact.get("name", "")).strip()
+        phone = str(contact.get("phone", "")).strip()
+        if not name or not phone:
+            return None
+        return {"name": name, "phone": phone}
+
+    return str(contact).strip() if contact is not None else None
+
+
+def _serialize_trusted_contacts(contacts: object) -> list[object]:
+    serialized_contacts: list[object] = []
+    for contact in contacts if isinstance(contacts, list) else []:
+        serialized = _serialize_trusted_contact(contact)
+        if serialized is not None:
+            serialized_contacts.append(serialized)
+    return serialized_contacts
+
+
 @router.post("/reports", response_model=ReportResponse)
 @router.post("/report", response_model=ReportResponse)
 async def submit_report(
@@ -68,9 +88,7 @@ async def create_emergency_alert(
         created_at=created.get("created_at"),
         message=str(created.get("message", "Emergency alert has been recorded.")),
         contacts_notified=int(created.get("contacts_notified", 0)),
-        trusted_contacts=[
-            str(contact)
-            for contact in (created.get("trusted_contacts") or [])
-            if contact is not None
-        ],
+        trusted_contacts=_serialize_trusted_contacts(
+            created.get("trusted_contacts") or [],
+        ),
     )

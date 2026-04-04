@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'trusted_contacts_screen.dart';
+
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
 
@@ -20,8 +22,8 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
           const SizedBox(height: 12),
           const ListTile(
             leading: CircleAvatar(child: Icon(Icons.person)),
-            title: Text('Walker Profile'),
-            subtitle: Text('women.safety@walksafe.local'),
+            title: Text('Safety Settings'),
+            subtitle: Text('Control your demo preferences and emergency setup'),
           ),
           const Divider(),
           SwitchListTile(
@@ -44,11 +46,17 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
               });
             },
           ),
-          const ListTile(
+          ListTile(
             leading: Icon(Icons.contact_phone_outlined),
-            title: Text('Emergency Contacts'),
-            subtitle: Text('Manage trusted contacts'),
-            trailing: Icon(Icons.chevron_right),
+            title: const Text('Trusted contacts'),
+            subtitle: const Text('People notified when you use SOS'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => const TrustedContactsScreen(),
+              ),
+            ),
           ),
           const ListTile(
             leading: Icon(Icons.privacy_tip_outlined),

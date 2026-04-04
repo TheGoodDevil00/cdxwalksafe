@@ -4,7 +4,11 @@ from typing import Any, Dict, List
 from sqlalchemy import bindparam, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.reports import EmergencyAlertCreate, ReportCreate
+from app.schemas.reports import (
+    EmergencyAlertCreate,
+    ReportCreate,
+    TrustedContactPayload,
+)
 
 INCIDENT_MATCH_DISTANCE_METERS = 30.0
 INCIDENT_SEARCH_EXPAND_DEGREES = 0.0005
@@ -14,20 +18,38 @@ class ReportingService:
     def __init__(self) -> None:
         self.base_confidence = 0.5
 
-    def _normalize_trusted_contacts(self, trusted_contacts: List[str]) -> List[str]:
-        normalized_contacts: List[str] = []
+    def _normalize_trusted_contacts(
+        self,
+        trusted_contacts: List[str | TrustedContactPayload],
+    ) -> List[str | Dict[str, str]]:
+        normalized_contacts: List[str | Dict[str, str]] = []
         seen_contacts: set[str] = set()
         for raw_contact in trusted_contacts:
-            if not isinstance(raw_contact, str):
+            if isinstance(raw_contact, str):
+                contact = raw_contact.strip()
+                if not contact:
+                    continue
+                contact_key = contact.casefold()
+                if contact_key in seen_contacts:
+                    continue
+                seen_contacts.add(contact_key)
+                normalized_contacts.append(contact)
                 continue
-            contact = raw_contact.strip()
-            if not contact:
+
+            if isinstance(raw_contact, TrustedContactPayload):
+                name = raw_contact.name.strip()
+                phone = raw_contact.phone.strip()
+            else:
                 continue
-            contact_key = contact.casefold()
+
+            if not name or not phone:
+                continue
+
+            contact_key = f"{name.casefold()}|{phone.casefold()}"
             if contact_key in seen_contacts:
                 continue
             seen_contacts.add(contact_key)
-            normalized_contacts.append(contact)
+            normalized_contacts.append({"name": name, "phone": phone})
         return normalized_contacts
 
     async def ensure_emergency_alerts_table(self, db: AsyncSession) -> None:

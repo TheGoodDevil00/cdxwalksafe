@@ -40,7 +40,7 @@ class ReportingApiService {
     required double latitude,
     required double longitude,
     String? message,
-    List<String> trustedContacts = const <String>[],
+    List<Map<String, String>> trustedContacts = const <Map<String, String>>[],
     int contactsNotified = 0,
   }) async {
     final Uri uri = Uri.parse('$_baseUrl/report/emergency');
