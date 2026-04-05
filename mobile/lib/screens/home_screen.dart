@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -11,6 +13,7 @@ import '../models/route_segment_safety.dart';
 import '../models/scored_route.dart';
 import '../models/safety_zone.dart';
 import '../services/location_service.dart';
+import '../services/navigation_math.dart';
 import '../services/place_search_service.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
@@ -34,6 +37,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static final LatLng _defaultCenter = LatLng(18.5204, 73.8567);
+  static const double _minimumHeadingSpeedMps = 0.8;
+  static const double _maximumReliableAccuracyMeters = 35;
+  static const int _offRouteConfirmationSamples = 3;
+  static const Duration _rerouteCooldown = Duration(seconds: 15);
 
   final MapController _mapController = MapController();
   final LocationService _locationService = LocationService();
@@ -55,30 +62,41 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showSafetyZones = true;
   NavigationState _navState = NavigationState.idle;
   StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription<CompassEvent>? _compassSubscription;
   Position? _currentPosition;
+  Position? _previousPosition;
   DateTime? _lastRerouteTime;
+  double? _deviceHeading;
   double _currentHeading = 0.0;
   bool _headingUpMode = false;
   bool _cardExpanded = false;
   bool _mapReady = false;
   bool _isRerouting = false;
+  int _offRouteSampleCount = 0;
 
   LatLng get _liveUserPoint => _currentPosition == null
       ? _startPoint
       : LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
 
-  bool get _showCompassReset => _headingUpMode && _currentHeading.abs() > 1;
+  bool get _showCompassReset => _headingUpMode && _hasHeading;
+
+  bool get _hasHeading =>
+      _deviceHeading != null ||
+      (_currentPosition != null &&
+          _travelHeadingFromPosition(_currentPosition!) != null);
 
   @override
   void initState() {
     super.initState();
     _loadHomeMap();
+    _startCompassTracking();
     _startPositionTracking();
   }
 
   @override
   void dispose() {
     _positionSubscription?.cancel();
+    _compassSubscription?.cancel();
     _mapController.dispose();
     super.dispose();
   }
@@ -100,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
-      _currentHeading = 0.0;
       _headingUpMode = false;
+      _syncMarkers();
     });
   }
 
@@ -131,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _cardExpanded = false;
       _lastRerouteTime = null;
       _isRerouting = false;
+      _offRouteSampleCount = 0;
       _syncMarkers();
     });
 
@@ -142,20 +161,25 @@ class _HomeScreenState extends State<HomeScreen> {
     required LatLng destination,
     String? label,
     bool moveCamera = true,
+    bool preserveVisibleRoute = false,
   }) async {
     if (_isLoadingLocation || _isLoadingRoute) {
       return;
     }
 
     final bool keepActive = _navState == NavigationState.active;
+    final bool preserveExistingRoute =
+        keepActive && preserveVisibleRoute && _selectedRoute != null;
 
     setState(() {
       _startPoint = start;
       _destinationPoint = destination;
       _destinationLabel = label ?? _destinationLabel ?? 'Pinned destination';
       _isLoadingRoute = true;
-      _selectedRoute = null;
-      _routePolylines = <Polyline>[];
+      if (!preserveExistingRoute) {
+        _selectedRoute = null;
+        _routePolylines = <Polyline>[];
+      }
       if (!keepActive) {
         _navState = NavigationState.idle;
         _cardExpanded = false;
@@ -177,13 +201,32 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final List<LatLng> routePoints = safestRoute?.points ?? <LatLng>[];
-      final List<SafetyZone> nearbyZones = await _heatmapService
-          .loadSafetyZonesForPoints(
-            routePoints.isNotEmpty
-                ? <LatLng>[start, destination, ...routePoints]
-                : <LatLng>[start, destination],
-            refresh: true,
+      if (routePoints.isEmpty) {
+        if (!preserveExistingRoute) {
+          setState(() {
+            _selectedRoute = null;
+            _routePolylines = <Polyline>[];
+            _navState = NavigationState.idle;
+            _syncMarkers();
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'No walking route found. Try another nearby point.',
+              ),
+            ),
           );
+        }
+        return;
+      }
+
+      final List<SafetyZone> nearbyZones = await _heatmapService
+          .loadSafetyZonesForPoints(<LatLng>[
+            start,
+            destination,
+            ...routePoints,
+          ], refresh: true);
       if (!mounted) {
         return;
       }
@@ -193,41 +236,32 @@ class _HomeScreenState extends State<HomeScreen> {
         if (nearbyZones.isNotEmpty) {
           _safetyZones = nearbyZones;
         }
-        _routePolylines = routePoints.isEmpty
-            ? <Polyline>[]
-            : _buildRoutePolylines(safestRoute!);
-        _navState = routePoints.isEmpty
-            ? NavigationState.idle
-            : keepActive
+        _routePolylines = _buildRoutePolylines(safestRoute!);
+        _navState = keepActive
             ? NavigationState.active
             : NavigationState.planning;
+        _offRouteSampleCount = 0;
         _syncMarkers();
       });
-
-      if (routePoints.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No walking route found. Try another nearby point.'),
-          ),
-        );
-      }
     } catch (_) {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _selectedRoute = null;
-        _routePolylines = <Polyline>[];
-        _navState = NavigationState.idle;
-        _syncMarkers();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not find a route right now. Try another destination.',
+      if (!preserveExistingRoute) {
+        setState(() {
+          _selectedRoute = null;
+          _routePolylines = <Polyline>[];
+          _navState = NavigationState.idle;
+          _syncMarkers();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not find a route right now. Try another destination.',
+            ),
           ),
-        ),
-      );
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -259,20 +293,189 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _startCompassTracking() {
+    _compassSubscription?.cancel();
+
+    final Stream<CompassEvent>? headingStream = FlutterCompass.events;
+    if (headingStream == null) {
+      debugPrint('Compass stream unavailable on this device.');
+      return;
+    }
+
+    _compassSubscription = headingStream.listen(
+      (CompassEvent event) {
+        final double? heading = NavigationMath.normalizeHeading(event.heading);
+        if (!mounted || heading == null) {
+          return;
+        }
+
+        final double resolvedHeading = _deviceHeading == null
+            ? heading
+            : NavigationMath.blendHeading(_deviceHeading!, heading);
+        final bool headingChanged =
+            _deviceHeading == null ||
+            NavigationMath.headingDeltaDegrees(
+                  _currentHeading,
+                  resolvedHeading,
+                ).abs() >=
+                1.2;
+
+        if (!headingChanged &&
+            !(_navState == NavigationState.active &&
+                _headingUpMode &&
+                _mapReady)) {
+          return;
+        }
+
+        setState(() {
+          _deviceHeading = resolvedHeading;
+          _currentHeading = resolvedHeading;
+          _syncMarkers();
+        });
+
+        if (_headingUpMode) {
+          _syncMapToHeading(heading: resolvedHeading);
+        }
+      },
+      onError: (Object error) {
+        debugPrint('Compass stream error: $error');
+      },
+    );
+  }
+
   void _startPositionTracking() {
     _positionSubscription?.cancel();
 
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-      ),
-    ).listen(
-      _onPositionUpdate,
-      onError: (Object error) {
-        debugPrint('Position stream error: $error');
-      },
+    _positionSubscription =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 5,
+          ),
+        ).listen(
+          _onPositionUpdate,
+          onError: (Object error) {
+            debugPrint('Position stream error: $error');
+          },
+        );
+  }
+
+  double? _travelHeadingFromPosition(Position position) {
+    if (position.speed < _minimumHeadingSpeedMps || position.heading < 0) {
+      return null;
+    }
+    if (position.headingAccuracy > 0 && position.headingAccuracy > 45) {
+      return null;
+    }
+    return NavigationMath.normalizeHeading(position.heading);
+  }
+
+  void _refreshDisplayedHeading(Position position) {
+    final double? effectiveHeading =
+        _deviceHeading ?? _travelHeadingFromPosition(position);
+    if (effectiveHeading == null) {
+      return;
+    }
+
+    if (NavigationMath.headingDeltaDegrees(
+          _currentHeading,
+          effectiveHeading,
+        ).abs() >=
+        1.2) {
+      setState(() {
+        _currentHeading = effectiveHeading;
+        _syncMarkers();
+      });
+    }
+
+    _syncMapToHeading(heading: effectiveHeading);
+  }
+
+  void _syncMapToHeading({double? heading, LatLng? userPoint}) {
+    if (_navState != NavigationState.active || !_mapReady) {
+      return;
+    }
+
+    final double zoom = _mapController.camera.zoom;
+    final LatLng targetPoint = userPoint ?? _liveUserPoint;
+    final double? effectiveHeading = heading != null
+        ? NavigationMath.normalizeHeading(heading)
+        : NavigationMath.normalizeHeading(_deviceHeading ?? _currentHeading);
+
+    if (_headingUpMode && effectiveHeading != null) {
+      _mapController.moveAndRotate(targetPoint, zoom, -effectiveHeading);
+    } else {
+      _mapController.move(targetPoint, zoom);
+    }
+  }
+
+  bool _isLikelyMoving(Position position) {
+    if (position.speed >= _minimumHeadingSpeedMps) {
+      return true;
+    }
+
+    final Position? previousPosition = _previousPosition;
+    if (previousPosition == null) {
+      return false;
+    }
+
+    final double movedMeters = Geolocator.distanceBetween(
+      previousPosition.latitude,
+      previousPosition.longitude,
+      position.latitude,
+      position.longitude,
     );
+    final double previousAccuracy = previousPosition.accuracy > 0
+        ? previousPosition.accuracy
+        : _maximumReliableAccuracyMeters;
+    final double currentAccuracy = position.accuracy > 0
+        ? position.accuracy
+        : _maximumReliableAccuracyMeters;
+    final double noiseBudget = math.max(
+      10,
+      math.min(25, (previousAccuracy + currentAccuracy) * 0.6),
+    );
+    return movedMeters > noiseBudget;
+  }
+
+  void _evaluateOffRoute(Position position, LatLng userPoint) {
+    final ScoredRoute? route = _selectedRoute;
+    if (route == null || route.points.isEmpty) {
+      _offRouteSampleCount = 0;
+      return;
+    }
+
+    final double distanceToRoute = NavigationMath.distanceToPolylineMeters(
+      userPoint,
+      route.points,
+    );
+    final bool reliableFix =
+        position.accuracy > 0 &&
+        position.accuracy <= _maximumReliableAccuracyMeters;
+    final bool likelyMoving = _isLikelyMoving(position);
+    final double rerouteThreshold = NavigationMath.rerouteThresholdMeters(
+      position.accuracy,
+    );
+
+    if (reliableFix && likelyMoving && distanceToRoute > rerouteThreshold) {
+      _offRouteSampleCount += 1;
+    } else {
+      _offRouteSampleCount = 0;
+      return;
+    }
+
+    final DateTime now = DateTime.now();
+    final bool cooldownExpired =
+        _lastRerouteTime == null ||
+        now.difference(_lastRerouteTime!) > _rerouteCooldown;
+
+    if (_offRouteSampleCount >= _offRouteConfirmationSamples &&
+        cooldownExpired &&
+        !_isRerouting) {
+      _lastRerouteTime = now;
+      _offRouteSampleCount = 0;
+      unawaited(_reroute(from: userPoint));
+    }
   }
 
   void _onPositionUpdate(Position position) {
@@ -282,74 +485,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final LatLng userPoint = LatLng(position.latitude, position.longitude);
 
-    setState(() {
-      _currentPosition = position;
-      _startPoint = userPoint;
-      _cameraTarget = userPoint;
-      _syncMarkers();
-    });
+    try {
+      setState(() {
+        _currentPosition = position;
+        _startPoint = userPoint;
+        _cameraTarget = userPoint;
+        _syncMarkers();
+      });
 
-    if (_navState != NavigationState.active) {
-      return;
-    }
+      _refreshDisplayedHeading(position);
 
-    if (_destinationPoint != null) {
-      final double distanceToDestination = Geolocator.distanceBetween(
-        position.latitude,
-        position.longitude,
-        _destinationPoint!.latitude,
-        _destinationPoint!.longitude,
-      );
-
-      if (distanceToDestination < 30) {
-        _onArrived();
+      if (_navState != NavigationState.active) {
         return;
       }
-    }
 
-    if (_navState == NavigationState.active && _mapReady) {
-      final double zoom = _mapController.camera.zoom;
-      final double heading = position.heading;
-      final bool isMoving = position.speed > 0.5;
-      final bool headingValid = heading >= 0;
-
-      if (isMoving && headingValid) {
-        setState(() {
-          _currentHeading = heading;
-          _headingUpMode = true;
-        });
-
-        _mapController.moveAndRotate(userPoint, zoom, -heading);
-      } else {
-        _mapController.move(userPoint, zoom);
-      }
-    }
-
-    if (_selectedRoute != null && _selectedRoute!.points.isNotEmpty) {
-      double minDistanceToRoute = double.infinity;
-      for (final LatLng point in _selectedRoute!.points) {
-        final double distance = Geolocator.distanceBetween(
+      if (_destinationPoint != null) {
+        final double distanceToDestination = Geolocator.distanceBetween(
           position.latitude,
           position.longitude,
-          point.latitude,
-          point.longitude,
+          _destinationPoint!.latitude,
+          _destinationPoint!.longitude,
         );
-        if (distance < minDistanceToRoute) {
-          minDistanceToRoute = distance;
+
+        if (distanceToDestination < 30) {
+          _onArrived();
+          return;
         }
       }
 
-      if (minDistanceToRoute > 50) {
-        final DateTime now = DateTime.now();
-        final bool cooldownExpired =
-            _lastRerouteTime == null ||
-            now.difference(_lastRerouteTime!).inSeconds > 10;
-
-        if (cooldownExpired && !_isRerouting) {
-          _lastRerouteTime = now;
-          unawaited(_reroute(from: userPoint));
-        }
-      }
+      _syncMapToHeading(
+        heading: _deviceHeading ?? _travelHeadingFromPosition(position),
+        userPoint: userPoint,
+      );
+      _evaluateOffRoute(position, userPoint);
+    } finally {
+      _previousPosition = position;
     }
   }
 
@@ -363,8 +533,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     setState(() {
-      _currentHeading = 0.0;
       _headingUpMode = false;
+      _syncMarkers();
     });
   }
 
@@ -378,6 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _cardExpanded = true;
       _isRerouting = false;
       _lastRerouteTime = null;
+      _offRouteSampleCount = 0;
     });
 
     _resetMapBearing();
@@ -405,6 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
         destination: _destinationPoint!,
         label: _destinationLabel,
         moveCamera: false,
+        preserveVisibleRoute: true,
       );
 
       if (mounted &&
@@ -515,6 +687,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _cardExpanded = false;
       _lastRerouteTime = null;
       _isRerouting = false;
+      _offRouteSampleCount = 0;
       _syncMarkers();
     });
     unawaited(_refreshNearbySafetyZones());
@@ -523,6 +696,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _recenterOnUser() {
+    if (_navState == NavigationState.active) {
+      setState(() {
+        _headingUpMode = _hasHeading;
+      });
+      _syncMapToHeading();
+      return;
+    }
+
     _mapController.move(_liveUserPoint, 15.2);
   }
 
@@ -540,7 +721,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _navState = NavigationState.active;
       _cardExpanded = false;
+      _headingUpMode = _hasHeading;
+      _offRouteSampleCount = 0;
     });
+
+    _syncMapToHeading();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -557,6 +742,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _cardExpanded = false;
       _isRerouting = false;
       _lastRerouteTime = null;
+      _offRouteSampleCount = 0;
       _selectedRoute = null;
       _routePolylines = <Polyline>[];
       _destinationPoint = null;
@@ -615,10 +801,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }
@@ -664,10 +847,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       Text(
                         'Navigating',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: const Color(0xFF111C2A),
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: const Color(0xFF111C2A),
+                              fontWeight: FontWeight.w800,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -889,7 +1073,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomCard() {
-    if (_isLoadingRoute) {
+    if (_isLoadingRoute && _selectedRoute == null) {
       return Align(
         key: const ValueKey<String>('route-loading'),
         alignment: Alignment.bottomCenter,
@@ -973,10 +1157,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.navigation_rounded,
-            color: Colors.white,
-            size: 24,
+          child: Transform.rotate(
+            angle: _currentHeading * math.pi / 180,
+            child: const Icon(
+              Icons.navigation_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
         ),
       ),
@@ -1279,9 +1466,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             right: 16,
             bottom: actionBottomOffset,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
                 if (_showCompassReset) ...<Widget>[
                   _MapCircleButton(
                     icon: Icons.explore_rounded,
