@@ -11,6 +11,10 @@ Future<void> main() async {
     const String.fromEnvironment('API_BASE_URL').isNotEmpty,
     'API_BASE_URL must be set. Run flutter with: --dart-define=API_BASE_URL=http://...',
   );
+  assert(
+    const String.fromEnvironment('MAPTILER_API_KEY').isNotEmpty,
+    'MAPTILER_API_KEY must be set via --dart-define=MAPTILER_API_KEY=your-key',
+  );
 
   // Initialize Supabase only when environment values are provided.
   const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
