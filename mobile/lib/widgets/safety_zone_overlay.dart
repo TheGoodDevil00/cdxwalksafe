@@ -48,23 +48,23 @@ class SafetyZoneOverlay extends StatelessWidget {
     switch ((classification ?? '').toLowerCase()) {
       case 'safe':
         return const _ZonePolygonStyle(
-          fillColor: Color(0xFF4CAF50),
-          fillOpacity: 0.25,
-          borderColor: Color(0xFF4CAF50),
+          fillColor: Color(0xFF43A047),
+          fillOpacity: 0.28,
+          borderColor: Color(0xFF43A047),
           borderWidth: 1,
         );
       case 'cautious':
         return const _ZonePolygonStyle(
-          fillColor: Color(0xFFFF9800),
-          fillOpacity: 0.30,
-          borderColor: Color(0xFFFF9800),
+          fillColor: Color(0xFFF57C00),
+          fillOpacity: 0.32,
+          borderColor: Color(0xFFF57C00),
           borderWidth: 1,
         );
       case 'risky':
         return const _ZonePolygonStyle(
-          fillColor: Color(0xFFF44336),
-          fillOpacity: 0.35,
-          borderColor: Color(0xFFF44336),
+          fillColor: Color(0xFFD32F2F),
+          fillOpacity: 0.38,
+          borderColor: Color(0xFFD32F2F),
           borderWidth: 1.5,
         );
       default:
