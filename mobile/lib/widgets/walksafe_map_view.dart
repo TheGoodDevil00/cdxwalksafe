@@ -2,6 +2,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../config/app_config.dart';
+
 class WalkSafeMapView extends StatelessWidget {
   const WalkSafeMapView({
     super.key,
@@ -25,7 +27,7 @@ class WalkSafeMapView extends StatelessWidget {
   final List<Widget> overlayLayers;
   final List<Polyline> routePolylines;
   final void Function(LatLng point)? onTap;
-  final void Function(LatLng center)? onPositionChanged;
+  final void Function(MapCamera camera)? onPositionChanged;
   final VoidCallback? onMapReady;
 
   @override
@@ -38,18 +40,28 @@ class WalkSafeMapView extends StatelessWidget {
         onMapReady: onMapReady,
         onTap: (_, LatLng point) => onTap?.call(point),
         onPositionChanged: (MapCamera camera, bool hasGesture) {
-          onPositionChanged?.call(camera.center);
+          onPositionChanged?.call(camera);
         },
       ),
       children: <Widget>[
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate:
+              'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png'
+              '?key=${AppConfig.maptilerApiKey}',
           userAgentPackageName: 'com.safewalk.mobile',
+          // MapTiler uses standard 256px raster tiles for this style.
+          tileDimension: 256,
         ),
         if (safetyOverlays.isNotEmpty) CircleLayer(circles: safetyOverlays),
         ...overlayLayers,
         if (routePolylines.isNotEmpty) PolylineLayer(polylines: routePolylines),
         if (markers.isNotEmpty) MarkerLayer(markers: markers),
+        RichAttributionWidget(
+          attributions: <SourceAttribution>[
+            TextSourceAttribution('MapTiler'),
+            TextSourceAttribution('OpenStreetMap contributors'),
+          ],
+        ),
       ],
     );
   }
