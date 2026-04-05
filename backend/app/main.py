@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 import sys
 
 from fastapi import FastAPI
@@ -17,7 +18,14 @@ LOGGER = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    if "pytest" not in sys.modules:
+    skip_cache_warmup = os.environ.get("SKIP_CACHE_WARMUP", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+    if "pytest" not in sys.modules and not skip_cache_warmup:
         try:
             async with AsyncSessionLocal() as session:
                 await safety_dataset_cache.warm_cache(session)
