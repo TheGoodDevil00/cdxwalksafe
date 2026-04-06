@@ -45,7 +45,7 @@ Your location
  │                   WalkSafe Backend                  │
  │                                                     │
  │  ┌──────────┐    ┌───────────┐    ┌──────────────┐  │
- │  │ Valhalla │───▶│   Risk    │───▶│  Safe Route  │  │
+ │  │ Valhalla │───▶│   Risk    │───▶│  Safe Route │  │
  │  │ Routing  │    │  Engine   │    │   Response   │  │
  │  └──────────┘    └───────────┘    └──────────────┘  │
  │        ▲               ▲                            │
