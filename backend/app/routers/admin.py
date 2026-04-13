@@ -103,13 +103,13 @@ async def verify_report(
     _: None = Depends(require_admin),
 ):
     """
-    Mark a report as verified. This allows it to affect route safety scores.
-    Also applies a safety score penalty to nearby road segments.
+    Mark a report as verified. This allows it to affect route safety scores
+    through dynamic incident scoring only.
     """
     result = await db.execute(
         text(
             """
-            SELECT id, status, confidence, ST_AsText(location) AS location_wkt
+            SELECT id, status
             FROM incident_reports
             WHERE id = :id
             """
@@ -145,36 +145,12 @@ async def verify_report(
         ),
         {"id": report_id, "now": datetime.now(timezone.utc)},
     )
-
-    confidence = row.confidence or 0.5
-    penalty = confidence * 10.0
-
-    penalty_result = await db.execute(
-        text(
-            """
-            UPDATE road_segments
-            SET safety_score = GREATEST(0.0, safety_score - :penalty)
-            WHERE ST_DWithin(
-                geometry::geography,
-                ST_SetSRID(ST_GeomFromText(:loc_wkt), 4326)::geography,
-                150
-            )
-            RETURNING id
-            """
-        ),
-        {
-            "penalty": penalty,
-            "loc_wkt": row.location_wkt,
-        },
-    )
-
-    affected_segments = len(penalty_result.fetchall())
     await db.commit()
 
     return {
         "message": f"Report {report_id} verified",
-        "penalty_applied": penalty,
-        "road_segments_updated": affected_segments,
+        "penalty_applied": 0.0,
+        "road_segments_updated": 0,
     }
 
 

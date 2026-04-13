@@ -13,6 +13,9 @@ import '../services/navigation_math.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
 
+typedef PositionStreamFactory = Stream<Position> Function();
+typedef CompassStreamFactory = Stream<CompassEvent>? Function();
+
 enum NavigationState { idle, planning, active, arrived }
 
 class NavigationCameraInstruction {
@@ -44,12 +47,31 @@ class RouteLoadResult {
 }
 
 class NavigationController extends ChangeNotifier {
+  NavigationController({
+    PositionStreamFactory? positionStreamFactory,
+    CompassStreamFactory? compassStreamFactory,
+  }) : _positionStreamFactory =
+           positionStreamFactory ?? _defaultPositionStreamFactory,
+       _compassStreamFactory =
+           compassStreamFactory ?? _defaultCompassStreamFactory;
+
   static const double _minimumHeadingSpeedMps = 0.4;
   static const double _minimumLikelyMovementSpeedMps = 0.8;
   static const double _maximumReliableAccuracyMeters = 35;
   static const int _offRouteConfirmationSamples = 3;
   static const Duration _rerouteCooldown = Duration(seconds: 15);
   static const double _cameraHeadingDeadbandDegrees = 1.5;
+
+  static Stream<Position> _defaultPositionStreamFactory() =>
+      Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 5,
+        ),
+      );
+
+  static Stream<CompassEvent>? _defaultCompassStreamFactory() =>
+      FlutterCompass.events;
 
   NavigationState _navState = NavigationState.idle;
   Position? _currentPosition;
@@ -75,6 +97,8 @@ class NavigationController extends ChangeNotifier {
   StreamSubscription<Position>? _positionSubscription;
   StreamSubscription<CompassEvent>? _compassSubscription;
   NavigationCameraInstruction? _pendingCameraInstruction;
+  final PositionStreamFactory _positionStreamFactory;
+  final CompassStreamFactory _compassStreamFactory;
 
   NavigationState get navState => _navState;
   Position? get currentPosition => _currentPosition;
@@ -370,13 +394,7 @@ class NavigationController extends ChangeNotifier {
   void _startPositionTracking() {
     _positionSubscription?.cancel();
 
-    _positionSubscription =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 5,
-          ),
-        ).listen(
+    _positionSubscription = _positionStreamFactory().listen(
           _onPositionUpdate,
           onError: (Object error) {
             debugPrint('Position stream error: $error');
@@ -387,7 +405,7 @@ class NavigationController extends ChangeNotifier {
   void _startCompassTracking() {
     _compassSubscription?.cancel();
 
-    final Stream<CompassEvent>? headingStream = FlutterCompass.events;
+    final Stream<CompassEvent>? headingStream = _compassStreamFactory();
     if (headingStream == null) {
       debugPrint('Compass stream unavailable on this device.');
       return;

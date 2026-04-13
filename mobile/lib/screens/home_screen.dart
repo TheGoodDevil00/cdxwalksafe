@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../controllers/navigation_controller.dart';
@@ -15,6 +14,7 @@ import '../services/place_search_service.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
 import '../services/sos_service.dart';
+import '../widgets/incident_modal.dart';
 import '../widgets/map_layers_builder.dart';
 import '../widgets/navigation_card.dart';
 import 'destination_search_screen.dart';
@@ -93,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _sosService.dispose();
     _navController.removeListener(_handleNavigationChanged);
     _navController.dispose();
     _mapController.dispose();
@@ -405,34 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _triggerSos() async {
-    Position? position;
-    try {
-      position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
-        ),
-      ).timeout(const Duration(seconds: 10));
-    } catch (_) {
-      position = null;
-    }
-
-    if (position == null) {
-      if (mounted) {
-        await showSosLocationRequiredDialog(context);
-      }
-      return;
-    }
-
-    final bool sent = await _sosService.sendEmergencyAlert(
-      latitude: position.latitude,
-      longitude: position.longitude,
-    );
-    if (!mounted) {
-      return;
-    }
-
-    await showSosResultDialog(context: context, sent: sent);
+    await showSosIncidentDialog(context: context, sosService: _sosService);
   }
 
   void _openSettingsScreen() {

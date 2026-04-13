@@ -7,30 +7,68 @@ from app.main import app
 
 
 class ApiEndpointTests(unittest.TestCase):
-    def test_route_risk_returns_segments_and_summary(self):
+    def test_route_risk_returns_current_response_contract(self):
         mocked_payload = {
+            "safety_score": 74.2,
+            "segment_count": 2,
+            "matched_segment_count": 1,
+            "unmatched_segment_count": 1,
+            "applied_incident_count": 1,
+            "incident_affected_segment_count": 1,
+            "dataset_version": "roads-v1",
             "segments": [
                 {
+                    "segment_index": 0,
                     "start": {"lat": 18.52, "lon": 73.85},
+                    "end": {"lat": 18.525, "lon": 73.855},
+                    "length_m": 100.0,
+                    "matched": True,
+                    "base_safety_score": 82.0,
+                    "safety_score": 74.2,
+                    "road_segment_id": 101,
+                    "road_type": "residential",
+                    "lighting": True,
+                    "match_distance_m": 1.4,
+                    "incident_count": 1,
+                    "incident_weight": 0.65,
+                    "incident_penalty": 7.8,
+                    "incident_categories": ["Poor lighting"],
+                    "latest_incident_at": "2026-04-05T18:30:00+00:00",
+                    "zone": None,
+                },
+                {
+                    "segment_index": 1,
+                    "start": {"lat": 18.525, "lon": 73.855},
                     "end": {"lat": 18.53, "lon": 73.86},
-                    "risk": 12.5,
-                }
+                    "length_m": 95.0,
+                    "matched": False,
+                    "base_safety_score": None,
+                    "safety_score": None,
+                    "road_segment_id": None,
+                    "road_type": None,
+                    "lighting": None,
+                    "match_distance_m": None,
+                    "incident_count": 0,
+                    "incident_weight": 0.0,
+                    "incident_penalty": 0.0,
+                    "incident_categories": [],
+                    "latest_incident_at": None,
+                    "zone": None,
+                },
             ],
-            "summary": {
-                "total_distance": 123.4,
-                "total_risk": 12.5,
-                "average_safety_score": 77.0,
-                "applied_incident_count": 2,
-            },
+            "warning": (
+                "Safety data was matched for only part of this route. "
+                "Unmatched route segments are returned with null safety scores."
+            ),
         }
 
         with patch(
-            "app.routers.routing.risk_engine.score_route",
+            "app.routers.routing.score_route",
             new=AsyncMock(return_value=mocked_payload),
         ):
             with TestClient(app) as client:
                 response = client.post(
-                    "/api/v1/route/risk",
+                    "/route/risk",
                     json={
                         "coordinates": [
                             {"lat": 18.52, "lon": 73.85},
@@ -41,91 +79,127 @@ class ApiEndpointTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["summary"]["total_risk"], 12.5)
-        self.assertEqual(len(body["segments"]), 1)
+        self.assertEqual(body["matched_segment_count"], 1)
+        self.assertEqual(body["unmatched_segment_count"], 1)
+        self.assertTrue(body["segments"][0]["matched"])
+        self.assertIsNone(body["segments"][1]["safety_score"])
 
-    def test_route_safe_ranks_candidates_and_returns_meta(self):
-        route_candidates = [
-            {
-                "distance": 1000.0,
-                "duration": 720.0,
-                "coordinates": [[73.85, 18.52], [73.86, 18.53]],
-            },
-            {
-                "distance": 900.0,
-                "duration": 650.0,
-                "coordinates": [[73.85, 18.52], [73.855, 18.525]],
-            },
-        ]
-        score_payloads = [
-            {
-                "segments": [{"risk": 80.0}],
-                "summary": {
-                    "total_distance": 1000.0,
-                    "total_risk": 80.0,
-                    "average_safety_score": 55.0,
-                    "applied_incident_count": 4,
-                },
-            },
-            {
-                "segments": [{"risk": 20.0}],
-                "summary": {
-                    "total_distance": 900.0,
-                    "total_risk": 20.0,
-                    "average_safety_score": 82.0,
-                    "applied_incident_count": 4,
-                },
-            },
-        ]
+    def test_route_safe_returns_coordinates_safety_score_and_metadata(self):
+        mocked_route = {
+            "coordinates": [(18.52, 73.85), (18.53, 73.86)],
+            "distance_km": 2.5,
+            "duration_minutes": 29.7,
+            "safety_score": None,
+        }
+        mocked_score = {
+            "safety_score": 64.5,
+            "segment_count": 2,
+            "matched_segment_count": 2,
+            "unmatched_segment_count": 0,
+            "applied_incident_count": 1,
+            "incident_affected_segment_count": 1,
+            "dataset_version": "roads-v1",
+            "segments": [
+                {
+                    "segment_index": 0,
+                    "start": {"lat": 18.52, "lon": 73.85},
+                    "end": {"lat": 18.525, "lon": 73.855},
+                    "length_m": 100.0,
+                    "matched": True,
+                    "base_safety_score": 72.0,
+                    "safety_score": 64.5,
+                    "road_segment_id": 101,
+                    "road_type": "residential",
+                    "lighting": True,
+                    "match_distance_m": 0.8,
+                    "incident_count": 1,
+                    "incident_weight": 0.625,
+                    "incident_penalty": 7.5,
+                    "incident_categories": ["Harassment"],
+                    "latest_incident_at": "2026-04-05T18:30:00+00:00",
+                    "zone": {
+                        "zone_id": "zone-2",
+                        "risk_level": "risky",
+                        "risk_score": 0.7,
+                    },
+                }
+            ],
+            "warning": None,
+        }
 
         with patch(
-            "app.routers.routing.osrm_service.fetch_walking_routes",
-            new=AsyncMock(return_value=route_candidates),
+            "app.routers.routing.get_safe_route",
+            new=AsyncMock(return_value=mocked_route),
         ), patch(
-            "app.routers.routing.risk_engine.score_route",
-            new=AsyncMock(side_effect=score_payloads),
+            "app.routers.routing.score_route",
+            new=AsyncMock(return_value=mocked_score),
         ):
             with TestClient(app) as client:
                 response = client.get(
-                    "/api/v1/route-safe",
+                    "/route-safe",
                     params={
                         "start_lat": 18.52,
                         "start_lon": 73.85,
                         "end_lat": 18.53,
                         "end_lon": 73.86,
-                        "alternatives": 2,
                     },
                 )
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["selected_route"]["summary"]["total_risk"], 20.0)
-        self.assertEqual(body["alternatives"][0]["summary"]["total_risk"], 80.0)
-        self.assertEqual(body["meta"]["source"], "osrm+risk_engine")
+        self.assertEqual(body["coordinates"], [[18.52, 73.85], [18.53, 73.86]])
+        self.assertEqual(body["safety_score"], 64.5)
+        self.assertEqual(body["distance_km"], 2.5)
+        self.assertEqual(body["duration_minutes"], 29.7)
+        self.assertEqual(body["dataset_version"], "roads-v1")
 
-    def test_safety_zones_returns_not_modified_when_version_matches(self):
+    def test_safety_zones_returns_geojson_contract(self):
         mocked_payload = {
-            "dataset_version": "2026-03-12T18:30:00Z",
-            "generated_at": "2026-03-12T18:30:00Z",
-            "valid_until": "2026-03-12T18:45:00Z",
-            "zones": [{"id": "zone_1", "lat": 18.52, "lon": 73.85}],
-            "geojson": {"type": "FeatureCollection", "features": [{"type": "Feature"}]},
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "zone_id": "zone-1",
+                        "risk_level": "cautious",
+                        "risk_score": 0.35,
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [73.8500, 18.5200],
+                                [73.8550, 18.5200],
+                                [73.8550, 18.5250],
+                                [73.8500, 18.5250],
+                                [73.8500, 18.5200],
+                            ]
+                        ],
+                    },
+                }
+            ],
+            "dataset_version": "zones-v1",
         }
 
         with patch(
-            "app.routers.routing.safety_zone_service.get_safety_zones",
+            "app.routers.routing.load_safety_zones",
             new=AsyncMock(return_value=mocked_payload),
         ):
             with TestClient(app) as client:
                 response = client.get(
-                    "/api/v1/safety-zones",
-                    params={"version": "2026-03-12T18:30:00Z"},
+                    "/safety-zones",
+                    params={
+                        "min_lat": 18.51,
+                        "max_lat": 18.53,
+                        "min_lon": 73.84,
+                        "max_lon": 73.86,
+                    },
                 )
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertTrue(body["not_modified"])
-        self.assertEqual(body["zones"], [])
+        self.assertEqual(body["type"], "FeatureCollection")
+        self.assertEqual(body["features"][0]["properties"]["zone_id"], "zone-1")
 
     def test_report_alias_returns_response_contract(self):
         with patch(
@@ -134,7 +208,7 @@ class ApiEndpointTests(unittest.TestCase):
         ):
             with TestClient(app) as client:
                 response = client.post(
-                    "/api/v1/report",
+                    "/report",
                     json={
                         "user_hash": "user-1",
                         "incident_type": "Poor lighting",
@@ -164,12 +238,15 @@ class ApiEndpointTests(unittest.TestCase):
                     "id": "emergency-1",
                     "status": "triggered",
                     "created_at": "2026-03-12T18:30:00Z",
+                    "message": "Emergency alert has been triggered.",
+                    "contacts_notified": 0,
+                    "trusted_contacts": [],
                 }
             ),
         ):
             with TestClient(app) as client:
                 response = client.post(
-                    "/api/v1/report/emergency",
+                    "/report/emergency",
                     json={
                         "user_hash": "user-1",
                         "lat": 18.52,

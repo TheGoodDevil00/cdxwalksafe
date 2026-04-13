@@ -1,13 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../services/reporting_api_service.dart';
+import '../services/sos_service.dart';
 import 'gradient_button.dart';
 
-class IncidentModal extends StatefulWidget {
-  const IncidentModal({super.key, required this.initialLocation, this.onClose});
+enum IncidentModalMode { report, sos }
 
-  final LatLng initialLocation;
+Future<void> showSosIncidentDialog({
+  required BuildContext context,
+  required SosService sosService,
+}) {
+  return showGeneralDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    barrierLabel: 'Close SOS',
+    barrierColor: Colors.black.withValues(alpha: 0.30),
+    transitionDuration: const Duration(milliseconds: 220),
+    pageBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) => Material(
+          type: MaterialType.transparency,
+          child: SafeArea(
+            child: Center(
+              child: IncidentModal.sos(
+                sosService: sosService,
+                onClose: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+        ),
+    transitionBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          final Animation<double> curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: ScaleTransition(
+              scale: Tween<double>(
+                begin: 0.96,
+                end: 1,
+              ).animate(curvedAnimation),
+              child: child,
+            ),
+          );
+        },
+  );
+}
+
+class IncidentModal extends StatefulWidget {
+  const IncidentModal({super.key, required this.initialLocation, this.onClose})
+    : mode = IncidentModalMode.report,
+      sosService = null;
+
+  const IncidentModal.sos({super.key, required this.sosService, this.onClose})
+    : mode = IncidentModalMode.sos,
+      initialLocation = null;
+
+  final IncidentModalMode mode;
+  final LatLng? initialLocation;
+  final SosService? sosService;
   final VoidCallback? onClose;
 
   @override
@@ -34,6 +97,9 @@ class _IncidentModalState extends State<IncidentModal> {
   bool _submitting = false;
   String? _errorMessage;
 
+  bool get _isSosMode => widget.mode == IncidentModalMode.sos;
+  SosService get _sosService => widget.sosService!;
+
   @override
   void dispose() {
     _descriptionController.dispose();
@@ -56,13 +122,13 @@ class _IncidentModalState extends State<IncidentModal> {
 
     try {
       await _reportingApiService.submitIncidentReport(
-          userHash: userHash,
-          incidentType: _selectedIncidentType,
-          severity: severity,
-          latitude: widget.initialLocation.latitude,
-          longitude: widget.initialLocation.longitude,
-          description: _descriptionController.text.trim(),
-        );
+        userHash: userHash,
+        incidentType: _selectedIncidentType,
+        severity: severity,
+        latitude: widget.initialLocation!.latitude,
+        longitude: widget.initialLocation!.longitude,
+        description: _descriptionController.text.trim(),
+      );
     } on ReportSubmissionException catch (e) {
       if (!mounted) {
         return;
@@ -92,6 +158,69 @@ class _IncidentModalState extends State<IncidentModal> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _sendTrustedContactAlert() async {
+    final SosSendResult result = await _sosService.sendInitialAlert();
+    if (!mounted) {
+      return;
+    }
+
+    if (result.anySent) {
+      _sosService.startLiveBroadcast();
+      return;
+    }
+
+    if (result.locationUnavailable) {
+      await _showLocationRequiredDialog();
+    }
+  }
+
+  Future<void> _showLocationRequiredDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Location required for SOS'),
+        content: const Text(
+          'WalkSafe needs your GPS location to send an accurate SOS alert.\n\n'
+          'Please enable location permissions in your phone settings, then try again.\n\n'
+          'If you need immediate help, call 112.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Geolocator.openLocationSettings();
+            },
+            child: const Text('Open settings'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAuthoritiesPlaceholder() {
+    return showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Authorities Placeholder'),
+        content: const Text(
+          'Demo only. WalkSafe will not place a call or send an SMS to authorities from this screen.\n\n'
+          'If you need immediate help, call 112 yourself right away.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   int _severityForType(String incidentType) {
     final String normalized = incidentType.toLowerCase();
     if (normalized.contains('suspicious')) {
@@ -102,190 +231,414 @@ class _IncidentModalState extends State<IncidentModal> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isSosMode) {
+      return ValueListenableBuilder<SosState>(
+        valueListenable: _sosService.stateListenable,
+        builder: (BuildContext context, SosState state, Widget? child) {
+          return _buildSosModal(context, state);
+        },
+      );
+    }
+
+    return _buildReportModal(context);
+  }
+
+  Widget _buildReportModal(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
     return Material(
       type: MaterialType.transparency,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.98),
-                borderRadius: BorderRadius.circular(34),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.14),
-                    blurRadius: 42,
-                    offset: const Offset(0, 18),
+      child: _buildModalShell(
+        context: context,
+        title: 'New Incident Report',
+        canClose: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Category',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1C2738),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: _incidentTypes
+                  .map((_IncidentCategory type) {
+                    final bool isSelected = type.value == _selectedIncidentType;
+                    return _CategoryPill(
+                      label: type.label,
+                      isSelected: isSelected,
+                      onTap: () {
+                        setState(() {
+                          _selectedIncidentType = type.value;
+                        });
+                      },
+                    );
+                  })
+                  .toList(growable: false),
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'Description of the incident...',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1C2738),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _descriptionController,
+              minLines: 4,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: 'Add context that could help others avoid this area.',
+                hintStyle: const TextStyle(color: Color(0xFF9AA8BB)),
+                filled: true,
+                fillColor: const Color(0xFFF7F9FC),
+                contentPadding: const EdgeInsets.all(18),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: const BorderSide(color: Color(0xFFD8E0EC)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: const BorderSide(color: Color(0xFFD8E0EC)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(22),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF4A82F7),
+                    width: 1.4,
                   ),
-                  BoxShadow(
-                    color: const Color(0xFF2F6EF6).withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, 10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF4F7FB),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Icon(
+                    Icons.place_outlined,
+                    size: 18,
+                    color: Color(0xFF4A82F7),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Pinned to current map view '
+                      '(${widget.initialLocation!.latitude.toStringAsFixed(4)}, '
+                      '${widget.initialLocation!.longitude.toStringAsFixed(4)})',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF617286),
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          const SizedBox(width: 40),
-                          Expanded(
-                            child: Text(
-                              'New Incident Report',
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: const Color(0xFF0D1726),
-                              ),
-                            ),
+            ),
+            const SizedBox(height: 28),
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            GradientButton(
+              label: 'Submit Report',
+              onPressed: _submitting ? null : _submitReport,
+              isLoading: _submitting,
+              height: 62,
+              borderRadius: 24,
+              textStyle: theme.textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSosModal(BuildContext context, SosState state) {
+    final ThemeData theme = Theme.of(context);
+    final Color accentColor = _statusColor(state);
+    final List<String> issueLines = _buildIssueLines(state.lastResult);
+
+    return Material(
+      type: MaterialType.transparency,
+      child: _buildModalShell(
+        context: context,
+        title: 'Emergency SOS',
+        canClose: !state.isActive && !state.isSending,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Send a device-local SMS alert to your trusted contacts with your live location. No remote relay or authority call will be triggered here.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: const Color(0xFF5D6D80),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: accentColor.withValues(alpha: 0.22)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      state.isActive
+                          ? Icons.sos_rounded
+                          : state.kind == SosUiStatusKind.failed
+                          ? Icons.error_outline_rounded
+                          : Icons.sms_rounded,
+                      color: accentColor,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          state.headline,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: const Color(0xFF0D1726),
+                            fontWeight: FontWeight.w800,
                           ),
-                          IconButton(
-                            onPressed:
-                                widget.onClose ??
-                                () => Navigator.of(context).pop(),
-                            icon: const Icon(Icons.close_rounded),
-                            style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFFF4F7FB),
-                              foregroundColor: const Color(0xFF4A5C73),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          state.latestStatus,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: const Color(0xFF4F6076),
+                            height: 1.35,
+                          ),
+                        ),
+                        if (state.lastUpdatedAt != null) ...<Widget>[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Last update: ${state.lastUpdatedAt!.toLocal().toIso8601String()}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: const Color(0xFF72839A),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 28),
-                      Text(
-                        'Category',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1C2738),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: _incidentTypes
-                            .map((_IncidentCategory type) {
-                              final bool isSelected =
-                                  type.value == _selectedIncidentType;
-                              return _CategoryPill(
-                                label: type.label,
-                                isSelected: isSelected,
-                                onTap: () {
-                                  setState(() {
-                                    _selectedIncidentType = type.value;
-                                  });
-                                },
-                              );
-                            })
-                            .toList(growable: false),
-                      ),
-                      const SizedBox(height: 28),
-                      Text(
-                        'Description of the incident...',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1C2738),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      TextField(
-                        controller: _descriptionController,
-                        minLines: 4,
-                        maxLines: 6,
-                        decoration: InputDecoration(
-                          hintText:
-                              'Add context that could help others avoid this area.',
-                          hintStyle: const TextStyle(color: Color(0xFF9AA8BB)),
-                          filled: true,
-                          fillColor: const Color(0xFFF7F9FC),
-                          contentPadding: const EdgeInsets.all(18),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8E0EC),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8E0EC),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(22),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF4A82F7),
-                              width: 1.4,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      // Media upload: planned for a future release. Not implemented in v1.
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF4F7FB),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            const Icon(
-                              Icons.place_outlined,
-                              size: 18,
-                              color: Color(0xFF4A82F7),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Pinned to current map view '
-                                '(${widget.initialLocation.latitude.toStringAsFixed(4)}, '
-                                '${widget.initialLocation.longitude.toStringAsFixed(4)})',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: const Color(0xFF617286),
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      if (_errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      GradientButton(
-                        label: 'Submit Report',
-                        onPressed: _submitting ? null : _submitReport,
-                        isLoading: _submitting,
-                        height: 62,
-                        borderRadius: 24,
-                        textStyle: theme.textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: _StatusMetric(
+                    label: 'Sent',
+                    value: '${state.lastResult?.sentRecipients.length ?? 0}',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatusMetric(
+                    label: 'Failed',
+                    value: '${state.lastResult?.failedRecipients.length ?? 0}',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatusMetric(
+                    label: 'Skipped',
+                    value: '${state.lastResult?.skippedRecipients.length ?? 0}',
+                  ),
+                ),
+              ],
+            ),
+            if (issueLines.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7F9FC),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: issueLines
+                      .map(
+                        (String line) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            line,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF55667A),
+                              height: 1.35,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
+              ),
+            ],
+            const SizedBox(height: 22),
+            if (!state.isActive)
+              GradientButton(
+                label: 'Alert Trusted Contacts',
+                onPressed: state.isSending ? null : _sendTrustedContactAlert,
+                isLoading: state.isSending,
+                height: 62,
+                borderRadius: 24,
+                gradient: const LinearGradient(
+                  colors: <Color>[Color(0xFFE24A3B), Color(0xFFD7644F)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                textStyle: theme.textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              )
+            else
+              GradientButton(
+                label: 'Stop SOS',
+                onPressed: state.isSending
+                    ? null
+                    : _sosService.stopLiveBroadcast,
+                height: 62,
+                borderRadius: 24,
+                gradient: const LinearGradient(
+                  colors: <Color>[Color(0xFFB11E2A), Color(0xFF8D1323)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                textStyle: theme.textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: state.isSending ? null : _showAuthoritiesPlaceholder,
+                icon: const Icon(Icons.local_police_outlined),
+                label: const Text('Authorities Placeholder'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                  foregroundColor: const Color(0xFF1C2738),
+                  side: const BorderSide(color: Color(0xFFD3DCE8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModalShell({
+    required BuildContext context,
+    required String title,
+    required bool canClose,
+    required Widget child,
+  }) {
+    final ThemeData theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.98),
+              borderRadius: BorderRadius.circular(34),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.14),
+                  blurRadius: 42,
+                  offset: const Offset(0, 18),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF2F6EF6).withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        const SizedBox(width: 40),
+                        Expanded(
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF0D1726),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: canClose
+                              ? widget.onClose ??
+                                    () => Navigator.of(context).pop()
+                              : null,
+                          icon: const Icon(Icons.close_rounded),
+                          style: IconButton.styleFrom(
+                            backgroundColor: const Color(0xFFF4F7FB),
+                            foregroundColor: const Color(0xFF4A5C73),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+                    child,
+                  ],
                 ),
               ),
             ),
@@ -293,6 +646,49 @@ class _IncidentModalState extends State<IncidentModal> {
         ),
       ),
     );
+  }
+
+  Color _statusColor(SosState state) {
+    switch (state.kind) {
+      case SosUiStatusKind.active:
+        return const Color(0xFFD63B45);
+      case SosUiStatusKind.success:
+        return const Color(0xFF2B8A5D);
+      case SosUiStatusKind.failed:
+        return const Color(0xFFB35B00);
+      case SosUiStatusKind.stopped:
+        return const Color(0xFF4A82F7);
+      case SosUiStatusKind.sending:
+        return const Color(0xFF2F6EF6);
+      case SosUiStatusKind.idle:
+        return const Color(0xFF2F6EF6);
+    }
+  }
+
+  List<String> _buildIssueLines(SosSendResult? result) {
+    if (result == null) {
+      return const <String>[];
+    }
+
+    final List<String> lines = <String>[];
+    for (final SosRecipientStatus recipient in result.failedRecipients) {
+      lines.add(
+        'Failed: ${recipient.label}${recipient.reason == null ? '' : ' - ${recipient.reason}'}',
+      );
+    }
+    for (final SosRecipientStatus recipient in result.skippedRecipients) {
+      lines.add(
+        'Skipped: ${recipient.label}${recipient.reason == null ? '' : ' - ${recipient.reason}'}',
+      );
+    }
+    if (lines.length > 3) {
+      final int remaining = lines.length - 3;
+      return <String>[
+        ...lines.take(3),
+        '+$remaining more contact issue${remaining == 1 ? '' : 's'}',
+      ];
+    }
+    return lines;
   }
 }
 
@@ -342,6 +738,44 @@ class _CategoryPill extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _StatusMetric extends StatelessWidget {
+  const _StatusMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F9FC),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF72839A),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: const Color(0xFF102033),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
       ),
     );
   }

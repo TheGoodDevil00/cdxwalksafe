@@ -84,8 +84,8 @@ class _EmergencySosScreenState extends State<EmergencySosScreen> {
           title: Text(sent ? 'Alert Sent' : 'Alert Failed'),
           content: Text(
             sent
-                ? 'Emergency alert has been sent to backend.'
-                : 'Could not reach backend. Call local emergency services immediately.',
+                ? 'Emergency SOS was sent to your trusted contacts.'
+                : 'WalkSafe could not confirm the SMS send. Call local emergency services immediately.',
           ),
           actions: <Widget>[
             TextButton(

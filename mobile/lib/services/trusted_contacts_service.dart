@@ -20,8 +20,8 @@ class TrustedContact {
     phone: json['phone'] as String,
   );
 
-  /// A contact is valid if both name and phone are non-empty.
-  bool get isValid => name.trim().isNotEmpty && phone.trim().isNotEmpty;
+  /// A contact is valid for SOS if it has a non-empty phone number.
+  bool get isValid => phone.trim().isNotEmpty;
 }
 
 class TrustedContactsService {
@@ -51,10 +51,10 @@ class TrustedContactsService {
 
   /// Save the given list of trusted contacts to local storage.
   /// Trims the list to maxContacts before saving.
-  static Future<void> save(List<TrustedContact> contacts) async {
+  static Future<bool> save(List<TrustedContact> contacts) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<TrustedContact> trimmed = contacts.take(maxContacts).toList();
-    await prefs.setString(
+    return prefs.setString(
       _key,
       jsonEncode(trimmed.map((TrustedContact c) => c.toJson()).toList()),
     );
