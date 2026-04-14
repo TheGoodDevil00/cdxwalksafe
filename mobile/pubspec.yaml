@@ -41,6 +41,7 @@ dependencies:
   sms_sender: ^1.0.6
   supabase_flutter: ^2.5.6
   flutter_compass: ^0.8.1
+  hive_flutter: ^1.1.0
 
   
 dev_dependencies:
