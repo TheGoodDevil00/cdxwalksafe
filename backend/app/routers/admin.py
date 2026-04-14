@@ -49,40 +49,6 @@ async def require_admin(x_admin_key: str = Header(...)):
         )
 
 
-@router.post("/test-sms")
-async def test_sms_delivery(
-    phone: str,
-    _: None = Depends(require_admin),
-):
-    """
-    Send a test SMS to verify Fast2SMS is working.
-    Use this to confirm delivery before a real demo.
-
-    Example:
-      curl -X POST "http://localhost:8000/admin/test-sms?phone=9876543210" \
-           -H "X-Admin-Key: your-admin-key"
-    """
-    from app.services.alert_delivery_service import TrustedContact, send_sms
-
-    test_contact = TrustedContact(
-        name="Test",
-        phone=phone,
-        email=None,
-    )
-    success, error = await send_sms(
-        contact=test_contact,
-        lat=18.5204,
-        lon=73.8567,
-        sender_name="WalkSafe Test",
-    )
-    return {
-        "phone": phone,
-        "sms_sent": success,
-        "error": error,
-        "note": "Check backend logs for the raw Fast2SMS response.",
-    }
-
-
 @router.get("/reports")
 async def list_reports(
     status: str = "pending",
