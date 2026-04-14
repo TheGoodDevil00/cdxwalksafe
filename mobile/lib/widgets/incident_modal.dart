@@ -377,8 +377,10 @@ class _IncidentModalState extends State<IncidentModal> {
 
   Widget _buildSosModal(BuildContext context, SosState state) {
     final ThemeData theme = Theme.of(context);
-    final Color accentColor = _statusColor(state);
-    final List<String> issueLines = _buildIssueLines(state.lastResult);
+    final bool broadcastInProgress = state.isActive || state.isSending;
+    final Color accentColor = broadcastInProgress
+        ? const Color(0xFFD63B45)
+        : const Color(0xFF2F6EF6);
 
     return Material(
       type: MaterialType.transparency,
@@ -417,10 +419,8 @@ class _IncidentModalState extends State<IncidentModal> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
-                      state.isActive
+                      broadcastInProgress
                           ? Icons.sos_rounded
-                          : state.kind == SosUiStatusKind.failed
-                          ? Icons.error_outline_rounded
                           : Icons.sms_rounded,
                       color: accentColor,
                     ),
@@ -431,7 +431,9 @@ class _IncidentModalState extends State<IncidentModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          state.headline,
+                          broadcastInProgress
+                              ? 'SOS broadcast in progress'
+                              : 'SOS ready',
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: const Color(0xFF0D1726),
                             fontWeight: FontWeight.w800,
@@ -439,81 +441,20 @@ class _IncidentModalState extends State<IncidentModal> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          state.latestStatus,
+                          broadcastInProgress
+                              ? 'WalkSafe is sending live SMS updates directly from this phone to your trusted contacts.'
+                              : 'Trigger SOS to begin device-local SMS alerts and live updates for your trusted contacts.',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: const Color(0xFF4F6076),
                             height: 1.35,
                           ),
                         ),
-                        if (state.lastUpdatedAt != null) ...<Widget>[
-                          const SizedBox(height: 8),
-                          Text(
-                            'Last update: ${state.lastUpdatedAt!.toLocal().toIso8601String()}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFF72839A),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 18),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: _StatusMetric(
-                    label: 'Sent',
-                    value: '${state.lastResult?.sentRecipients.length ?? 0}',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatusMetric(
-                    label: 'Failed',
-                    value: '${state.lastResult?.failedRecipients.length ?? 0}',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatusMetric(
-                    label: 'Skipped',
-                    value: '${state.lastResult?.skippedRecipients.length ?? 0}',
-                  ),
-                ),
-              ],
-            ),
-            if (issueLines.isNotEmpty) ...<Widget>[
-              const SizedBox(height: 18),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7F9FC),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: issueLines
-                      .map(
-                        (String line) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            line,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF55667A),
-                              height: 1.35,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
-                ),
-              ),
-            ],
             const SizedBox(height: 22),
             if (!state.isActive)
               GradientButton(
@@ -648,48 +589,6 @@ class _IncidentModalState extends State<IncidentModal> {
     );
   }
 
-  Color _statusColor(SosState state) {
-    switch (state.kind) {
-      case SosUiStatusKind.active:
-        return const Color(0xFFD63B45);
-      case SosUiStatusKind.success:
-        return const Color(0xFF2B8A5D);
-      case SosUiStatusKind.failed:
-        return const Color(0xFFB35B00);
-      case SosUiStatusKind.stopped:
-        return const Color(0xFF4A82F7);
-      case SosUiStatusKind.sending:
-        return const Color(0xFF2F6EF6);
-      case SosUiStatusKind.idle:
-        return const Color(0xFF2F6EF6);
-    }
-  }
-
-  List<String> _buildIssueLines(SosSendResult? result) {
-    if (result == null) {
-      return const <String>[];
-    }
-
-    final List<String> lines = <String>[];
-    for (final SosRecipientStatus recipient in result.failedRecipients) {
-      lines.add(
-        'Failed: ${recipient.label}${recipient.reason == null ? '' : ' - ${recipient.reason}'}',
-      );
-    }
-    for (final SosRecipientStatus recipient in result.skippedRecipients) {
-      lines.add(
-        'Skipped: ${recipient.label}${recipient.reason == null ? '' : ' - ${recipient.reason}'}',
-      );
-    }
-    if (lines.length > 3) {
-      final int remaining = lines.length - 3;
-      return <String>[
-        ...lines.take(3),
-        '+$remaining more contact issue${remaining == 1 ? '' : 's'}',
-      ];
-    }
-    return lines;
-  }
 }
 
 class _CategoryPill extends StatelessWidget {
@@ -738,44 +637,6 @@ class _CategoryPill extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StatusMetric extends StatelessWidget {
-  const _StatusMetric({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F9FC),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: const Color(0xFF72839A),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: const Color(0xFF102033),
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
       ),
     );
   }

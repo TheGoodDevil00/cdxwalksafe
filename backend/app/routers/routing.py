@@ -1,4 +1,5 @@
-from typing import Dict, List
+import time
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -10,6 +11,52 @@ from app.services.routing_service import get_safe_route
 from app.services.safety_zone_service import get_safety_zones as load_safety_zones
 
 router = APIRouter()
+
+# NOTE: This is an in-process cache. It does not survive server restarts
+# and is not shared across multiple backend instances.
+# For multi-instance deployment, replace with Redis.
+# The dict is safe here because these handlers run on the app's asyncio event
+# loop. If threaded workers are introduced later, guard access with a lock.
+_zones_cache: dict[str, dict[str, Any]] = {}
+_ZONES_CACHE_TTL_SECONDS: float = 600.0
+
+
+def _zones_cache_key(
+    min_lat: float | None,
+    max_lat: float | None,
+    min_lon: float | None,
+    max_lon: float | None,
+) -> str:
+    def _format(value: float | None) -> str:
+        return "none" if value is None else f"{value:.4f}"
+
+    return ",".join(
+        (
+            _format(min_lat),
+            _format(max_lat),
+            _format(min_lon),
+            _format(max_lon),
+        )
+    )
+
+
+def _get_cached_zones(bbox_key: str) -> Optional[dict]:
+    cached_entry = _zones_cache.get(bbox_key)
+    if cached_entry is None:
+        return None
+
+    if (time.time() - float(cached_entry["cached_at"])) >= _ZONES_CACHE_TTL_SECONDS:
+        _zones_cache.pop(bbox_key, None)
+        return None
+
+    return cached_entry["data"]
+
+
+def _set_cached_zones(bbox_key: str, data: dict) -> None:
+    _zones_cache[bbox_key] = {
+        "cached_at": time.time(),
+        "data": data,
+    }
 
 
 class Coordinate(BaseModel):
@@ -85,10 +132,17 @@ async def safety_zones(
     max_lon: float | None = None,
     db: AsyncSession = Depends(get_db),
 ):
-    return await load_safety_zones(
+    bbox_key = _zones_cache_key(min_lat, max_lat, min_lon, max_lon)
+    cached = _get_cached_zones(bbox_key)
+    if cached is not None:
+        return cached
+
+    result = await load_safety_zones(
         db,
         min_lat=min_lat,
         max_lat=max_lat,
         min_lon=min_lon,
         max_lon=max_lon,
     )
+    _set_cached_zones(bbox_key, result)
+    return result

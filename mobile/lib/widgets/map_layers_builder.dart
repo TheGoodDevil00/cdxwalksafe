@@ -12,6 +12,36 @@ import '../services/navigation_math.dart';
 class MapLayersBuilder {
   MapLayersBuilder._();
 
+  static const LinearGradient _userMarkerGradient = LinearGradient(
+    colors: <Color>[Color(0xFF34B3FF), Color(0xFF2E7CF6)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  static const Border _userMarkerBorder = Border.fromBorderSide(
+    BorderSide(color: Colors.white, width: 4),
+  );
+  static const List<BoxShadow> _userMarkerShadows = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x422E7CF6),
+      blurRadius: 20,
+      offset: Offset(0, 10),
+    ),
+  ];
+  static const BoxDecoration _destinationMarkerDecoration = BoxDecoration(
+    shape: BoxShape.circle,
+    color: Colors.white,
+    border: Border.fromBorderSide(
+      BorderSide(color: Color(0xFF2E7CF6), width: 5),
+    ),
+    boxShadow: <BoxShadow>[
+      BoxShadow(
+        color: Color(0x24000000),
+        blurRadius: 18,
+        offset: Offset(0, 10),
+      ),
+    ],
+  );
+
   static List<Polyline> buildRoutePolylines({
     required ScoredRoute route,
     required RouteProgressSplit? progress,
@@ -141,21 +171,11 @@ class MapLayersBuilder {
         child: Container(
           width: userMarkerDiameter,
           height: userMarkerDiameter,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: <Color>[Color(0xFF34B3FF), Color(0xFF2E7CF6)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: Colors.white, width: 4),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: const Color(0xFF2E7CF6).withValues(alpha: 0.26),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            gradient: _userMarkerGradient,
+            border: _userMarkerBorder,
+            boxShadow: _userMarkerShadows,
           ),
           child: Transform.rotate(
             angle: heading * math.pi / 180,
@@ -177,18 +197,7 @@ class MapLayersBuilder {
           child: Container(
             width: 52,
             height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFF2E7CF6), width: 5),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.14),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+            decoration: _destinationMarkerDecoration,
             child: Center(
               child: Container(
                 width: 12,

@@ -51,6 +51,11 @@ class WalkSafeMapView extends StatelessWidget {
           userAgentPackageName: 'com.safewalk.mobile',
           // MapTiler uses standard 256px raster tiles for this style.
           tileDimension: 256,
+          // Keep only a small tile margin loaded to reduce memory pressure on
+          // low-end devices while panning around the map.
+          panBuffer: 1,
+          keepBuffer: 1,
+          tileProvider: NetworkTileProvider(),
         ),
         if (safetyOverlays.isNotEmpty) CircleLayer(circles: safetyOverlays),
         ...overlayLayers,

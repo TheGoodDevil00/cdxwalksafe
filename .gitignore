@@ -55,8 +55,9 @@ backend/.env
 ############################
 # OSM / Data Pipeline Output
 ############################
-# logic/output/
-# *.geojson
+logic/output/
+logic/outputs/*.geojson
+logic/outputs/*.graphml
 
 ############################
 # Flutter / Dart

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 VALHALLA_BASE_URL = os.environ.get("VALHALLA_BASE_URL", "http://localhost:8002")
+VALHALLA_TIMEOUT = httpx.Timeout(connect=5.0, read=25.0, write=5.0, pool=5.0)
 
 
 async def get_safe_route(
@@ -36,7 +37,7 @@ async def get_safe_route(
         "directions_options": {"units": "kilometers"},
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=VALHALLA_TIMEOUT) as client:
         try:
             response = await client.post(
                 f"{VALHALLA_BASE_URL}/route",

@@ -817,7 +817,10 @@ class HomeScreenBody extends StatelessWidget {
           initialZoom: 14.8,
           onMapReady: onMapReady,
           overlayLayers: <Widget>[
-            SafetyZoneOverlay(zones: safetyZones, isVisible: showSafetyZones),
+            if (showSafetyZones)
+              RepaintBoundary(
+                child: SafetyZoneOverlay(zones: safetyZones),
+              ),
           ],
           routePolylines: routePolylines,
           markers: markers,

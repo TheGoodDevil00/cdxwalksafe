@@ -4,7 +4,9 @@ import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 
 from app.db.session import AsyncSessionLocal
@@ -13,16 +15,23 @@ from app.routers import reports, routing
 from app.services.safety_dataset_cache import safety_dataset_cache
 
 LOGGER = logging.getLogger(__name__)
+_cache_ready = False
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    global _cache_ready
+    _cache_ready = False
+
     if "pytest" not in sys.modules:
         try:
             async with AsyncSessionLocal() as session:
                 await safety_dataset_cache.warm_cache(session)
+            _cache_ready = True
         except Exception as exc:  # pragma: no cover - startup should degrade gracefully
             LOGGER.warning("Safety dataset cache warmup skipped: %s", exc)
+    else:
+        _cache_ready = True
 
     yield
 
@@ -41,6 +50,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*", "ngrok-skip-browser-warning"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 class NgrokHeaderMiddleware(BaseHTTPMiddleware):
@@ -60,3 +70,21 @@ app.include_router(reports.router)
 @app.get("/")
 async def root():
     return {"message": "WalkSafe API is running", "status": "online"}
+
+
+@app.get("/ready")
+async def readiness():
+    """
+    Kubernetes/load-balancer style readiness probe.
+    Returns 200 when the safety dataset cache is warmed and ready to serve requests.
+    Returns 503 during startup warmup.
+    """
+    if not _cache_ready:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "ready": False,
+                "reason": "Safety dataset cache warming up",
+            },
+        )
+    return {"ready": True}

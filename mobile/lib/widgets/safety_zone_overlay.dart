@@ -7,27 +7,22 @@ class SafetyZoneOverlay extends StatelessWidget {
   const SafetyZoneOverlay({
     super.key,
     required this.zones,
-    this.isVisible = true,
   });
 
   final List<SafetyZone> zones;
-  final bool isVisible;
 
   @override
   Widget build(BuildContext context) {
+    if (zones.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final List<Polygon> polygons = zones
         .map(_buildPolygon)
         .whereType<Polygon>()
         .toList(growable: false);
 
-    return IgnorePointer(
-      child: AnimatedOpacity(
-        opacity: isVisible ? 1 : 0,
-        duration: const Duration(milliseconds: 260),
-        curve: Curves.easeOut,
-        child: PolygonLayer(polygons: polygons),
-      ),
-    );
+    return IgnorePointer(child: PolygonLayer(polygons: polygons));
   }
 
   Polygon? _buildPolygon(SafetyZone zone) {

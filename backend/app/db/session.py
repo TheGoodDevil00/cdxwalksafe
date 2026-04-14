@@ -33,7 +33,15 @@ def _normalize_database_url(url: str) -> str:
 
 DATABASE_URL = _normalize_database_url(DATABASE_URL)
 
-engine = create_async_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
+)
 
 AsyncSessionLocal = sessionmaker(
     engine,

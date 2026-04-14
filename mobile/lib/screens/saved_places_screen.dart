@@ -177,7 +177,12 @@ class _SavedPlacesScreenState extends State<SavedPlacesScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(() {
+      labelCtrl.dispose();
+      nameCtrl.dispose();
+      latCtrl.dispose();
+      lonCtrl.dispose();
+    });
   }
 
   IconData _icon(String label) {

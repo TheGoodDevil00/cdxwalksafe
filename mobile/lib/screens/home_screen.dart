@@ -20,9 +20,9 @@ import '../services/sos_service.dart';
 import '../widgets/incident_modal.dart';
 import '../widgets/map_layers_builder.dart';
 import '../widgets/navigation_card.dart';
+import '../widgets/saved_place_chips.dart';
 import 'destination_search_screen.dart';
 import 'login_screen.dart';
-import 'saved_places_screen.dart';
 import 'settings_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -48,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
   LatLng _cameraTarget = _defaultCenter;
   // Keep the last real device fix separate from the viewport center.
   LatLng _lastKnownUserPoint = _defaultCenter;
-  List<SavedPlace> _cachedSavedPlaces = <SavedPlace>[];
   List<SafetyZone> _safetyZones = <SafetyZone>[];
   bool _isLoadingLocation = true;
   bool _isLoadingRoute = false;
@@ -99,7 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _cachedSavedPlaces = SavedPlacesService.instance.getCachedPlaces();
     _navController = NavigationController()
       ..addListener(_handleNavigationChanged)
       ..onArrived = _handleArrived
@@ -113,17 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
       if (event.event == AuthChangeEvent.signedIn) {
         SavedPlacesService.instance.syncFromSupabase().then((_) {
           if (mounted) {
-            setState(() {
-              _cachedSavedPlaces =
-                  SavedPlacesService.instance.getCachedPlaces();
-            });
+            setState(() {});
           }
         }).catchError((_) {});
       }
       if (event.event == AuthChangeEvent.signedOut && mounted) {
-        setState(() {
-          _cachedSavedPlaces = <SavedPlace>[];
-        });
+        setState(() {});
       }
     });
     _loadHomeMap();
@@ -515,62 +508,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget? _buildSavedPlacesBar() {
-    if (!AuthService.instance.isLoggedIn || _cachedSavedPlaces.isEmpty) {
-      return null;
-    }
-
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _cachedSavedPlaces.length + 1,
-        separatorBuilder: (BuildContext context, int index) =>
-            const SizedBox(width: 8),
-        itemBuilder: (BuildContext context, int index) {
-          if (index == _cachedSavedPlaces.length) {
-            return ActionChip(
-              avatar: const Icon(Icons.edit_outlined, size: 16),
-              label: const Text('Manage'),
-              onPressed: () async {
-                final SavedPlace? result = await Navigator.push<SavedPlace>(
-                  context,
-                  MaterialPageRoute<SavedPlace>(
-                    builder: (_) => const SavedPlacesScreen(),
-                  ),
-                );
-                if (result != null && mounted) {
-                  await _setDestination(
-                    result.lat,
-                    result.lon,
-                    result.displayName,
-                  );
-                }
-                if (mounted) {
-                  setState(() {
-                    _cachedSavedPlaces =
-                        SavedPlacesService.instance.getCachedPlaces();
-                  });
-                }
-              },
-            );
-          }
-
-          final SavedPlace place = _cachedSavedPlaces[index];
-          return ActionChip(
-            label: Text(place.label),
-            onPressed: () => _setDestination(
-              place.lat,
-              place.lon,
-              place.displayName,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final NavigationState navState = _navController.navState;
@@ -603,7 +540,15 @@ class _HomeScreenState extends State<HomeScreen> {
         navState: navState,
         route: _navController.selectedRoute,
         isRerouting: _navController.isRerouting,
-        savedPlacesBar: _buildSavedPlacesBar(),
+        savedPlacesBar: AuthService.instance.isLoggedIn
+            ? SavedPlaceChips(
+                onPlaceSelected: (
+                  double lat,
+                  double lon,
+                  String name,
+                ) => _setDestination(lat, lon, name),
+              )
+            : null,
         onMapReady: () {
           _mapReady = true;
           _applyPendingCameraInstruction();
