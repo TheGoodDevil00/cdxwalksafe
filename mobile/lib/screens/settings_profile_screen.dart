@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+import 'saved_places_screen.dart';
 import 'trusted_contacts_screen.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
@@ -58,12 +60,68 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
               ),
             ),
           ),
+          if (AuthService.instance.isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.place_outlined),
+              title: const Text('Saved places'),
+              subtitle: const Text('Home, Work, and favourites'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => const SavedPlacesScreen(),
+                ),
+              ),
+            ),
           const ListTile(
             leading: Icon(Icons.privacy_tip_outlined),
             title: Text('Privacy Preferences'),
             subtitle: Text('Control data sharing and retention'),
             trailing: Icon(Icons.chevron_right),
           ),
+          if (AuthService.instance.isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Sign out',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () async {
+                final NavigatorState navigator = Navigator.of(context);
+                final bool? confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext dialogContext) => AlertDialog(
+                    title: const Text('Sign out?'),
+                    content: const Text(
+                      'You will need to sign in again to report incidents or use SOS.',
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text(
+                          'Sign out',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await AuthService.instance.signOut();
+                  if (!mounted) {
+                    return;
+                  }
+                  navigator.pop();
+                }
+              },
+            ),
         ],
       ),
     );
