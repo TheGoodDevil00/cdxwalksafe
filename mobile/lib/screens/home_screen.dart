@@ -411,7 +411,46 @@ class _HomeScreenState extends State<HomeScreen> {
     _mapController.move(userPoint, zoom);
   }
 
+  void _showAuthRequiredDialog(
+    BuildContext context, {
+    required String feature,
+    required String reason,
+  }) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Sign in required'),
+        content: Text('$feature requires a WalkSafe account.\n\n$reason'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Not now'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+              );
+            },
+            child: const Text('Sign in'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _openIncidentReport() async {
+    if (!AuthService.instance.isLoggedIn) {
+      _showAuthRequiredDialog(
+        context,
+        feature: 'Incident reporting',
+        reason:
+            'Reports are linked to your account so the community can trust them.',
+      );
+      return;
+    }
+
     await showIncidentReportDialog(
       context: context,
       initialLocation: _navController.destinationLatLng ?? _cameraTarget,
@@ -419,6 +458,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _triggerSos() async {
+    if (!AuthService.instance.isLoggedIn) {
+      _showAuthRequiredDialog(
+        context,
+        feature: 'SOS alerts',
+        reason:
+            'SOS requires an account to link your trusted contacts and location.',
+      );
+      return;
+    }
+
     await showSosIncidentDialog(context: context, sosService: _sosService);
   }
 
