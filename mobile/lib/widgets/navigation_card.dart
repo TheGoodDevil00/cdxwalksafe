@@ -751,6 +751,7 @@ class HomeScreenBody extends StatelessWidget {
     required this.navState,
     required this.route,
     required this.isRerouting,
+    this.savedPlacesBar,
     required this.onMapReady,
     required this.onMapTap,
     required this.onPositionChanged,
@@ -786,6 +787,7 @@ class HomeScreenBody extends StatelessWidget {
   final NavigationState navState;
   final ScoredRoute? route;
   final bool isRerouting;
+  final Widget? savedPlacesBar;
   final VoidCallback onMapReady;
   final ValueChanged<LatLng> onMapTap;
   final ValueChanged<MapCamera> onPositionChanged;
@@ -873,6 +875,10 @@ class HomeScreenBody extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
+                if (savedPlacesBar != null) ...<Widget>[
+                  savedPlacesBar!,
+                  const SizedBox(height: 12),
+                ],
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
