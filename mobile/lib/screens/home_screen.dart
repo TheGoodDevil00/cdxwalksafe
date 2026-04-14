@@ -13,11 +13,13 @@ import '../services/navigation_math.dart';
 import '../services/place_search_service.dart';
 import '../services/routing_service.dart';
 import '../services/safety_heatmap_service.dart';
+import '../services/auth_service.dart';
 import '../services/sos_service.dart';
 import '../widgets/incident_modal.dart';
 import '../widgets/map_layers_builder.dart';
 import '../widgets/navigation_card.dart';
 import 'destination_search_screen.dart';
+import 'login_screen.dart';
 import 'settings_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -56,6 +58,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _showCompassReset =>
       _navController.headingUpMode && _navController.hasHeading;
+
+  IconData get _profileIcon => AuthService.instance.isLoggedIn
+      ? Icons.account_circle
+      : Icons.account_circle_outlined;
+
+  Color get _profileIconColor =>
+      AuthService.instance.isLoggedIn ? Colors.blue : Colors.grey;
+
+  String get _profileTooltip => AuthService.instance.isLoggedIn
+      ? AuthService.instance.displayName
+      : 'Sign in';
 
   List<Marker> get _markers => MapLayersBuilder.buildNavigationMarkers(
     start: _liveUserPoint,
@@ -409,9 +422,13 @@ class _HomeScreenState extends State<HomeScreen> {
     await showSosIncidentDialog(context: context, sosService: _sosService);
   }
 
-  void _openSettingsScreen() {
+  void _openProfileScreen() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const SettingsProfileScreen()),
+      MaterialPageRoute<void>(
+        builder: (_) => AuthService.instance.isLoggedIn
+            ? const SettingsProfileScreen()
+            : const LoginScreen(),
+      ),
     );
   }
 
@@ -483,7 +500,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onClearRoute: _destinationLabel == null || _isLoadingRoute
             ? null
             : _clearRoute,
-        onOpenProfile: _openSettingsScreen,
+        profileIcon: _profileIcon,
+        profileIconColor: _profileIconColor,
+        profileTooltip: _profileTooltip,
+        onOpenProfile: _openProfileScreen,
         onToggleSafetyZones: _toggleSafetyZones,
         onResetCompass: _onCompassResetPressed,
         onReportIncident: _openIncidentReport,

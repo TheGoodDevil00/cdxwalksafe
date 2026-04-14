@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
-
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({super.key, required this.nextScreen});
+
+  final Widget nextScreen;
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+        MaterialPageRoute<void>(builder: (_) => widget.nextScreen),
       );
     });
   }

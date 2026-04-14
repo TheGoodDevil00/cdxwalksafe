@@ -541,11 +541,13 @@ class MapCircleButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.iconColor = const Color(0xFF162133),
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -557,7 +559,7 @@ class MapCircleButton extends StatelessWidget {
           child: IconButton(
             tooltip: tooltip,
             onPressed: onPressed,
-            icon: Icon(icon, color: const Color(0xFF162133)),
+            icon: Icon(icon, color: iconColor),
             style: IconButton.styleFrom(
               minimumSize: const Size(56, 56),
               shape: const CircleBorder(),
@@ -755,6 +757,9 @@ class HomeScreenBody extends StatelessWidget {
     required this.onRecenter,
     required this.onSearchTap,
     required this.onClearRoute,
+    required this.profileIcon,
+    required this.profileIconColor,
+    required this.profileTooltip,
     required this.onOpenProfile,
     required this.onToggleSafetyZones,
     required this.onResetCompass,
@@ -787,6 +792,9 @@ class HomeScreenBody extends StatelessWidget {
   final VoidCallback onRecenter;
   final VoidCallback onSearchTap;
   final VoidCallback? onClearRoute;
+  final IconData profileIcon;
+  final Color profileIconColor;
+  final String profileTooltip;
   final VoidCallback onOpenProfile;
   final VoidCallback onToggleSafetyZones;
   final VoidCallback onResetCompass;
@@ -857,8 +865,9 @@ class HomeScreenBody extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     MapCircleButton(
-                      icon: Icons.person_outline_rounded,
-                      tooltip: 'Profile',
+                      icon: profileIcon,
+                      iconColor: profileIconColor,
+                      tooltip: profileTooltip,
                       onPressed: onOpenProfile,
                     ),
                   ],

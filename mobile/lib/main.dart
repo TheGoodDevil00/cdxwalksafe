@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/app_config.dart';
 import 'screens/splash_screen.dart';
+import 'widgets/auth_gate.dart';
 
 Future<void> main() async {
   // Ensures plugins (maps, location, storage) are initialized before runApp.
@@ -72,7 +73,7 @@ class WalkSafeApp extends StatelessWidget {
           contentTextStyle: TextStyle(color: Colors.white),
         ),
       ),
-      home: const SplashScreen(),
+      home: const SplashScreen(nextScreen: AuthGate()),
     );
   }
 }
