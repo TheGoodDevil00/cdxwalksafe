@@ -52,44 +52,6 @@ class ReportingService:
             normalized_contacts.append({"name": name, "phone": phone})
         return normalized_contacts
 
-    async def ensure_emergency_alerts_table(self, db: AsyncSession) -> None:
-        await db.execute(
-            text(
-                """
-                CREATE TABLE IF NOT EXISTS emergency_alerts (
-                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                    user_hash TEXT NOT NULL,
-                    latitude DOUBLE PRECISION NOT NULL,
-                    longitude DOUBLE PRECISION NOT NULL,
-                    location GEOGRAPHY(POINT, 4326) GENERATED ALWAYS AS (
-                        ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
-                    ) STORED,
-                    status TEXT NOT NULL DEFAULT 'triggered',
-                    message TEXT,
-                    contacts_notified INTEGER NOT NULL DEFAULT 0,
-                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-                    resolved_at TIMESTAMP WITH TIME ZONE,
-                    metadata JSONB NOT NULL DEFAULT '{}'::jsonb
-                )
-                """
-            )
-        )
-        await db.execute(
-            text(
-                """
-                CREATE INDEX IF NOT EXISTS idx_emergency_alerts_location
-                ON emergency_alerts USING GIST(location)
-                """
-            )
-        )
-        await db.execute(
-            text(
-                """
-                CREATE INDEX IF NOT EXISTS idx_emergency_alerts_created_at
-                ON emergency_alerts (created_at DESC)
-                """
-            )
-        )
 
     async def create_report(
         self,
@@ -151,6 +113,7 @@ class ReportingService:
                     submitted_at AS created_at,
                     status
                 FROM incident_reports
+                WHERE status = 'verified'
                 ORDER BY submitted_at DESC
                 LIMIT :limit
                 """
@@ -276,7 +239,6 @@ class ReportingService:
         alert: EmergencyAlertCreate,
         db: AsyncSession,
     ) -> Dict[str, Any]:
-        await self.ensure_emergency_alerts_table(db)
         trusted_contacts = self._normalize_trusted_contacts(alert.trusted_contacts)
         notified_contacts = trusted_contacts[:]
         contacts_notified = len(notified_contacts)
