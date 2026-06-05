@@ -36,9 +36,9 @@ venv/
 .env/
 .env
 *.env
+!*.env.example
 .venv/
 env/
-.env.example
 ############################
 # Python Build
 ############################
@@ -67,6 +67,7 @@ mobile/.packages
 mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 mobile/build/
+mobile/config/dart_defines.json
 
 ############################
 # Flutter Platform Builds
@@ -112,3 +113,4 @@ Thumbs.db
 backend/valhalla_tiles/
 logic/outputs/pune_walk.graphml
 logic/outputs/
+WalkSafeResearch.tex
