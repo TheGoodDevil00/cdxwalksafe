@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.services.auth_middleware import optional_auth
+from app.services.rate_limiter import route_rate_limiter
 from app.services.risk_engine import score_route
 from app.services.routing_service import get_safe_route
 from app.services.safety_zone_service import get_safety_zones as load_safety_zones
@@ -19,6 +21,7 @@ router = APIRouter()
 # loop. If threaded workers are introduced later, guard access with a lock.
 _zones_cache: dict[str, dict[str, Any]] = {}
 _ZONES_CACHE_TTL_SECONDS: float = 600.0
+_ZONES_CACHE_MAX_SIZE: int = 128
 
 
 def _zones_cache_key(
@@ -53,6 +56,11 @@ def _get_cached_zones(bbox_key: str) -> Optional[dict]:
 
 
 def _set_cached_zones(bbox_key: str, data: dict) -> None:
+    # Evict oldest entries if cache exceeds max size.
+    while len(_zones_cache) >= _ZONES_CACHE_MAX_SIZE:
+        oldest_key = min(_zones_cache, key=lambda k: _zones_cache[k]["cached_at"])
+        del _zones_cache[oldest_key]
+
     _zones_cache[bbox_key] = {
         "cached_at": time.time(),
         "data": data,
@@ -74,6 +82,8 @@ async def get_route(
     start_lon: float,
     end_lat: float,
     end_lon: float,
+    _user: str | None = Depends(optional_auth),
+    _rate: None = Depends(route_rate_limiter),
 ):
     try:
         route = await get_safe_route(start_lat, start_lon, end_lat, end_lon)
@@ -89,10 +99,11 @@ async def get_route(
 
 
 @router.post("/route/risk")
-@router.post("/route/segments/safety")
 async def route_risk(
     body: RouteCoordinates,
     db: AsyncSession = Depends(get_db),
+    _user: str | None = Depends(optional_auth),
+    _rate: None = Depends(route_rate_limiter),
 ):
     coordinates = [(c.lat, c.lon) for c in body.coordinates]
     return await score_route(coordinates, db)
@@ -105,6 +116,8 @@ async def route_safe(
     end_lat: float,
     end_lon: float,
     db: AsyncSession = Depends(get_db),
+    _user: str | None = Depends(optional_auth),
+    _rate: None = Depends(route_rate_limiter),
 ):
     try:
         route = await get_safe_route(start_lat, start_lon, end_lat, end_lon)
@@ -112,10 +125,10 @@ async def route_safe(
         message = str(exc)
         if "Cannot connect to Valhalla routing engine" in message:
             raise HTTPException(status_code=503, detail=message) from exc
-        return {
-            "safety_score": None,
-            "warning": "No route or safety data found for this route area.",
-        }
+        raise HTTPException(
+            status_code=502,
+            detail="No route or safety data found for this route area.",
+        ) from exc
 
     score = await score_route(route["coordinates"], db)
     score["coordinates"] = route["coordinates"]
