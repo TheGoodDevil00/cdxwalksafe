@@ -17,7 +17,7 @@ Usage with curl:
     curl -X POST http://localhost:8000/admin/reports/5/reject \
          -H "X-Admin-Key: YOUR_ADMIN_KEY"
 """
-
+import hmac
 import os
 from datetime import datetime, timezone
 
@@ -42,7 +42,7 @@ if not ADMIN_API_KEY:
 
 async def require_admin(x_admin_key: str = Header(...)):
     """Dependency that blocks all admin routes unless the correct key is supplied."""
-    if x_admin_key != ADMIN_API_KEY:
+    if not hmac.compare_digest(x_admin_key.encode(), ADMIN_API_KEY.encode()):
         raise HTTPException(
             status_code=403,
             detail="Invalid admin key. Supply the correct key in the X-Admin-Key header.",
@@ -145,7 +145,6 @@ async def verify_report(
         ),
         {"id": report_id, "now": datetime.now(timezone.utc)},
     )
-    await db.commit()
 
     return {
         "message": f"Report {report_id} verified",
@@ -194,5 +193,4 @@ async def reject_report(
         {"id": report_id, "now": datetime.now(timezone.utc)},
     )
 
-    await db.commit()
     return {"message": f"Report {report_id} rejected"}

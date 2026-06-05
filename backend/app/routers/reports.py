@@ -3,6 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.services.auth_middleware import require_auth
+from app.services.rate_limiter import emergency_rate_limiter, report_rate_limiter
+
 from app.db.session import get_db
 from app.schemas.reports import (
     EmergencyAlertCreate,
@@ -37,11 +40,14 @@ def _serialize_trusted_contacts(contacts: object) -> list[object]:
 
 
 @router.post("/reports", response_model=ReportResponse)
-@router.post("/report", response_model=ReportResponse)
 async def submit_report(
     report: ReportCreate,
     db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(require_auth),
+    _rate: None = Depends(report_rate_limiter),
 ):
+    # Override client-supplied user_hash with the authenticated user ID.
+    report.user_hash = user_id
     try:
         created = await reporting_service.create_report(report, db)
     except Exception as exc:
@@ -69,11 +75,14 @@ async def get_recent_reports(
 
 
 @router.post("/reports/emergency", response_model=EmergencyAlertResponse)
-@router.post("/report/emergency", response_model=EmergencyAlertResponse)
 async def create_emergency_alert(
     alert: EmergencyAlertCreate,
     db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(require_auth),
+    _rate: None = Depends(emergency_rate_limiter),
 ):
+    # Override client-supplied user_hash with the authenticated user ID.
+    alert.user_hash = user_id
     try:
         created = await reporting_service.create_emergency_alert(alert, db)
     except Exception as exc:
