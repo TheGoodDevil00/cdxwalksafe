@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   valhalla:
     image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
