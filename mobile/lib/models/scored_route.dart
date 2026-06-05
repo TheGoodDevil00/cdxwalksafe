@@ -9,6 +9,7 @@ class ScoredRoute {
     required this.totalDistanceMeters,
     required this.averageSafetyScore,
     required this.totalRisk,
+    this.durationMinutes,
     this.warning,
   });
 
@@ -17,5 +18,6 @@ class ScoredRoute {
   final double totalDistanceMeters;
   final double averageSafetyScore;
   final double totalRisk;
+  final double? durationMinutes;
   final String? warning;
 }
