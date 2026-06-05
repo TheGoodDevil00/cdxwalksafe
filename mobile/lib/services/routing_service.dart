@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 import '../models/route_segment_safety.dart';
 import '../models/scored_route.dart';
+import 'api_utils.dart' as api_utils;
 
 class RoutingService {
   RoutingService({http.Client? client, String? apiBaseUrl})
@@ -51,6 +53,7 @@ class RoutingService {
       totalDistanceMeters: totalDistanceMeters,
       averageSafetyScore: safetyScore,
       totalRisk: 100 - safetyScore,
+      durationMinutes: _asDouble(scorePayload?['duration_minutes']),
       warning: scorePayload?['warning']?.toString(),
     );
   }
@@ -142,7 +145,8 @@ class RoutingService {
         return null;
       }
       return _tryParseJsonMap(response.body);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('RoutingService: segment safety request failed: $e');
       return null;
     }
   }
@@ -150,39 +154,19 @@ class RoutingService {
   Future<http.Response?> _safeGet(Uri uri) async {
     try {
       return await _client.get(uri).timeout(_requestTimeout);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('RoutingService: GET request failed for $uri: $e');
       return null;
     }
   }
 
-  Map<String, dynamic>? _tryParseJsonMap(String body) {
-    try {
-      final dynamic decoded = jsonDecode(body);
-      return _coerceMap(decoded);
-    } catch (_) {
-      return null;
-    }
-  }
+  Map<String, dynamic>? _tryParseJsonMap(String body) =>
+      api_utils.tryParseJsonMap(body);
 
-  Map<String, dynamic>? _coerceMap(Object? value) {
-    if (value is Map<String, dynamic>) {
-      return value;
-    }
-    if (value is Map) {
-      return value.map((dynamic key, dynamic v) => MapEntry(key.toString(), v));
-    }
-    return null;
-  }
+  Map<String, dynamic>? _coerceMap(Object? value) =>
+      api_utils.coerceMap(value);
 
-  double? _asDouble(Object? value) {
-    if (value is num) {
-      return value.toDouble();
-    }
-    if (value is String) {
-      return double.tryParse(value);
-    }
-    return null;
-  }
+  double? _asDouble(Object? value) => api_utils.asDouble(value);
 
   bool _asBool(Object? value) {
     if (value is bool) {

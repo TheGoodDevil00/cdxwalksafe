@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
+import 'api_utils.dart' as api_utils;
+import 'auth_service.dart';
 
 class ReportSubmissionException implements Exception {
   final String message;
@@ -31,8 +35,9 @@ class ReportingApiService {
     required double latitude,
     required double longitude,
     String? description,
+    String? accessToken,
   }) async {
-    final Uri uri = Uri.parse('$_baseUrl/report');
+    final Uri uri = Uri.parse('$_baseUrl/reports');
     final Map<String, dynamic> payload = <String, dynamic>{
       'user_hash': userHash,
       'incident_type': incidentType,
@@ -43,12 +48,15 @@ class ReportingApiService {
       'metadata': <String, dynamic>{'source': 'mobile_app'},
     };
 
+    final String? token = accessToken ?? AuthService.instance.accessToken;
+
     try {
       final http.Response response = await _client
           .post(
             uri,
-            headers: const <String, String>{
+            headers: <String, String>{
               'Content-Type': 'application/json',
+              if (token != null) 'Authorization': 'Bearer $token',
             },
             body: jsonEncode(payload),
           )
@@ -91,8 +99,9 @@ class ReportingApiService {
     String? message,
     List<Map<String, String>> trustedContacts = const <Map<String, String>>[],
     int contactsNotified = 0,
+    String? accessToken,
   }) async {
-    final Uri uri = Uri.parse('$_baseUrl/report/emergency');
+    final Uri uri = Uri.parse('$_baseUrl/reports/emergency');
     final Map<String, dynamic> payload = <String, dynamic>{
       'user_hash': userHash,
       'lat': latitude,
@@ -102,19 +111,24 @@ class ReportingApiService {
       'contacts_notified': contactsNotified,
       'metadata': <String, dynamic>{'source': 'mobile_app'},
     };
-    return _postJson(uri, payload);
+
+    final String? token = accessToken ?? AuthService.instance.accessToken;
+
+    return _postJson(uri, payload, accessToken: token);
   }
 
   Future<Map<String, dynamic>?> _postJson(
     Uri uri,
-    Map<String, dynamic> payload,
-  ) async {
+    Map<String, dynamic> payload, {
+    String? accessToken,
+  }) async {
     try {
       final http.Response response = await _client
           .post(
             uri,
-            headers: const <String, String>{
+            headers: <String, String>{
               'Content-Type': 'application/json',
+              if (accessToken != null) 'Authorization': 'Bearer $accessToken',
             },
             body: jsonEncode(payload),
           )
@@ -125,21 +139,12 @@ class ReportingApiService {
       }
 
       return _parseJsonMap(response.body);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('ReportingApiService: POST request failed for $uri: $e');
       return null;
     }
   }
 
-  Map<String, dynamic>? _parseJsonMap(String responseBody) {
-    final dynamic parsed = jsonDecode(responseBody);
-    if (parsed is Map<String, dynamic>) {
-      return parsed;
-    }
-    if (parsed is Map) {
-      return parsed.map(
-        (dynamic key, dynamic value) => MapEntry(key.toString(), value),
-      );
-    }
-    return null;
-  }
+  Map<String, dynamic>? _parseJsonMap(String responseBody) =>
+      api_utils.tryParseJsonMap(responseBody);
 }
