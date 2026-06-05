@@ -10,22 +10,28 @@ Future<void> main() async {
   // Ensures plugins (maps, location, storage) are initialized before runApp.
   WidgetsFlutterBinding.ensureInitialized();
 
-  assert(
-    AppConfig.apiBaseUrl.isNotEmpty,
-    'API_BASE_URL must be set. Run flutter with: --dart-define=API_BASE_URL=http://...',
-  );
-  assert(
-    AppConfig.maptilerApiKey.isNotEmpty,
-    'MAPTILER_API_KEY must be set via --dart-define=MAPTILER_API_KEY=your-key',
-  );
-  assert(
-    AppConfig.supabaseUrl.isNotEmpty,
-    'SUPABASE_URL must be set via --dart-define',
-  );
-  assert(
-    AppConfig.supabaseAnonKey.isNotEmpty,
-    'SUPABASE_ANON_KEY must be set via --dart-define',
-  );
+  // Runtime config validation — these survive release builds (assert does not).
+  if (AppConfig.apiBaseUrl.isEmpty) {
+    throw StateError(
+      'API_BASE_URL must be set. '
+      'Run flutter with: --dart-define-from-file=config/dart_defines.json',
+    );
+  }
+  if (AppConfig.maptilerApiKey.isEmpty) {
+    throw StateError(
+      'MAPTILER_API_KEY must be set via --dart-define or dart_defines.json',
+    );
+  }
+  if (AppConfig.supabaseUrl.isEmpty) {
+    throw StateError(
+      'SUPABASE_URL must be set via --dart-define or dart_defines.json',
+    );
+  }
+  if (AppConfig.supabaseAnonKey.isEmpty) {
+    throw StateError(
+      'SUPABASE_ANON_KEY must be set via --dart-define or dart_defines.json',
+    );
+  }
 
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
