@@ -201,7 +201,8 @@ class NavigationController extends ChangeNotifier {
         status: RouteLoadStatus.success,
         safetyZones: nearbyZones,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NavigationController: route load failed: $e');
       if (!preserveExistingRoute) {
         handleRouteLoadFailure(preserveVisibleRoute: false);
       }
@@ -696,6 +697,7 @@ class NavigationController extends ChangeNotifier {
   }
 
   double _estimateRouteDurationMinutes(ScoredRoute route) =>
+      route.durationMinutes ??
       (route.totalDistanceMeters / 75).clamp(1, 180).toDouble();
 
   void _notifyIfNotDisposed() {
