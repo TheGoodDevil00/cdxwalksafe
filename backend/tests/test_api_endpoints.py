@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.services.auth_middleware import require_auth
 
 
 class ApiEndpointTests(unittest.TestCase):
@@ -202,23 +203,27 @@ class ApiEndpointTests(unittest.TestCase):
         self.assertEqual(body["features"][0]["properties"]["zone_id"], "zone-1")
 
     def test_report_alias_returns_response_contract(self):
-        with patch(
-            "app.routers.reports.reporting_service.create_report",
-            new=AsyncMock(return_value={"id": "report-1", "status": "received"}),
-        ):
-            with TestClient(app) as client:
-                response = client.post(
-                    "/report",
-                    json={
-                        "user_hash": "user-1",
-                        "incident_type": "Poor lighting",
-                        "severity": 3,
-                        "lat": 18.52,
-                        "lon": 73.85,
-                        "description": "Dark segment",
-                        "metadata": {},
-                    },
-                )
+        app.dependency_overrides[require_auth] = lambda: "user-1"
+        try:
+            with patch(
+                "app.routers.reports.reporting_service.create_report",
+                new=AsyncMock(return_value={"id": "report-1", "status": "received"}),
+            ):
+                with TestClient(app) as client:
+                    response = client.post(
+                        "/reports",
+                        json={
+                            "user_hash": "user-1",
+                            "incident_type": "Poor lighting",
+                            "severity": 3,
+                            "lat": 18.52,
+                            "lon": 73.85,
+                            "description": "Dark segment",
+                            "metadata": {},
+                        },
+                    )
+        finally:
+            app.dependency_overrides.pop(require_auth, None)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -231,31 +236,35 @@ class ApiEndpointTests(unittest.TestCase):
         )
 
     def test_report_emergency_alias_returns_response_contract(self):
-        with patch(
-            "app.routers.reports.reporting_service.create_emergency_alert",
-            new=AsyncMock(
-                return_value={
-                    "id": "emergency-1",
-                    "status": "triggered",
-                    "created_at": "2026-03-12T18:30:00Z",
-                    "message": "Emergency alert has been triggered.",
-                    "contacts_notified": 0,
-                    "trusted_contacts": [],
-                }
-            ),
-        ):
-            with TestClient(app) as client:
-                response = client.post(
-                    "/report/emergency",
-                    json={
-                        "user_hash": "user-1",
-                        "lat": 18.52,
-                        "lon": 73.85,
-                        "message": "Help needed",
+        app.dependency_overrides[require_auth] = lambda: "user-1"
+        try:
+            with patch(
+                "app.routers.reports.reporting_service.create_emergency_alert",
+                new=AsyncMock(
+                    return_value={
+                        "id": "emergency-1",
+                        "status": "triggered",
+                        "created_at": "2026-03-12T18:30:00Z",
+                        "message": "Emergency alert has been triggered.",
                         "contacts_notified": 0,
-                        "metadata": {},
-                    },
-                )
+                        "trusted_contacts": [],
+                    }
+                ),
+            ):
+                with TestClient(app) as client:
+                    response = client.post(
+                        "/reports/emergency",
+                        json={
+                            "user_hash": "user-1",
+                            "lat": 18.52,
+                            "lon": 73.85,
+                            "message": "Help needed",
+                            "contacts_notified": 0,
+                            "metadata": {},
+                        },
+                    )
+        finally:
+            app.dependency_overrides.pop(require_auth, None)
 
         self.assertEqual(response.status_code, 200)
         body = response.json()

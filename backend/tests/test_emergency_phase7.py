@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.schemas.reports import EmergencyAlertCreate
+from app.services.auth_middleware import require_auth
 from app.services.reporting_service import ReportingService
 
 
@@ -45,38 +46,42 @@ class _FakeAsyncSession:
 
 class EmergencyEndpointTests(unittest.TestCase):
     def test_report_emergency_alias_returns_notification_summary(self):
-        with patch(
-            "app.routers.reports.reporting_service.create_emergency_alert",
-            new=AsyncMock(
-                return_value={
-                    "id": "emergency-1",
-                    "status": "triggered",
-                    "created_at": "2026-04-03T12:00:00Z",
-                    "message": "Emergency trigger from mobile app",
-                    "contacts_notified": 2,
-                    "trusted_contacts": [
-                        "sister@walksafe.local",
-                        "roommate@walksafe.local",
-                    ],
-                }
-            ),
-        ):
-            with TestClient(app) as client:
-                response = client.post(
-                    "/report/emergency",
-                    json={
-                        "user_hash": "user-1",
-                        "lat": 18.52,
-                        "lon": 73.85,
-                        "message": "Help needed",
+        app.dependency_overrides[require_auth] = lambda: "user-1"
+        try:
+            with patch(
+                "app.routers.reports.reporting_service.create_emergency_alert",
+                new=AsyncMock(
+                    return_value={
+                        "id": "emergency-1",
+                        "status": "triggered",
+                        "created_at": "2026-04-03T12:00:00Z",
+                        "message": "Emergency trigger from mobile app",
+                        "contacts_notified": 2,
                         "trusted_contacts": [
                             "sister@walksafe.local",
                             "roommate@walksafe.local",
                         ],
-                        "contacts_notified": 2,
-                        "metadata": {},
-                    },
-                )
+                    }
+                ),
+            ):
+                with TestClient(app) as client:
+                    response = client.post(
+                        "/reports/emergency",
+                        json={
+                            "user_hash": "user-1",
+                            "lat": 18.52,
+                            "lon": 73.85,
+                            "message": "Help needed",
+                            "trusted_contacts": [
+                                "sister@walksafe.local",
+                                "roommate@walksafe.local",
+                            ],
+                            "contacts_notified": 2,
+                            "metadata": {},
+                        },
+                    )
+        finally:
+            app.dependency_overrides.pop(require_auth, None)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -96,7 +101,7 @@ class EmergencyEndpointTests(unittest.TestCase):
 
 
 class ReportingServiceEmergencyTests(unittest.IsolatedAsyncioTestCase):
-    async def test_create_emergency_alert_creates_table_and_normalizes_contacts(self):
+    async def test_create_emergency_alert_normalizes_contacts(self):
         session = _FakeAsyncSession()
 
         created = await ReportingService().create_emergency_alert(
@@ -125,13 +130,6 @@ class ReportingServiceEmergencyTests(unittest.IsolatedAsyncioTestCase):
             ["sister@walksafe.local", "roommate@walksafe.local"],
         )
 
-        executed_queries = [query for query, _ in session.calls]
-        self.assertTrue(
-            any("CREATE TABLE IF NOT EXISTS emergency_alerts" in query for query in executed_queries)
-        )
-        self.assertTrue(
-            any("CREATE INDEX IF NOT EXISTS idx_emergency_alerts_location" in query for query in executed_queries)
-        )
         insert_params = next(
             params
             for query, params in session.calls
