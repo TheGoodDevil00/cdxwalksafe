@@ -15,7 +15,7 @@ class ReportCreate(BaseModel):
         max_length=120,
         validation_alias=AliasChoices("category", "incident_type"),
     )
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=2000)
     severity: int = Field(default=3, ge=1, le=5)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 

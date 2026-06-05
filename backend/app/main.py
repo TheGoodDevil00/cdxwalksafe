@@ -45,10 +45,17 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+        # ngrok tunnel — update this when your tunnel URL changes.
+        "https://unflickering-marissa-lingually.ngrok-free.dev",
+    ],
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*", "ngrok-skip-browser-warning"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "ngrok-skip-browser-warning"],
 )
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
