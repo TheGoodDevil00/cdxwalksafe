@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/safety_zone.dart';
+import 'api_utils.dart' as api_utils;
 
 class SafetyHeatmapService {
   SafetyHeatmapService({http.Client? client, String? apiBaseUrl})
@@ -50,7 +52,8 @@ class SafetyHeatmapService {
           }
         }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('SafetyHeatmapService: failed to load safety zones: $e');
       // Fall through to cache.
     }
 
@@ -116,27 +119,15 @@ class SafetyHeatmapService {
             ),
           )
           .toList(growable: false);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('SafetyHeatmapService: failed to decode cached zones: $e');
       return <SafetyZone>[];
     }
   }
 
-  Map<String, dynamic>? _parseJsonMap(String body) {
-    try {
-      final dynamic parsed = jsonDecode(body);
-      if (parsed is Map<String, dynamic>) {
-        return parsed;
-      }
-      if (parsed is Map) {
-        return parsed.map(
-          (dynamic key, dynamic value) => MapEntry(key.toString(), value),
-        );
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
-  }
+  Map<String, dynamic>? _parseJsonMap(String body) =>
+      api_utils.tryParseJsonMap(body);
+
 
   List<SafetyZone> _parseZones(Object? rawFeatures) {
     if (rawFeatures is! List) {
@@ -214,17 +205,8 @@ class SafetyHeatmapService {
         .toList(growable: false);
   }
 
-  Map<String, dynamic>? _coerceMap(Object? value) {
-    if (value is Map<String, dynamic>) {
-      return value;
-    }
-    if (value is Map) {
-      return value.map(
-        (dynamic key, dynamic val) => MapEntry(key.toString(), val),
-      );
-    }
-    return null;
-  }
+  Map<String, dynamic>? _coerceMap(Object? value) =>
+      api_utils.coerceMap(value);
 
   List<LatLng> _polygonPoints(Object? coordinates) {
     if (coordinates is! List || coordinates.isEmpty) {
@@ -267,15 +249,7 @@ class SafetyHeatmapService {
     return <double>[totalLat / points.length, totalLon / points.length];
   }
 
-  double? _asDouble(Object? value) {
-    if (value is num) {
-      return value.toDouble();
-    }
-    if (value is String) {
-      return double.tryParse(value);
-    }
-    return null;
-  }
+  double? _asDouble(Object? value) => api_utils.asDouble(value);
 
   _Bounds? _boundsFromPoints(
     List<LatLng> points, {
